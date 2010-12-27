@@ -1,0 +1,148 @@
+body
+{
+margin: 0 0 0 0;
+padding: 0 0 0 0;
+border: none;
+background-color: #FFFFFF;
+text-align: center;
+font-family: Helvetica, Arial, sans-serif;
+font-size: 100%;
+}
+
+#board
+{
+margin: 0 0 0 0;
+padding: 0 0 0 0;
+border: none;
+background-color: #FFFFFF;
+text-align: center;
+font-family: Helvetica, Arial, sans-serif;
+font-size: 100%;
+}
+
+#board td
+{
+margin: 0 0 0 0;
+padding: 0 0 0 0;
+border: none;
+background-color: #FFFFFF;
+text-align: center;
+font-family: Helvetica, Arial, sans-serif;
+font-size: 100%;
+
+border-top: 1px solid #669999;
+border-right: 1px solid #DDFFFF;
+border-bottom: 1px solid #DDFFFF;
+border-left: 1px solid #669999;
+}
+
+#board td .empty
+{
+	border: 0.15em solid #99CCCC;
+	background-color: #99CCCC;
+}
+
+#board td a.empty:hover
+{
+	border-color: #FFFFFF;
+	background-color: #FFFFFF;
+}
+
+#board td .placed
+{
+	border-top-color: #FF6666;
+	border-right-color: #990000;
+	border-bottom-color: #990000;
+	border-left-color: #FF6666;
+	background-color: #FF0000;
+	color: #FFFFFF;
+}
+
+#board td a.placed:hover
+{
+	border-top-color: #FFCC66;
+	border-right-color: #CC6600;
+	border-bottom-color: #CC6600;
+	border-left-color: #FFCC66;
+	background-color: #FF9900;
+	color: #FFFFFF;
+}
+
+#board td.doubleLetter
+{
+	border-top-color: #6699FF;
+	border-right-color: #CCEEFF;
+	border-bottom-color: #CCEEFF;
+	border-left-color: #6699FF;
+	padding: 0;
+}
+
+#board td.doubleLetter .empty
+{
+	border-color: #99CCFF;
+	background-color: #99CCFF;
+	color: #CCE6FF;
+}
+
+#board td.doubleWord
+{
+	border-top-color: #AF7F7F;
+	border-right-color: #FFCCCC;
+	border-bottom-color: #FFCCCC;
+	border-left-color: #AF7F7F;
+	padding: 0;
+}
+
+#board td.doubleWord .empty
+{
+	border-color: #FF9999;
+	background-color: #FF9999;
+	color: #FFCCCC;
+}
+
+#board td.star
+{
+	border-top-color: #CC9933;
+	border-right-color: #FFEECC;
+	border-bottom-color: #FFEECC;
+	border-left-color: #CC9933;
+	padding: 0;
+}
+
+#board td.star .empty
+{
+	border-color: #FFCC66;
+	background-color: #FFCC66;
+}
+
+#board td.tripleLetter
+{
+	border-top-color: #003399;
+	border-right-color: #6699CC;
+	border-bottom-color: #6699CC;
+	border-left-color: #003399;
+	padding: 0;
+}
+
+#board td.tripleLetter .empty
+{
+	border-color: #0066CC;
+	background-color: #0066CC;
+	color: #0099CC;
+}
+
+#board td.tripleWord
+{
+	border-top-color: #AA0000;
+	border-right-color: #FF9999;
+	border-bottom-color: #FF9999;
+	border-left-color: #AA0000;
+	padding: 0;
+}
+
+#board td.tripleWord .empty
+{
+	border-color: #DD3333;
+	background-color: #DD3333;
+	color: #FF6666
+}
