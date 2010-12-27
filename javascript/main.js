@@ -59,13 +59,11 @@ function EnsureNamespace(nsString)
 //=================================================
 
 //=================================================
-// BEGIN Events ------------------
-if (typeof _OBJECT_ROOT_.EventsManager == "undefined" || !_OBJECT_ROOT_["EventsManager"])
-_OBJECT_ROOT_.EventsManager = (function(){
-
+// BEGIN EventsManager ------------------
 //Events.AddEventListener('provide', function() {});
 //Events.Dispatch('provide', { 'identifier': identifier });
-
+if (typeof _OBJECT_ROOT_.EventsManager == "undefined" || !_OBJECT_ROOT_["EventsManager"])
+_OBJECT_ROOT_.EventsManager = (function(){
 var _EventsManager = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated "EventsManager" function)
 
 var _EventListeners = {}; // private associative array (event name -> array of callback functions)
@@ -167,18 +165,27 @@ _EventsManager.RemoveEventListener = function(eventName, callback)
 
 return _EventsManager;
 })();
-// END Events ------------------
+// END EventsManager ------------------
 //=================================================
 
+console.log("Checking namespace: " + "Scrabble.Core");
+EnsureNamespace("Scrabble.Core");
 
+console.log("Checking namespace: " + "Scrabble.UI");
+EnsureNamespace("Scrabble.UI");
 
+//=================================================
+// BEGIN Scrabble.Core.Board ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Board == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Board"])
+_OBJECT_ROOT_.Scrabble.Core.Board = (function(){
+var _Board = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated "EventsManager" function)
 
-/*
-HTMLScrabble.UI.test = function()
-{
-	return _sf_startpt; // defined in HTML page
-}
-*/
+console.log("inside Scrabble.Core.Board code scope");
+
+return _Board;
+})();
+// END Scrabble.Core.Board ------------------
+//=================================================
 
 })();
 // END script-scope ------------------
@@ -187,6 +194,7 @@ HTMLScrabble.UI.test = function()
 window.onload = function()
 {
 
+/*
 var callback = function(eventPayload)
 	{
 		//for (var i = 0; i < eventPayload.length; i++)
@@ -205,14 +213,6 @@ DispatchEvent('EVENT_NAME', { '-key1': "-value1", '-key2': "-value2" });
 
 RemoveEventListener('EVENT_NAME', callback);
 DispatchEvent('EVENT_NAME', { '_key1': "_value1", '_key2': "_value2" });
-}
-
-/*
-alert("1: " + HTMLScrabble.UI.test());
-
-with(HTMLScrabble.UI)
-{
-	alert("2: " + test());
 }
 */
 
