@@ -22,6 +22,16 @@ http://www.themaninblue.com/writing/perspective/2004/01/27/
 
 var _OBJECT_ROOT_ = window;
 
+function type_of(obj)
+{
+	if (typeof(obj) == 'object')
+		if (typeof obj.length == "undefined" || !obj.length)
+			return 'object';
+		else
+			return 'array';
+	else
+		return typeof(obj);
+}
 
 //=================================================
 // BEGIN Namespace util ------------------
@@ -178,14 +188,131 @@ EnsureNamespace("Scrabble.UI");
 // BEGIN Scrabble.Core.Board ------------------
 if (typeof _OBJECT_ROOT_.Scrabble.Core.Board == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Board"])
 _OBJECT_ROOT_.Scrabble.Core.Board = (function(){
-var _Board = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated "EventsManager" function)
+//var _Board = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
 
 console.log("inside Scrabble.Core.Board code scope");
+
+//function _Board()
+var _Board = function()
+{
+	function SetSquaresHorizontal()
+	{
+		var val = arguments[0];
+		
+		if (typeof val != 'number')
+			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresHorizontal(), not a number: " + typeof val);
+		
+		if (val < 15)
+			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresHorizontal(), number smaller than 15: " + val);
+		
+		this.SquaresHorizontal = val;
+	}
+
+	function SetSquaresVertical()
+	{
+		var val = arguments[0];
+		
+		if (typeof val != 'number')
+			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresVertical(), not a number: " + typeof val);
+		
+		if (val < 15)
+			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresVertical(), number smaller than 15: " + val);
+		
+		this.SquaresVertical = val;
+	}
+
+	//_Board.prototype.SetSquares = function()
+	function SetSquares()
+	{
+		if (this instanceof _Board)
+		{
+			if (arguments.length > 0)
+			{
+				console.log("typeof ARGS: " + typeof arguments[0]);
+				console.log("typeof ARGS: " + type_of(arguments[0]));
+			
+				switch (type_of(arguments[0]))
+				{
+					case 'number':
+						SetSquaresHorizontal.apply(this, [arguments[0]]);
+						SetSquaresVertical.apply(this, [arguments[1]]);
+						console.log("Scrabble.Core.Board 'number' constructor: " + this.toString());
+						return;
+					case 'object':
+						SetSquaresHorizontal.apply(this, [arguments[0]['SquaresHorizontal']]);
+						SetSquaresVertical.apply(this, [arguments[0]['SquaresVertical']]);
+						console.log("Scrabble.Core.Board 'object' constructor: " + this.toString());
+						return;
+					case 'array':
+					default:
+						var argumentsString = "";
+						for (var i = 0; i < arguments.length; i++)
+						{
+							argumentsString += arguments[0] + ", ";
+						}
+						throw new Error("Illegal arguments Scrabble.Core.Board.SetSquares(): " + argumentsString);
+						break;
+				}
+			}
+			else
+			{
+				console.log("Scrabble.Core.Board constructor with empty parameters (default 15x15)");
+				this.SquaresHorizontal = 15;
+				this.SquaresVertical = 15;
+			}
+		}
+		else
+		{
+			throw new Error('Illegal method call Scrabble.Core.Board.SetSquares() on :' + typeof this);
+		}
+	}
+	
+	console.log("Scrabble.Core.Board constructor before applying parameters");
+	SetSquares.apply(this, arguments);
+	//SetSquares(arguments);
+}
+
+_Board.prototype.SquaresHorizontal = NaN;
+_Board.prototype.SquaresVertical = NaN;
+
+_Board.prototype.toString = function()
+{
+	return "Scrabble.Core.Board toString(): " + this.SquaresHorizontal + " x " + this.SquaresVertical;
+}
 
 return _Board;
 })();
 // END Scrabble.Core.Board ------------------
 //=================================================
+
+//=================================================
+// BEGIN Scrabble.Core.Square ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Square == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Square"])
+_OBJECT_ROOT_.Scrabble.Core.Square = (function(){
+var _Square = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
+
+console.log("inside Scrabble.Core.Square code scope");
+
+return _Square;
+})();
+// END Scrabble.Core.Square ------------------
+//=================================================
+
+//=================================================
+// BEGIN Scrabble.Core.Tile ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Tile == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Tile"])
+_OBJECT_ROOT_.Scrabble.Core.Tile = (function(){
+var _Tile = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
+
+console.log("inside Scrabble.Core.Tile code scope");
+
+return _Tile;
+})();
+// END Scrabble.Core.Tile ------------------
+//=================================================
+
+
+//LetterDistribution
 
 })();
 // END script-scope ------------------
@@ -193,6 +320,54 @@ return _Board;
 
 window.onload = function()
 {
+
+with (Scrabble)
+{
+	var board = new Core.Board();
+	console.log("CHECK: " + board.toString());
+	
+	var board1 = new Core.Board(15, 15);
+	console.log("CHECK: " + board1.toString());
+	
+	var board2 = new Core.Board({SquaresHorizontal:15, SquaresVertical:15});
+	console.log("CHECK: " + board2.toString());
+	
+	try
+	{
+		var boardEx = new Core.Board("test");
+	}
+	catch(e)
+	{
+		alert(e.message);
+	}
+	
+	try
+	{
+		var boardEx = new Core.Board(["test", 15, {test: "daniel"}]);
+	}
+	catch(e)
+	{
+		alert(e.message);
+	}
+	
+	try
+	{
+		var boardEx = new Core.Board(15, "test");
+	}
+	catch(e)
+	{
+		alert(e.message);
+	}
+	
+	try
+	{
+		var boardEx = new Core.Board({SquaresHorizontal:15, SquaresVertical:{test:"test"}});
+	}
+	catch(e)
+	{
+		alert(e.message);
+	}
+}
 
 /*
 var callback = function(eventPayload)
