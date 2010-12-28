@@ -333,51 +333,88 @@ var _Board = function()
 				
 				this.SquaresList.push(square);
 				
-				var div = document.createElement('div');
-				td.appendChild(div);
+				var a = document.createElement('a');
+				td.appendChild(a);
 				
 				//continue;
 				
 				switch (square.Type)
 				{
 					case SquareType.Normal:
-						var txt = document.createTextNode("-");
-						div.appendChild(txt);
+						var makeTile = Math.floor(Math.random()*2);
+						if (makeTile)
+						{
+							td.setAttribute('class', td.getAttribute('class') + ' Tile');
+							
+							a.setAttribute('class', 'Tile');
+							var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+							var letter_index = Math.floor(Math.random() * letters.length);
+							var letter = letters.substring(letter_index, letter_index+1);
+							var txt1 = document.createTextNode(letter);
+							var span1 = document.createElement('span');
+							span1.setAttribute('class', 'Letter');
+							span1.appendChild(txt1);
+							a.appendChild(span1);
+
+							var score = Math.floor(Math.random()*10) + 1;
+							var txt2 = document.createTextNode(score);
+							var span2 = document.createElement('span');
+							span2.setAttribute('class', 'Score');
+							span2.appendChild(txt2);
+							a.appendChild(span2);
+						}
+						else
+						{
+							var txt1 = document.createTextNode(" ");
+							var span1 = document.createElement('span');
+							span1.appendChild(txt1);
+							a.appendChild(span1);
+						}
+					
 						break;
 					case SquareType.DoubleWord:
-						var txt1 = document.createTextNode("DOUBLE");
-						div.appendChild(txt1);
+						var span = document.createElement('span');
 						
+						var txt1 = document.createTextNode("DOUBLE WORD SCORE");
+						span.appendChild(txt1);
+						
+						/*
 						var br1 = document.createElement('br');
-						div.appendChild(br1);
+						span.appendChild(br1);
 						
 						var txt2 = document.createTextNode("WORD");
-						div.appendChild(txt2);
+						span.appendChild(txt2);
 						
 						var br2 = document.createElement('br');
-						div.appendChild(br2);
+						span.appendChild(br2);
 						
 						var txt3 = document.createTextNode("SCORE");
-						div.appendChild(txt3);
-
+						span.appendChild(txt3);
+						*/
+						
+						a.appendChild(span);
 						break;
 					case SquareType.TripleWord:
-					
-						var txt1 = document.createTextNode("TRIPLE");
-						div.appendChild(txt1);
+						var span = document.createElement('span');
 						
+						var txt1 = document.createTextNode("TRIPLE WORD SCORE");
+						span.appendChild(txt1);
+						
+						/*
 						var br1 = document.createElement('br');
-						div.appendChild(br1);
+						span.appendChild(br1);
 						
 						var txt2 = document.createTextNode("WORD");
-						div.appendChild(txt2);
+						span.appendChild(txt2);
 						
 						var br2 = document.createElement('br');
-						div.appendChild(br2);
+						span.appendChild(br2);
 						
 						var txt3 = document.createTextNode("SCORE");
-						div.appendChild(txt3);
-
+						span.appendChild(txt3);
+						*/
+						
+						a.appendChild(span);
 						break;
 					default:
 						break;

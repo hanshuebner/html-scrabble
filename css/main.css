@@ -7,84 +7,110 @@ border: none;
 color: #000000;
 background-color: #FFFFFF;
 
-/* text-align: center; */
+text-align: center;
 
 font-family: Helvetica, Arial, sans-serif;
-font-size: 100%;
+font-size: 1em;
 }
 
-#board table {
+#board
+{
+width: auto;
+}
+
+#board table
+{
+/*
 table-layout: fixed;
-border-collapse: collapse; /* zero 'cellspacing' */
-border-spacing: 0px 0px; /* horizontal, vertical */
+*/
 
-border: none;
+border-collapse: separate; /* collapse ==== zero 'cellspacing' */
+border-spacing: 0 0; /* horizontal, vertical */
 
-margin: 2em;
-padding: 1em;
+border: 4px solid #999999;
 
-background-color: transparent;
+margin: auto;
+padding: 20px;
+
+background-color: #306754;
 }
 
 #board tr
 {
-margin: 0px;
-padding: 0px;
+margin: 0;
+padding: 0;
 
 border: none;
 
-background-color: blue;
+background-color: #333333;
 }
 
-#board td, #board th
+#board td
 {
-margin: 0em;
-padding: 0em; /* 'cellpadding' */
+margin: 0;
+padding: 0; /* table 'cellpadding' */
 
-border: 0.08em solid green;
+border: 2px solid green;
 
-background-color: #CCCCCC;
-
-font-family: Helvetica, Arial, sans-serif;
-font-size: 100%;
+background-color: red;
 
 text-align: center;
 vertical-align: middle;
 
+/*
 width: 4em;
 height: 4em;
+*/
 
-white-space: nowrap;
+white-space: normal;
 overflow: hidden;
+
+/*
 text-overflow: ellipsis;
+*/
 }
 
 #board td.DoubleWord
 {
-border: 0.25em dotted blue;
-background-color: red;
+border: 2px dotted #FBBBB9;
+background-color: #306754;
 }
 
 #board td.TripleWord
 {
-border: 0.25em dotted red;
-background-color: yellow;
+border: 2px dotted #F75D59;
+background-color: #306754;
 }
 
 #board td.Normal
 {
-background-color: silver;
+border: 2px solid #306754;
+background-color: #333333;
 }
 
-#board td div
+#board td.DoubleLetter
 {
-width: 100%;
-height: auto;
+border: 2px dotted #A0CFEC;
+background-color: #306754;
+}
 
-display: table-cell;
+#board td.TripleLetter
+{
+border: 2px dotted #6698FF;
+background-color: #306754;
+}
 
-margin: 0px;
-padding: 0.25em;
+#board td a
+{
+width: 50px; /* 4.5em */
+height: 50px;
+
+text-decoration: none;
+
+display: block; /* table-cell */
+
+margin: 0;
+padding: 0;
 
 border: none;
 
@@ -92,158 +118,90 @@ text-align: center;
 vertical-align: middle;
 
 font-family: Helvetica, Arial, sans-serif;
-font-size: 0.7em;
-letter-spacing: 0.08em;
-line-height: 1em;
+font-size: 0.6em;
+letter-spacing: 0.1em;
+
+line-height: 1.4em;
 }
-
-#board td.DoubleWord div
-{
-background-color: #FF99CC;
-
-border-top: 0.25em dashed #FF00CC;
-border-right: 0.25em dashed #FF00CC;
-border-bottom: 0.25em dashed #FF00CC;
-border-left: 0.25em dashed #FF00CC;
-}
-
-#board td.TripleWord div
-{
-background-color: #CC3300;
-
-border-top: 0.25em dashed white;
-border-right: 0.25em dashed white;
-border-bottom: 0.25em dashed white;
-border-left: 0.25em dashed white;
-}
-
-#board td.Normal div
-{
-background-color: #CCCC99;
-
-border-top: 0.25em dashed transparent;
-border-right: 0.25em dashed transparent;
-border-bottom: 0.25em dashed transparent;
-border-left: 0.25em dashed transparent;
-}
-
-
-
-
-
 
 /*
-
-
-#board td .empty
+#board td.Tile
 {
-	border: 0.15em solid #99CCCC;
-	background-color: #99CCCC;
+padding: 0;
 }
-
-#board td a.empty:hover
-{
-	border-color: #FFFFFF;
-	background-color: #FFFFFF;
-}
-
-#board td .placed
-{
-	border-top-color: #FF6666;
-	border-right-color: #990000;
-	border-bottom-color: #990000;
-	border-left-color: #FF6666;
-	background-color: #FF0000;
-	color: #FFFFFF;
-}
-
-#board td a.placed:hover
-{
-	border-top-color: #FFCC66;
-	border-right-color: #CC6600;
-	border-bottom-color: #CC6600;
-	border-left-color: #FFCC66;
-	background-color: #FF9900;
-	color: #FFFFFF;
-}
-
-#board td.doubleLetter
-{
-	border-top-color: #6699FF;
-	border-right-color: #CCEEFF;
-	border-bottom-color: #CCEEFF;
-	border-left-color: #6699FF;
-	padding: 0;
-}
-
-#board td.doubleLetter .empty
-{
-	border-color: #99CCFF;
-	background-color: #99CCFF;
-	color: #CCE6FF;
-}
-
-#board td.doubleWord
-{
-	border-top-color: #AF7F7F;
-	border-right-color: #FFCCCC;
-	border-bottom-color: #FFCCCC;
-	border-left-color: #AF7F7F;
-	padding: 0;
-}
-
-#board td.doubleWord .empty
-{
-	border-color: #FF9999;
-	background-color: #FF9999;
-	color: #FFCCCC;
-}
-
-#board td.star
-{
-	border-top-color: #CC9933;
-	border-right-color: #FFEECC;
-	border-bottom-color: #FFEECC;
-	border-left-color: #CC9933;
-	padding: 0;
-}
-
-#board td.star .empty
-{
-	border-color: #FFCC66;
-	background-color: #FFCC66;
-}
-
-#board td.tripleLetter
-{
-	border-top-color: #003399;
-	border-right-color: #6699CC;
-	border-bottom-color: #6699CC;
-	border-left-color: #003399;
-	padding: 0;
-}
-
-#board td.tripleLetter .empty
-{
-	border-color: #0066CC;
-	background-color: #0066CC;
-	color: #0099CC;
-}
-
-#board td.tripleWord
-{
-	border-top-color: #AA0000;
-	border-right-color: #FF9999;
-	border-bottom-color: #FF9999;
-	border-left-color: #AA0000;
-	padding: 0;
-}
-
-#board td.tripleWord .empty
-{
-	border-color: #DD3333;
-	background-color: #DD3333;
-	color: #FF6666
-}
-
 */
+
+#board td a.Tile
+{
+font-size: 1.2em;
+line-height: 2.5em;
+}
+
+#board td a span
+{
+margin: 0;
+padding: 0;
+
+/*
+text-align: center;
+vertical-align: middle;
+*/
+}
+
+#board td a.Tile span.Letter
+{
+font-weight: bold;
+margin-left: 0.5em;
+padding-top: 0.5em;
+}
+
+#board td a.Tile span.Score
+{
+vertical-align: sub;
+font-size: 60%;
+}
+
+#board td.DoubleWord a
+{
+background-color: #FBBBB9;
+
+border: 2px solid #FBBBB9;
+}
+
+#board td.TripleWord a
+{
+background-color: #F75D59;
+
+border: 2px solid #F75D59;
+}
+
+#board td.Normal a
+{
+background-color: #4E9258;
+
+border: 2px solid #4E9258;
+}
+
+#board td.Normal a.Tile
+{
+background-color: #ECE5B6;
+
+border: 2px outset #FFF8C6;
+
+-moz-border-radius: 4px;
+border-radius: 4px;
+}
+
+#board td.DoubleLetter a
+{
+background-color: #A0CFEC;
+
+border: 2px solid #A0CFEC;
+}
+
+#board td.TripleLetter a
+{
+background-color: #6698FF;
+
+border: 2px solid #6698FF;
+}
