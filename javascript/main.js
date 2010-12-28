@@ -223,23 +223,23 @@ var _Square = function()
 	switch (arguments[0])
 	{
 		case 0:
-			console.log("Scrabble.Core.Square constructor: SquareType.Normal");
+			//console.log("Scrabble.Core.Square constructor: SquareType.Normal");
 			this.Type = SquareType.Normal;
 			break;
 		case 1:
-			console.log("Scrabble.Core.Square constructor: SquareType.DoubleLetter");
+			//console.log("Scrabble.Core.Square constructor: SquareType.DoubleLetter");
 			this.Type = SquareType.DoubleLetter;
 			break;
 		case 2:
-			console.log("Scrabble.Core.Square constructor: SquareType.DoubleWord");
+			//console.log("Scrabble.Core.Square constructor: SquareType.DoubleWord");
 			this.Type = SquareType.DoubleWord;
 			break;
 		case 3:
-			console.log("Scrabble.Core.Square constructor: SquareType.TripleLetter");
+			//console.log("Scrabble.Core.Square constructor: SquareType.TripleLetter");
 			this.Type = SquareType.TripleLetter;
 			break;
 		case 4:
-			console.log("Scrabble.Core.Square constructor: SquareType.TripleWord");
+			//console.log("Scrabble.Core.Square constructor: SquareType.TripleWord");
 			this.Type = SquareType.TripleWord;
 			break;
 		default:
@@ -320,7 +320,7 @@ var _Board = function()
 					||
 					x > 0 && x < hMiddle - 2 && (y == x || y == this.SquaresVertical - x - 1)
 					||
-					x > hMiddle + 2 && x < this.SquaresHorizontal - 1 && x == y
+					x > hMiddle + 2 && x < this.SquaresHorizontal - 1 && (x == y || x == this.SquaresHorizontal - y - 1)
 					)
 				{
 					square = new Square(SquareType.DoubleWord);
@@ -331,10 +331,57 @@ var _Board = function()
 					td.setAttribute('class', 'Normal');
 				}
 				
-				var txt = document.createTextNode(square.Type);
-				td.appendChild(txt);
-				
 				this.SquaresList.push(square);
+				
+				var div = document.createElement('div');
+				td.appendChild(div);
+				
+				//continue;
+				
+				switch (square.Type)
+				{
+					case SquareType.Normal:
+						var txt = document.createTextNode("-");
+						div.appendChild(txt);
+						break;
+					case SquareType.DoubleWord:
+						var txt1 = document.createTextNode("DOUBLE");
+						div.appendChild(txt1);
+						
+						var br1 = document.createElement('br');
+						div.appendChild(br1);
+						
+						var txt2 = document.createTextNode("WORD");
+						div.appendChild(txt2);
+						
+						var br2 = document.createElement('br');
+						div.appendChild(br2);
+						
+						var txt3 = document.createTextNode("SCORE");
+						div.appendChild(txt3);
+
+						break;
+					case SquareType.TripleWord:
+					
+						var txt1 = document.createTextNode("TRIPLE");
+						div.appendChild(txt1);
+						
+						var br1 = document.createElement('br');
+						div.appendChild(br1);
+						
+						var txt2 = document.createTextNode("WORD");
+						div.appendChild(txt2);
+						
+						var br2 = document.createElement('br');
+						div.appendChild(br2);
+						
+						var txt3 = document.createTextNode("SCORE");
+						div.appendChild(txt3);
+
+						break;
+					default:
+						break;
+				}
 			}
 		}
 	}

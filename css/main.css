@@ -3,81 +3,136 @@ body
 margin: 0 0 0 0;
 padding: 0 0 0 0;
 border: none;
+
 color: #000000;
 background-color: #FFFFFF;
-text-align: center;
+
+/* text-align: center; */
+
 font-family: Helvetica, Arial, sans-serif;
 font-size: 100%;
 }
 
 #board table {
-border-collapse: separate;
-border-spacing: 10px 10px;
-}
+table-layout: fixed;
+border-collapse: collapse; /* zero 'cellspacing' */
+border-spacing: 0px 0px; /* horizontal, vertical */
 
-#board
-{
-width: auto;
-height: auto;
-margin: 10px;
-padding: 10px;
 border: none;
-background-color: #DDDDDD;
-text-align: center;
-font-family: Helvetica, Arial, sans-serif;
-font-size: 100%;
+
+margin: 2em;
+padding: 1em;
+
+background-color: transparent;
 }
 
-#board td
+#board tr
 {
-margin: 4px;
-padding: 4px;
+margin: 0px;
+padding: 0px;
+
+border: none;
+
+background-color: blue;
+}
+
+#board td, #board th
+{
+margin: 0em;
+padding: 0em; /* 'cellpadding' */
+
+border: 0.08em solid green;
+
 background-color: #CCCCCC;
-text-align: center;
-vertical-align: center;
+
 font-family: Helvetica, Arial, sans-serif;
 font-size: 100%;
 
-width: 30px;
-height: 30px;
+text-align: center;
+vertical-align: middle;
 
-border: none;
+width: 4em;
+height: 4em;
+
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
 
 #board td.DoubleWord
 {
-background-color: #FF99CC;
-
-border-top: 2px dashed #FF99CC;
-border-right: 2px dashed #FF99CC;
-border-bottom: 2px dashed #FF99CC;
-border-left: 2px dashed #FF99CC;
+border: 0.25em dotted blue;
+background-color: red;
 }
 
 #board td.TripleWord
 {
-background-color: #CC3300;
-
-border-top: 2px dashed #CC3300;
-border-right: 2px dashed #CC3300;
-border-bottom: 2px dashed #CC3300;
-border-left: 2px dashed #CC3300;
+border: 0.25em dotted red;
+background-color: yellow;
 }
 
 #board td.Normal
 {
+background-color: silver;
+}
+
+#board td div
+{
+width: 100%;
+height: auto;
+
+display: table-cell;
+
+margin: 0px;
+padding: 0.25em;
+
+border: none;
+
+text-align: center;
+vertical-align: middle;
+
+font-family: Helvetica, Arial, sans-serif;
+font-size: 0.7em;
+letter-spacing: 0.08em;
+line-height: 1em;
+}
+
+#board td.DoubleWord div
+{
+background-color: #FF99CC;
+
+border-top: 0.25em dashed #FF00CC;
+border-right: 0.25em dashed #FF00CC;
+border-bottom: 0.25em dashed #FF00CC;
+border-left: 0.25em dashed #FF00CC;
+}
+
+#board td.TripleWord div
+{
+background-color: #CC3300;
+
+border-top: 0.25em dashed white;
+border-right: 0.25em dashed white;
+border-bottom: 0.25em dashed white;
+border-left: 0.25em dashed white;
+}
+
+#board td.Normal div
+{
 background-color: #CCCC99;
 
-border-top: 2px solid #CCCC99;
-border-right: 2px solid #CCCC99;
-border-bottom: 2px solid #CCCC99;
-border-left: 2px solid #CCCC99;
+border-top: 0.25em dashed transparent;
+border-right: 0.25em dashed transparent;
+border-bottom: 0.25em dashed transparent;
+border-left: 0.25em dashed transparent;
 }
 
 
 
 
 
+
+/*
 
 
 #board td .empty
@@ -190,3 +245,5 @@ border-left: 2px solid #CCCC99;
 	background-color: #DD3333;
 	color: #FF6666
 }
+
+*/
