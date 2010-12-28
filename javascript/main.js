@@ -324,7 +324,24 @@ var _Board = function()
 					)
 				{
 					square = new Square(SquareType.DoubleWord);
-					td.setAttribute('class', 'DoubleWord');
+					if (x == hMiddle && y == vMiddle)
+					{
+						td.setAttribute('class', 'DoubleWord CenterStart');
+					}
+					else
+					{
+						td.setAttribute('class', 'DoubleWord');
+					}
+				}
+				else if (false)
+				{
+					square = new Square(SquareType.DoubleLetter);
+					td.setAttribute('class', 'DoubleLetter');
+				}
+				else if (false)
+				{
+					square = new Square(SquareType.TripleLetter);
+					td.setAttribute('class', 'TripleLetter');
 				}
 				else
 				{
