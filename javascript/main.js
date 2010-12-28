@@ -280,32 +280,34 @@ var _Board = function()
 		var table = document.createElement('table');
 		rootDiv.appendChild(table);
 		
-		for (var y = 0; y < this.SquaresVertical; y++)
+		for (var y = 0; y < this.Dimension; y++)
 		{
 			var tr = document.createElement('tr');
 			table.appendChild(tr);
 			
-			for (var x = 0; x < this.SquaresHorizontal; x++)
+			for (var x = 0; x < this.Dimension; x++)
 			{
+				var centerStart = false;
+				
 				var td = document.createElement('td');
 				tr.appendChild(td);
 				
 				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
 				var square = new Square(SquareType.Normal);
 				
-				var hMiddle = Math.floor(this.SquaresHorizontal / 2);
-				var vMiddle = Math.floor(this.SquaresVertical / 2);
+				var hMiddle = Math.floor(this.Dimension / 2);
+				var vMiddle = Math.floor(this.Dimension / 2);
 				
 				if (
 					(
 					x == 0 ||
-					x == this.SquaresHorizontal - 1 ||
+					x == this.Dimension - 1 ||
 					x == hMiddle
 					)
 					&&
 					(
 					y == 0 ||
-					y == this.SquaresVertical - 1 ||
+					y == this.Dimension - 1 ||
 					y == vMiddle && x != hMiddle
 					)
 					)
@@ -318,14 +320,15 @@ var _Board = function()
 					&&
 					y == vMiddle
 					||
-					x > 0 && x < hMiddle - 2 && (y == x || y == this.SquaresVertical - x - 1)
+					x > 0 && x < hMiddle - 2 && (y == x || y == this.Dimension - x - 1)
 					||
-					x > hMiddle + 2 && x < this.SquaresHorizontal - 1 && (x == y || x == this.SquaresHorizontal - y - 1)
+					x > hMiddle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)
 					)
 				{
 					square = new Square(SquareType.DoubleWord);
 					if (x == hMiddle && y == vMiddle)
 					{
+						centerStart = true;
 						td.setAttribute('class', 'DoubleWord CenterStart');
 					}
 					else
@@ -389,6 +392,10 @@ var _Board = function()
 						case SquareType.DoubleWord:
 							var span = document.createElement('span');
 							var txt1 = document.createTextNode("DOUBLE WORD SCORE");
+							if (centerStart)
+							{
+								txt1 = document.createTextNode('\u2605');
+							}
 							span.appendChild(txt1);
 						
 							/*
@@ -436,30 +443,17 @@ var _Board = function()
 		}
 	}
 
-	function SetSquaresHorizontal()
+	function SetDimension()
 	{
 		var val = arguments[0];
 		
 		if (typeof val != 'number')
-			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresHorizontal(), not a number: " + typeof val);
+			throw new Error("Illegal argument Scrabble.Core.Board.SetDimension(), not a number: " + typeof val);
 		
 		if (val < 15)
-			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresHorizontal(), number smaller than 15: " + val);
+			throw new Error("Illegal argument Scrabble.Core.Board.SetDimension(), number smaller than 15: " + val);
 		
-		this.SquaresHorizontal = val;
-	}
-
-	function SetSquaresVertical()
-	{
-		var val = arguments[0];
-		
-		if (typeof val != 'number')
-			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresVertical(), not a number: " + typeof val);
-		
-		if (val < 15)
-			throw new Error("Illegal argument Scrabble.Core.Board.SetSquaresVertical(), number smaller than 15: " + val);
-		
-		this.SquaresVertical = val;
+		this.Dimension = val;
 	}
 
 	//_Board.prototype.SetSquares = function()
@@ -475,13 +469,11 @@ var _Board = function()
 				switch (type_of(arguments[0]))
 				{
 					case 'number':
-						SetSquaresHorizontal.apply(this, [arguments[0]]);
-						SetSquaresVertical.apply(this, [arguments[1]]);
+						SetDimension.apply(this, [arguments[0]]);
 						console.log("Scrabble.Core.Board 'number' constructor: " + this.toString());
 						return;
 					case 'object':
-						SetSquaresHorizontal.apply(this, [arguments[0]['SquaresHorizontal']]);
-						SetSquaresVertical.apply(this, [arguments[0]['SquaresVertical']]);
+						SetDimension.apply(this, [arguments[0]['Dimension']]);
 						console.log("Scrabble.Core.Board 'object' constructor: " + this.toString());
 						return;
 					case 'array':
@@ -497,9 +489,8 @@ var _Board = function()
 			}
 			else
 			{
-				console.log("Scrabble.Core.Board constructor with empty parameters (default 15x15)");
-				this.SquaresHorizontal = 15;
-				this.SquaresVertical = 15;
+				this.Dimension = 15;
+				console.log("Scrabble.Core.Board constructor with empty parameters (default "+this.Dimension+"x"+this.Dimension+")");
 			}
 		}
 		else
@@ -515,14 +506,13 @@ var _Board = function()
 	CreateGrid.apply(this);
 }
 
-_Board.prototype.SquaresHorizontal = NaN;
-_Board.prototype.SquaresVertical = NaN;
+_Board.prototype.Dimension = NaN;
 
 _Board.prototype.SquaresList = [];
 
 _Board.prototype.toString = function()
 {
-	return "Scrabble.Core.Board toString(): " + this.SquaresHorizontal + " x " + this.SquaresVertical;
+	return "Scrabble.Core.Board toString(): " + this.Dimension + " x " + this.Dimension;
 }
 
 } // END - with (Scrabble.Core)
@@ -544,7 +534,7 @@ window.onload = function()
 
 with (Scrabble)
 {
-	var board = new Core.Board();
+	var board = new Core.Board(); //15 by default, 21 works well too :)
 	//var boardUI = new UI.HtmlTableBoard();
 }
 

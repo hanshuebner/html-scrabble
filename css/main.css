@@ -11,6 +11,8 @@ text-align: center;
 
 font-family: Helvetica, Arial, sans-serif;
 font-size: 1em;
+
+background: #FFFFFF url('../images/Background.png') repeat left top;
 }
 
 #board
@@ -205,8 +207,17 @@ padding-left: -0.4em;
 {
 border: 0.35em solid #306754;
 
--moz-border-radius: 1em;
-border-radius: 1em;
+/*
+-moz-border-radius: 9em;
+border-radius: 9em;
+*/
+}
+
+#board td.CenterStart a span
+{
+font-size: 3.6em;
+line-height: 1.4em;
+color: #306754;
 }
 
 #board td a:hover
