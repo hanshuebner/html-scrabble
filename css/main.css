@@ -1,7 +1,9 @@
 body
 {
-margin: 0 0 0 0;
-padding: 0 0 0 0;
+margin: 0;
+padding: 0;
+padding-top: 1em;
+
 border: none;
 
 color: #000000;
@@ -20,8 +22,6 @@ background: #FFFFFF url('../images/Background.png') repeat left top;
 margin: 0;
 padding: 0;
 padding-top: 1em;
-
-border: 2px solid #FFFFFF;
 }
 
 .title span
@@ -34,7 +34,6 @@ padding: 0;
 font-weight: bold;
 letter-spacing: 0.7em;
 padding-left: 0.7em;
-
 }
 
 .board
