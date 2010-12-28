@@ -72,13 +72,13 @@ text-overflow: ellipsis;
 
 #board td.DoubleWord
 {
-border: 2px dotted #FBBBB9;
+border: 2px dashed #FBBBB9;
 background-color: #306754;
 }
 
 #board td.TripleWord
 {
-border: 2px dotted #F75D59;
+border: 2px dashed #F75D59;
 background-color: #306754;
 }
 
@@ -90,13 +90,13 @@ background-color: #333333;
 
 #board td.DoubleLetter
 {
-border: 2px dotted #A0CFEC;
+border: 2px dashed #A0CFEC;
 background-color: #306754;
 }
 
 #board td.TripleLetter
 {
-border: 2px dotted #6698FF;
+border: 2px dashed #6698FF;
 background-color: #306754;
 }
 
@@ -121,20 +121,7 @@ font-family: Helvetica, Arial, sans-serif;
 font-size: 0.6em;
 letter-spacing: 0.1em;
 
-line-height: 1.4em;
-}
-
-/*
-#board td.Tile
-{
-padding: 0;
-}
-*/
-
-#board td a.Tile
-{
-font-size: 1.2em;
-line-height: 2.5em;
+line-height: 1.7em;
 }
 
 #board td a span
@@ -146,19 +133,6 @@ padding: 0;
 text-align: center;
 vertical-align: middle;
 */
-}
-
-#board td a.Tile span.Letter
-{
-font-weight: bold;
-margin-left: 0.5em;
-padding-top: 0.5em;
-}
-
-#board td a.Tile span.Score
-{
-vertical-align: sub;
-font-size: 60%;
 }
 
 #board td.DoubleWord a
@@ -182,16 +156,6 @@ background-color: #4E9258;
 border: 2px solid #4E9258;
 }
 
-#board td.Normal a.Tile
-{
-background-color: #ECE5B6;
-
-border: 2px outset #FFF8C6;
-
--moz-border-radius: 4px;
-border-radius: 4px;
-}
-
 #board td.DoubleLetter a
 {
 background-color: #A0CFEC;
@@ -204,4 +168,33 @@ border: 2px solid #A0CFEC;
 background-color: #6698FF;
 
 border: 2px solid #6698FF;
+}
+
+#board td a.Tile
+{
+background-color: #ECE5B6;
+
+border: 2px outset #FFF8C6;
+
+-moz-border-radius: 4px;
+border-radius: 4px;
+}
+
+#board td a.Tile
+{
+font-size: 1.2em;
+line-height: 2.5em;
+}
+
+#board td a.Tile span.Letter
+{
+font-weight: bold;
+margin-left: 0.5em;
+padding-top: 0.5em;
+}
+
+#board td a.Tile span.Score
+{
+vertical-align: sub;
+font-size: 60%;
 }
