@@ -3,18 +3,26 @@ body
 margin: 0 0 0 0;
 padding: 0 0 0 0;
 border: none;
+color: #000000;
 background-color: #FFFFFF;
 text-align: center;
 font-family: Helvetica, Arial, sans-serif;
 font-size: 100%;
 }
 
+#board table {
+border-collapse: separate;
+border-spacing: 10px 10px;
+}
+
 #board
 {
-margin: 0 0 0 0;
-padding: 0 0 0 0;
+width: auto;
+height: auto;
+margin: 10px;
+padding: 10px;
 border: none;
-background-color: #FFFFFF;
+background-color: #DDDDDD;
 text-align: center;
 font-family: Helvetica, Arial, sans-serif;
 font-size: 100%;
@@ -22,19 +30,55 @@ font-size: 100%;
 
 #board td
 {
-margin: 0 0 0 0;
-padding: 0 0 0 0;
-border: none;
-background-color: #FFFFFF;
+margin: 4px;
+padding: 4px;
+background-color: #CCCCCC;
 text-align: center;
+vertical-align: center;
 font-family: Helvetica, Arial, sans-serif;
 font-size: 100%;
 
-border-top: 1px solid #669999;
-border-right: 1px solid #DDFFFF;
-border-bottom: 1px solid #DDFFFF;
-border-left: 1px solid #669999;
+width: 30px;
+height: 30px;
+
+border: none;
 }
+
+#board td.DoubleWord
+{
+background-color: #FF99CC;
+
+border-top: 2px dashed #FF99CC;
+border-right: 2px dashed #FF99CC;
+border-bottom: 2px dashed #FF99CC;
+border-left: 2px dashed #FF99CC;
+}
+
+#board td.TripleWord
+{
+background-color: #CC3300;
+
+border-top: 2px dashed #CC3300;
+border-right: 2px dashed #CC3300;
+border-bottom: 2px dashed #CC3300;
+border-left: 2px dashed #CC3300;
+}
+
+#board td.Normal
+{
+background-color: #CCCC99;
+
+border-top: 2px solid #CCCC99;
+border-right: 2px solid #CCCC99;
+border-bottom: 2px solid #CCCC99;
+border-left: 2px solid #CCCC99;
+}
+
+
+
+
+
+
 
 #board td .empty
 {

@@ -57,6 +57,8 @@ EnsureNamespace("HTMLScrabble.Core");
 function EnsureNamespace(nsString)
 //_OBJECT_ROOT_.EnsureNamespace = function(nsString)
 {
+	console.log("Ensuring namespace: " + nsString);
+	
 	var nsStrings = nsString.split(".");
 	var root = _OBJECT_ROOT_;
 	for (var i = 0; i < nsStrings.length; i++)
@@ -188,11 +190,75 @@ return _EventsManager;
 // END EventsManager ------------------
 //=================================================
 
-console.log("Checking namespace: " + "Scrabble.Core");
 EnsureNamespace("Scrabble.Core");
-
-console.log("Checking namespace: " + "Scrabble.UI");
 EnsureNamespace("Scrabble.UI");
+
+
+//=================================================
+// BEGIN Scrabble.Core.SquareType ------------------
+Scrabble.Core.SquareType =
+{
+	Normal:0,
+	DoubleLetter:1,
+	DoubleWord:2,
+	TripleLetter:3,
+	TripleWord:4
+};
+// END Scrabble.Core.SquareType ------------------
+//=================================================
+
+//=================================================
+// BEGIN Scrabble.Core.Square ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Square == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Square"])
+_OBJECT_ROOT_.Scrabble.Core.Square = (function(){
+
+console.log("inside Scrabble.Core.Square code scope");
+
+with (Scrabble.Core)
+{
+
+//function _Board()
+var _Square = function()
+{
+	switch (arguments[0])
+	{
+		case 0:
+			console.log("Scrabble.Core.Square constructor: SquareType.Normal");
+			this.Type = SquareType.Normal;
+			break;
+		case 1:
+			console.log("Scrabble.Core.Square constructor: SquareType.DoubleLetter");
+			this.Type = SquareType.DoubleLetter;
+			break;
+		case 2:
+			console.log("Scrabble.Core.Square constructor: SquareType.DoubleWord");
+			this.Type = SquareType.DoubleWord;
+			break;
+		case 3:
+			console.log("Scrabble.Core.Square constructor: SquareType.TripleLetter");
+			this.Type = SquareType.TripleLetter;
+			break;
+		case 4:
+			console.log("Scrabble.Core.Square constructor: SquareType.TripleWord");
+			this.Type = SquareType.TripleWord;
+			break;
+		default:
+			throw new Error("Illegal argument, first parameter of Scrabble.Core.Square constructor should be one of { SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord }");
+			break;
+	}
+}
+
+_Square.prototype.toString = function()
+{
+	return "Scrabble.Core.Square toString(): " + this.Type;
+}
+
+} // END - with (Scrabble.Core)
+
+return _Square;
+})();
+// END Scrabble.Core.Square ------------------
+//=================================================
 
 //=================================================
 // BEGIN Scrabble.Core.Board ------------------
@@ -202,9 +268,77 @@ _OBJECT_ROOT_.Scrabble.Core.Board = (function(){
 
 console.log("inside Scrabble.Core.Board code scope");
 
+with (Scrabble.Core)
+{
+
 //function _Board()
 var _Board = function()
 {
+	function CreateGrid()
+	{
+		var rootDiv = document.getElementById('board');
+		var table = document.createElement('table');
+		rootDiv.appendChild(table);
+		
+		for (var y = 0; y < this.SquaresVertical; y++)
+		{
+			var tr = document.createElement('tr');
+			table.appendChild(tr);
+			
+			for (var x = 0; x < this.SquaresHorizontal; x++)
+			{
+				var td = document.createElement('td');
+				tr.appendChild(td);
+				
+				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
+				var square = new Square(SquareType.Normal);
+				
+				var hMiddle = Math.floor(this.SquaresHorizontal / 2);
+				var vMiddle = Math.floor(this.SquaresVertical / 2);
+				
+				if (
+					(
+					x == 0 ||
+					x == this.SquaresHorizontal - 1 ||
+					x == hMiddle
+					)
+					&&
+					(
+					y == 0 ||
+					y == this.SquaresVertical - 1 ||
+					y == vMiddle && x != hMiddle
+					)
+					)
+				{
+					square = new Square(SquareType.TripleWord);
+					td.setAttribute('class', 'TripleWord');
+				}
+				else if (
+					x == hMiddle
+					&&
+					y == vMiddle
+					||
+					x > 0 && x < hMiddle - 2 && (y == x || y == this.SquaresVertical - x - 1)
+					||
+					x > hMiddle + 2 && x < this.SquaresHorizontal - 1 && x == y
+					)
+				{
+					square = new Square(SquareType.DoubleWord);
+					td.setAttribute('class', 'DoubleWord');
+				}
+				else
+				{
+					td.setAttribute('class', 'Normal');
+				}
+				
+				var txt = document.createTextNode(square.Type);
+				td.appendChild(txt);
+				
+				this.SquaresList.push(square);
+			}
+		}
+	}
+
 	function SetSquaresHorizontal()
 	{
 		var val = arguments[0];
@@ -280,48 +414,28 @@ var _Board = function()
 	console.log("Scrabble.Core.Board constructor before applying parameters");
 	SetSquares.apply(this, arguments);
 	//SetSquares(arguments);
+	
+	CreateGrid.apply(this);
 }
 
 _Board.prototype.SquaresHorizontal = NaN;
 _Board.prototype.SquaresVertical = NaN;
+
+_Board.prototype.SquaresList = [];
 
 _Board.prototype.toString = function()
 {
 	return "Scrabble.Core.Board toString(): " + this.SquaresHorizontal + " x " + this.SquaresVertical;
 }
 
+} // END - with (Scrabble.Core)
+
 return _Board;
 })();
 // END Scrabble.Core.Board ------------------
 //=================================================
 
-//=================================================
-// BEGIN Scrabble.Core.Square ------------------
-if (typeof _OBJECT_ROOT_.Scrabble.Core.Square == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Square"])
-_OBJECT_ROOT_.Scrabble.Core.Square = (function(){
-var _Square = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
-
-console.log("inside Scrabble.Core.Square code scope");
-
-return _Square;
-})();
-// END Scrabble.Core.Square ------------------
-//=================================================
-
-//=================================================
-// BEGIN Scrabble.Core.Tile ------------------
-if (typeof _OBJECT_ROOT_.Scrabble.Core.Tile == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Tile"])
-_OBJECT_ROOT_.Scrabble.Core.Tile = (function(){
-var _Tile = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
-
-console.log("inside Scrabble.Core.Tile code scope");
-
-return _Tile;
-})();
-// END Scrabble.Core.Tile ------------------
-//=================================================
-
-
+//Tile
 //LetterDistribution
 
 })();
@@ -331,6 +445,13 @@ return _Tile;
 window.onload = function()
 {
 
+with (Scrabble)
+{
+	var board = new Core.Board();
+	//var boardUI = new UI.HtmlTableBoard();
+}
+
+/*
 with (Scrabble)
 {
 	var board = new Core.Board();
@@ -378,6 +499,7 @@ with (Scrabble)
 		alert(e.message);
 	}
 }
+*/
 
 /*
 var callback = function(eventPayload)
