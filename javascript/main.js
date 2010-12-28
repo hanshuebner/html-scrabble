@@ -32,6 +32,12 @@ http://code.google.com/p/scrabbly/source/browse/trunk/scrabble.js
 
 var _OBJECT_ROOT_ = window;
 
+if (typeof _OBJECT_ROOT_.console == "undefined" || !_OBJECT_ROOT_.console)
+{
+	_OBJECT_ROOT_.console = {};
+	_OBJECT_ROOT_.console.log = function(){};
+}
+
 function type_of(obj)
 {
 	if (typeof(obj) == 'object')
@@ -536,8 +542,11 @@ return _Board;
 // END script-scope ------------------
 
 
-window.onload = function()
+
+window_onload = function()
 {
+
+alert("DANIEL");
 
 with (Scrabble)
 {
@@ -618,3 +627,4 @@ DispatchEvent('EVENT_NAME', { '_key1': "_value1", '_key2': "_value2" });
 */
 
 }; //END window.onload
+
