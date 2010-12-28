@@ -295,20 +295,20 @@ var _Board = function()
 				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
 				var square = new Square(SquareType.Normal);
 				
-				var hMiddle = Math.floor(this.Dimension / 2);
-				var vMiddle = Math.floor(this.Dimension / 2);
+				var middle = Math.floor(this.Dimension / 2);
+				var halfMiddle = Math.ceil(middle / 2);
 				
 				if (
 					(
 					x == 0 ||
 					x == this.Dimension - 1 ||
-					x == hMiddle
+					x == middle
 					)
 					&&
 					(
 					y == 0 ||
 					y == this.Dimension - 1 ||
-					y == vMiddle && x != hMiddle
+					y == middle && x != middle
 					)
 					)
 				{
@@ -316,17 +316,17 @@ var _Board = function()
 					td.setAttribute('class', 'TripleWord');
 				}
 				else if (
-					x == hMiddle
+					x == middle
 					&&
-					y == vMiddle
+					y == middle
 					||
-					x > 0 && x < hMiddle - 2 && (y == x || y == this.Dimension - x - 1)
+					x > 0 && x < middle - 2 && (y == x || y == this.Dimension - x - 1)
 					||
-					x > hMiddle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)
+					x > middle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)
 					)
 				{
 					square = new Square(SquareType.DoubleWord);
-					if (x == hMiddle && y == vMiddle)
+					if (x == middle && y == middle)
 					{
 						centerStart = true;
 						td.setAttribute('class', 'DoubleWord CenterStart');
@@ -337,18 +337,30 @@ var _Board = function()
 					}
 				}
 				else if (
-					(x == hMiddle - 1 || x == hMiddle + 1)
+					(x == middle - 1 || x == middle + 1)
 					&&
-					(y == vMiddle - 1 || y == vMiddle + 1)
+					(y == middle - 1 || y == middle + 1)
+					||
+					(x == 0 || x == this.Dimension - 1 || x == middle) && (y == middle + halfMiddle || y == middle - halfMiddle)
+					||
+					(y == 0 || y == this.Dimension - 1 || y == middle) && (x == middle + halfMiddle || x == middle - halfMiddle)
+					||
+					(y == middle + 1 || y == middle - 1) && (x == middle + halfMiddle + 1 || x == middle - halfMiddle - 1)
+					||
+					(x == middle + 1 || x == middle - 1) && (y == middle + halfMiddle + 1 || y == middle - halfMiddle - 1)
 					)
 				{
 					square = new Square(SquareType.DoubleLetter);
 					td.setAttribute('class', 'DoubleLetter');
 				}
 				else if (
-					(x == hMiddle - 2 || x == hMiddle + 2)
+					(x == middle - 2 || x == middle + 2)
 					&&
-					(y == vMiddle - 2 || y == vMiddle + 2)
+					(y == middle - 2 || y == middle + 2)
+					||
+					(y == middle + 2 || y == middle - 2) && (x == middle + halfMiddle + 2 || x == middle - halfMiddle - 2)
+					||
+					(x == middle + 2 || x == middle - 2) && (y == middle + halfMiddle + 2 || y == middle - halfMiddle - 2)
 					)
 				{
 					square = new Square(SquareType.TripleLetter);
@@ -365,7 +377,7 @@ var _Board = function()
 				td.appendChild(a);
 				
 				var makeTile = Math.floor(Math.random()*2);
-				if (makeTile && y < vMiddle)
+				if (makeTile && y < middle)
 				{
 					td.setAttribute('class', td.getAttribute('class') + ' Tile');
 					
