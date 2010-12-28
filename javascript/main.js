@@ -336,12 +336,20 @@ var _Board = function()
 						td.setAttribute('class', 'DoubleWord');
 					}
 				}
-				else if (false)
+				else if (
+					(x == hMiddle - 1 || x == hMiddle + 1)
+					&&
+					(y == vMiddle - 1 || y == vMiddle + 1)
+					)
 				{
 					square = new Square(SquareType.DoubleLetter);
 					td.setAttribute('class', 'DoubleLetter');
 				}
-				else if (false)
+				else if (
+					(x == hMiddle - 2 || x == hMiddle + 2)
+					&&
+					(y == vMiddle - 2 || y == vMiddle + 2)
+					)
 				{
 					square = new Square(SquareType.TripleLetter);
 					td.setAttribute('class', 'TripleLetter');
@@ -398,20 +406,6 @@ var _Board = function()
 							}
 							span.appendChild(txt1);
 						
-							/*
-							var br1 = document.createElement('br');
-							span.appendChild(br1);
-						
-							var txt2 = document.createTextNode("WORD");
-							span.appendChild(txt2);
-						
-							var br2 = document.createElement('br');
-							span.appendChild(br2);
-						
-							var txt3 = document.createTextNode("SCORE");
-							span.appendChild(txt3);
-							*/
-						
 							a.appendChild(span);
 							break;
 						case SquareType.TripleWord:
@@ -419,19 +413,20 @@ var _Board = function()
 							var txt1 = document.createTextNode("TRIPLE WORD SCORE");
 							span.appendChild(txt1);
 						
-							/*
-							var br1 = document.createElement('br');
-							span.appendChild(br1);
+							a.appendChild(span);
+							break;
+							
+						case SquareType.DoubleLetter:
+							var span = document.createElement('span');
+							var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
+							span.appendChild(txt1);
 						
-							var txt2 = document.createTextNode("WORD");
-							span.appendChild(txt2);
-						
-							var br2 = document.createElement('br');
-							span.appendChild(br2);
-						
-							var txt3 = document.createTextNode("SCORE");
-							span.appendChild(txt3);
-							*/
+							a.appendChild(span);
+							break;
+						case SquareType.TripleLetter:
+							var span = document.createElement('span');
+							var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
+							span.appendChild(txt1);
 						
 							a.appendChild(span);
 							break;

@@ -15,13 +15,38 @@ font-size: 1em;
 background: #FFFFFF url('../images/Background.png') repeat left top;
 }
 
-#board
+.title
 {
-width: auto;
+margin: 0;
+padding: 0;
+padding-top: 1em;
+
+border: 2px solid #FFFFFF;
+}
+
+.title span
+{
+font-size: 4.5em;
+
+margin: 0;
+padding: 0;
+
+font-weight: bold;
+letter-spacing: 0.7em;
+padding-left: 0.7em;
+
+}
+
+.board
+{
+margin: 0;
+padding: 0;
+
+width: 100%;
 font-size: 100%;
 }
 
-#board table
+.board table
 {
 /*
 table-layout: fixed;
@@ -32,13 +57,17 @@ border-spacing: 0 0; /* horizontal, vertical */
 
 border: 0.5em solid #333333;
 
-margin: auto;
+margin-bottom: 0;
+margin-top: 0;
+margin-left: auto;
+margin-right: auto;
+
 padding: 0.5em;
 
 background-color: #306754;
 }
 
-#board tr
+.board tr
 {
 margin: 0;
 padding: 0;
@@ -48,7 +77,7 @@ border: none;
 background-color: red;
 }
 
-#board td
+.board td
 {
 -webkit-user-select: none;
 -moz-user-select: none;
@@ -72,37 +101,37 @@ text-overflow: ellipsis;
 */
 }
 
-#board td.DoubleWord
+.board td.DoubleWord
 {
 border: 0.15em dashed #FBBBB9;
 background-color: #306754;
 }
 
-#board td.TripleWord
+.board td.TripleWord
 {
 border: 0.15em dashed #F75D59;
 background-color: #306754;
 }
 
-#board td.Normal
+.board td.Normal
 {
 border: 0.15em solid #306754;
 background-color: #4E9258;
 }
 
-#board td.DoubleLetter
+.board td.DoubleLetter
 {
 border: 0.15em dashed #A0CFEC;
 background-color: #306754;
 }
 
-#board td.TripleLetter
+.board td.TripleLetter
 {
-border: 0.15em dashed #6698FF;
+border: 0.15em dashed #157DEC;
 background-color: #306754;
 }
 
-#board td a
+.board td a
 {
 text-decoration: none;
 
@@ -126,7 +155,7 @@ width: 5em;
 height: 5em;
 }
 
-#board td a span
+.board td a span
 {
 margin: 0;
 padding: 0;
@@ -137,21 +166,21 @@ vertical-align: middle;
 */
 }
 
-#board td.DoubleWord a
+.board td.DoubleWord a
 {
 background-color: #FBBBB9;
 
 border: 0.35em solid #FBBBB9;
 }
 
-#board td.TripleWord a
+.board td.TripleWord a
 {
 background-color: #F75D59;
 
 border: 0.35em solid #F75D59;
 }
 
-#board td.Normal a
+.board td.Normal a
 {
 background-color: #4E9258;
 
@@ -160,21 +189,21 @@ border: 0.35em solid #4E9258;
 cursor: crosshair;
 }
 
-#board td.DoubleLetter a
+.board td.DoubleLetter a
 {
 background-color: #A0CFEC;
 
 border: 0.35em solid #A0CFEC;
 }
 
-#board td.TripleLetter a
+.board td.TripleLetter a
 {
-background-color: #6698FF;
+background-color: #157DEC;
 
-border: 0.35em solid #6698FF;
+border: 0.35em solid #157DEC;
 }
 
-#board td a.Tile
+.board td a.Tile
 {
 cursor: move;
 
@@ -186,7 +215,7 @@ border: 0.35em outset #FFF8C6;
 border-radius: 0.8em;
 }
 
-#board td a.Tile span.Letter
+.board td a.Tile span.Letter
 {
 font-size: 2.2em;
 font-weight: bold;
@@ -196,14 +225,14 @@ line-height: 2.5em;
 padding-left: 0.3em;
 }
 
-#board td a.Tile span.Score
+.board td a.Tile span.Score
 {
 font-size: 1.4em;
 vertical-align: sub;
 padding-left: -0.4em;
 }
 
-#board td.CenterStart a
+.board td.CenterStart a
 {
 border: 0.35em solid #306754;
 
@@ -213,17 +242,25 @@ border-radius: 9em;
 */
 }
 
-#board td.CenterStart a span
+.board td.CenterStart a span
 {
 font-size: 3.6em;
 line-height: 1.4em;
 color: #306754;
 }
 
-#board td a:hover
+.board td a:hover
 {
 border: 0.35em solid #FFFFFF;
 
 -moz-border-radius: 0.8em;
 border-radius: 0.8em;
+}
+
+#rack
+{
+color: #000000;
+background-color: #FFFFFF;
+position:fixed;
+bottom: 0;
 }
