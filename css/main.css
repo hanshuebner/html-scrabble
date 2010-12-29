@@ -54,7 +54,7 @@ table-layout: fixed;
 border-collapse: separate; /* collapse ==== zero 'cellspacing' */
 border-spacing: 0 0; /* horizontal, vertical */
 
-border: 0.5em solid #333333;
+border: 0.2em solid #333333;
 
 margin-bottom: 0;
 margin-top: 0;
@@ -86,7 +86,8 @@ background-color: red;
 {
 -webkit-user-select: none;
 -moz-user-select: none;
-cursor: default;
+-o-user-select: none;
+user-select: none;
 
 margin: 0;
 padding: 0; /* table 'cellpadding' */

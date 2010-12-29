@@ -645,7 +645,7 @@ var _Html = function()
 			
 			$(a).draggable({ //"#board .Tile"
 				revert: "invalid",
-				cursor: "move",
+				//cursor: "move",
 				opacity: 1,
 				helper: "clone",
 				//snap: ".Empty",
