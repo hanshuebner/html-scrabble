@@ -211,6 +211,41 @@ EnsureNamespace("Scrabble.UI");
 
 var IDPrefix_SquareOrTile = "squareOrTile_";
 
+function PlayAudio(id)
+{
+	var audio = document.getElementById(id);
+	
+	/*
+	audio.load()
+	audio.addEventListener("load", function() {
+
+	}, true);
+	*/
+
+	if (audio.playing)
+	{
+		audio.pause();
+	}
+    
+	audio.defaultPlaybackRate = 1;
+	audio.volume = 1;
+	
+	try
+	{
+		audio.currentTime = 0;
+		audio.play();
+	}
+	catch(e)
+	{
+		function currentTime()
+		{
+			audio.currentTime = 0;
+			audio.removeEventListener("canplay", currentTime, true);
+			audio.play();
+		}
+		audio.addEventListener("canplay", currentTime, true);
+	}
+}
 
 //=================================================
 // BEGIN Scrabble.Core.Tile ------------------
@@ -302,10 +337,12 @@ _Square.prototype.X = 0;
 _Square.prototype.Y = 0;
 
 _Square.prototype.Tile = 0;
+_Square.prototype.TileLocked = false;
 
-_Square.prototype.PlaceTile = function(tile)
+_Square.prototype.PlaceTile = function(tile, locked)
 {
 	this.Tile = tile;
+	this.TileLocked = locked;
 }
 
 _Square.prototype.toString = function()
@@ -495,12 +532,13 @@ _Board.prototype.MoveTile = function(tileXY, squareXY)
 	var square2 = this.SquaresList[squareXY.x + this.Dimension * squareXY.y];
 
 	var tile = square1.Tile;
-	square1.PlaceTile(0);
-	square2.PlaceTile(tile);
+	square1.PlaceTile(0, false);
+	square2.PlaceTile(tile, false);
 
-	var audio = document.getElementById(square2.Type == SquareType.Normal ? 'audio2' : 'audio3');
-	audio.pause();
-	audio.play();
+	//var random = Math.floor(Math.random()*3);
+	//var audio = document.getElementById(square2.Type == SquareType.Normal ? 'audio2' : 'audio3');
+	//var audio = document.getElementById('audio' + (random+1));
+	PlayAudio('audio4');
 	
 	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square1 });
 	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square2 });
@@ -508,9 +546,7 @@ _Board.prototype.MoveTile = function(tileXY, squareXY)
 
 _Board.prototype.GenerateRandomTiles = function()
 {
-	var audio = document.getElementById('audio1');
-	audio.pause();
-	audio.play();
+	PlayAudio('audio0');
 	
 	for (var y = 0; y < this.Dimension; y++)
 	{
@@ -533,14 +569,15 @@ _Board.prototype.GenerateRandomTiles = function()
 				var score = Math.floor(Math.random()*10) + 1;
 			
 				var tile = new Tile(letter, score);
-				square.PlaceTile(tile);
+				var locked = Math.floor(Math.random() * 2);
+				square.PlaceTile(tile, locked == 0 ? true : false);
 			
 				EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged,
 											{ 'Board': this, 'Square': square });
 			}
 			else if (square.Tile != 0)
 			{
-				square.PlaceTile(0);
+				square.PlaceTile(0, false);
 				
 				EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged,
 											{ 'Board': this, 'Square': square });
@@ -596,7 +633,15 @@ var _Html = function()
 		if (square.Tile != 0)
 		{
 			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
-			a.setAttribute('class', 'Tile');
+			a.setAttribute('class', square.TileLocked ? 'Tile Locked' : 'Tile Temp');
+			
+			if (!square.TileLocked)
+			{
+			$(a).mousedown(
+				function () {
+					$(this).css({'border' : '0.35em outset #FFF8C6'});
+				}
+			);
 			
 			$(a).draggable({ //"#board .Tile"
 				revert: "invalid",
@@ -612,17 +657,26 @@ var _Html = function()
 					var shadow = "4px 4px 5px #333333";
 					$(ui.helper).css({"-webkit-box-shadow": shadow});
 					$(ui.helper).css({"-moz-box-shadow": shadow});
+					$(ui.helper).css({"-o-box-shadow": shadow});
 					$(ui.helper).css({"box-shadow": shadow});
 					
+					//$(this).css({"color": "#333333"});
 					
 					$(ui.helper).css({ "z-index": 1000 });
 				},
-				drag: function() {},
-				stop: function()
+				
+				drag: function(event, ui)
+				{
+					//$(ui.helper).css({"color": "#333333 !important"});
+				},
+				stop: function(event, ui)
 				{
 					$(this).css({ opacity: 1 });
+
+					PlayAudio('audio5');
 				}
 				});
+			}
 				
 			var txt1 = document.createTextNode(square.Tile.Letter);
 			var span1 = document.createElement('span');

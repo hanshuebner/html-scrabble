@@ -225,7 +225,17 @@ background-color: #ECE5B6;
 border: 0.35em outset #FFF8C6;
 
 -moz-border-radius: 0.8em;
+-webkit-border-radius: 0.8em;
+-o-border-radius: 0.8em;
 border-radius: 0.8em;
+
+text-shadow: 1px 1px 2px #ffffff;
+}
+
+.board td a.Locked
+{
+cursor: default;
+color: #666633;
 }
 
 .board td a.Tile span.Letter
@@ -248,11 +258,6 @@ padding-left: -0.4em;
 .board td.CenterStart a.Empty
 {
 border: 0.35em solid #306754;
-
-/*
--moz-border-radius: 9em;
-border-radius: 9em;
-*/
 }
 
 .board td.CenterStart a.Empty span
@@ -262,22 +267,53 @@ line-height: 1.4em;
 color: #306754;
 }
 
-.board td a.Tile:hover
+@-moz-keyframes glow
 {
-/*
+0% {
 border: 0.35em solid #FFFFFF;
+}
+100% {
+border: 0.35em solid #333333;
+}
+}
 
--moz-border-radius: 0.8em;
-border-radius: 0.8em;
-*/
+@-webkit-keyframes glow
+{
+0% {
+border: 0.35em solid #FFFFFF;
+}
+100% {
+border: 0.35em solid #333333;
+}
+}
+
+.board td a.Temp:hover
+{
+color: black !important;
+
+-webkit-animation-name: glow;
+-webkit-animation-duration: 0.5s;
+-webkit-animation-iteration-count: infinite;
+-webkit-animation-direction: alternate;
+-webkit-animation-timing-function: linear;
+
+-moz-animation-name: glow;
+-moz-animation-duration: 0.5s;
+-moz-animation-iteration-count: infinite;
+-moz-animation-direction: alternate;
+-moz-animation-timing-function: linear;
+
+border: 0.35em solid #333333;
 }
 
 a.dropActive
 {
 border: 0.35em solid #333333 !important;
+
 box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -webkit-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -moz-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
+-o-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 }
 
 #rack
