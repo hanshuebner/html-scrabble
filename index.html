@@ -34,6 +34,12 @@ lang="en">
 	<!-- script type="text/javascript" src="javascript/jquery.event.drag-2.0.js"></script>
 	<script type="text/javascript" src="javascript/jquery.event.drop-2.0.js"></script -->
 	
+	<!-- script type="text/javascript" src="javascript/jquery.animate-enhanced.min.js"></script -->
+	
+	<script src="javascript/jquery-css-transform.js" type="text/javascript"></script>
+	<script src="javascript/jquery-animate-css-rotate-scale.js" type="text/javascript"></script>
+	<script src="javascript/rotate3Di.js" type="text/javascript"></script>
+	
 	<script type="text/javascript" src="javascript/jquery-ui-1.8.7.custom.min.js"></script>
 	
 	<script>var _sf_startpt=(new Date()).getTime()</script>
@@ -120,7 +126,15 @@ lang="en">
 </head>
 <body id="body">
 
-<div class="title">
+	<audio id="audio0" src="audio/20258__Koops__Page_Turn_24.wav" preload="auto"></audio>
+	<audio id="audio1" src="audio/1257__Anton__hit_on_wood.wav" preload="auto"></audio>
+	<audio id="audio2" src="audio/1258__Anton__hit_on_wood2.wav" preload="auto"></audio>
+	<audio id="audio3" src="audio/37161__volivieri__soccer_stomp_01.wav" preload="auto"></audio>
+	<audio id="audio4" src="audio/54405__KorgMS2000B__Button_Click.wav" preload="auto"></audio>
+	<audio id="audio5" src="audio/32435__HardPCM__Wood012.wav" preload="auto"></audio>
+
+
+<div id="title">
 <span>ELBBARCS</span>
 </div>
 
@@ -128,31 +142,25 @@ lang="en">
 	<input type="submit" onclick="placeRandomTiles();" value="Randomize Tiles"></input>
 </p>
 
-<audio id="audio0" src="audio/20258__Koops__Page_Turn_24.wav" preload="auto"></audio>
-<audio id="audio1" src="audio/1257__Anton__hit_on_wood.wav" preload="auto"></audio>
-<audio id="audio2" src="audio/1258__Anton__hit_on_wood2.wav" preload="auto"></audio>
-<audio id="audio3" src="audio/37161__volivieri__soccer_stomp_01.wav" preload="auto"></audio>
-<audio id="audio4" src="audio/54405__KorgMS2000B__Button_Click.wav" preload="auto"></audio>
-<audio id="audio5" src="audio/32435__HardPCM__Wood012.wav" preload="auto"></audio>
+<div id="rack" class="tableDivWrap bottomShade">
 
-<div id="board" class="board">
-</div>
-
-<div id="rack" class="board">
-
-<table>
-<tr>
-<td class="Normal"><a class="Tile" id="tile1"><span class="Letter">T</span><span class="Score">10</span></a></td>
-<td class="Normal"><a class="Tile" id="tile2"><span class="Letter">F</span><span class="Score">7</span></a></td>
-<td class="Normal"><a class="Empty" id="empty1"><span> </span></a></td>
-<td class="Normal"><a class="Tile" id="tile3"><span class="Letter">G</span><span class="Score">3</span></a></td>
-<td class="Normal"><a class="Tile" id="tile4"><span class="Letter">P</span><span class="Score">3</span></a></td>
-<td class="Normal"><a class="Empty" id="empty2"><span> </span></a></td>
-<td class="Normal"><a class="Empty" id="empty3"><span> </span></a></td>
-</tr>
-</table>
+	<table>
+	<tr>
+	<td class="Normal"><a class="Tile" id="tile1"><span class="Letter">T</span><span class="Score">10</span></a></td>
+	<td class="Normal"><a class="Tile" id="tile2"><span class="Letter">F</span><span class="Score">7</span></a></td>
+	<td class="Normal"><a class="Empty" id="empty1"><span> </span></a></td>
+	<td class="Normal"><a class="Tile" id="tile3"><span class="Letter">G</span><span class="Score">3</span></a></td>
+	<td class="Normal"><a class="Tile" id="tile4"><span class="Letter">P</span><span class="Score">3</span></a></td>
+	<td class="Normal"><a class="Empty" id="empty2"><span> </span></a></td>
+	<td class="Normal"><a class="Empty" id="empty3"><span> </span></a></td>
+	</tr>
+	</table>
 
 </div>
+
+<div id="board" class="tableDivWrap surroundShade">
+</div>
+
 
 </body>
 </html>

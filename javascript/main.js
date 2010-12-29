@@ -584,6 +584,51 @@ _Board.prototype.GenerateRandomTiles = function()
 			}
 		}
 	}
+	
+					/*
+						$(this).animate({left: "+=200px", width:320 }, 1500, function() {
+
+								$(this).animate({left: "-=200px", width:280 }, 1500, function() {
+
+								});
+							});
+							*/
+	//$("#board").fadeOut();
+						//	table.fadeIn("fast");
+						//		table.animate({rotate: '+=45deg'});
+	
+	
+	var obj = $("#rack table");
+
+	//obj.effect("pulsate", { times:2 }, 500);
+
+	//obj.css({opacity: 0.5});
+	//obj.scale(0.5);
+
+	//obj.animate({opacity: 1}, 500);
+
+//obj.show("clip", {}, 500);
+
+//obj.effect("transfer", { to: $("#title") }, 1000);
+
+//obj.effect("bounce", { times: 3, direction: "right" }, 500);
+
+	obj.rotate3Di(360, 1000,
+	        {
+	            sideChange: function(front) {
+				    if (front) {
+				        //
+				    } else {
+	//			        obj.animate({scale: 1}, 500);
+				    }
+				}
+				,
+	            complete: function() {
+				    //
+				}
+	        }
+	    );
+
 }
 
 
@@ -677,6 +722,8 @@ var _Html = function()
 				}
 			);
 			
+			var doneOnce = false;
+			
 			$(a).draggable({ //"#board .Tile"
 				revert: "invalid",
 				//cursor: "move",
@@ -687,12 +734,15 @@ var _Html = function()
 				{
 					PlayAudio("audio3");
 					
-					$(this).removeClass("Selected");
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var aa = document.getElementById(idSelected);
+						$(aa).removeClass("Selected");
+					}
 					html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
 					
 					$(this).css({ opacity: 0.5 });
-					
-					$(ui.helper).css({'border' : '0.35em outset #FFF8C6'});
 					
 					$(ui.helper).animate({'font-size' : '0.7em'}, 300); //height : '+=10px', width : '+=10px', 
 					var shadow = "4px 4px 5px #333333";
@@ -702,10 +752,27 @@ var _Html = function()
 					$(ui.helper).css({"box-shadow": shadow});
 					
 					$(ui.helper).css({ "z-index": 1000 });
+					
+						/*
+						$(ui.helper).css({'border-color' : 'blue'});
+						$(ui.helper).css({'-webkit-animation-name' : 'void'});
+						$(ui.helper).css({'-moz-animation-name' : 'void'});
+						$(ui.helper).css({'animation-name' : 'void'});
+						*/
+						
+						$(ui.helper).addClass("dragBorder");
+					
 				},
 				
 				drag: function(event, ui)
 				{
+					if (!doneOnce)
+					{
+						$(ui.helper).addClass("dragBorder");
+						
+						doneOnce = true;
+					}
+					
 					//$(ui.helper).css({"color": "#333333 !important"});
 				},
 				stop: function(event, ui)

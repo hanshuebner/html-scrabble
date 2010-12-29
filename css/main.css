@@ -17,14 +17,14 @@ font-size: 1em;
 background: #FFFFFF url('../images/Background.png') repeat left top;
 }
 
-.title
+#title
 {
 margin: 0;
 padding: 0;
 padding-top: 1em;
 }
 
-.title span
+#title span
 {
 font-size: 4.5em;
 
@@ -36,7 +36,7 @@ letter-spacing: 0.7em;
 padding-left: 0.7em;
 }
 
-.board
+.tableDivWrap
 {
 margin: 0;
 padding: 0;
@@ -45,16 +45,27 @@ width: 100%;
 font-size: 100%;
 }
 
-.board table
+.surroundShade table
+{
+	box-shadow: 0 0 1em #333333;
+	-webkit-box-shadow: 0 0 1em #333333;
+	-moz-box-shadow: 0 0 1em #333333;
+	-o-box-shadow: 0 0 1em #333333;
+}
+
+.bottomShade table
+{
+	box-shadow: 0 0.5em 1em #333333;
+	-webkit-box-shadow: 0 0.5em 1em #333333;
+	-moz-box-shadow: 0 0.5em 1em #333333;
+	-o-box-shadow: 0 0.5em 1em #333333;
+}
+
+.tableDivWrap table
 {
 /*
 table-layout: fixed;
 */
-
-box-shadow: 0 0 1em #333333;
--webkit-box-shadow: 0 0 1em #333333;
--moz-box-shadow: 0 0 1em #333333;
--o-box-shadow: 0 0 1em #333333;
 
 border-collapse: separate; /* collapse ==== zero 'cellspacing' */
 border-spacing: 0 0; /* horizontal, vertical */
@@ -71,50 +82,49 @@ padding: 0.5em;
 background-color: #306754;
 }
 
-.board tr
+#rack table
+{
+border: 0.14em solid #333333;
+padding: 0.2em;
+padding-bottom: 0.6em;
+}
+
+#rack table td
+{
+border-bottom: 0.2em solid #333333;
+}
+
+.tableDivWrap tr
 {
 margin: 0;
 padding: 0;
 
 border: none;
-
-background-color: red;
 }
 
-.board td
+.tableDivWrap td
 {
--webkit-user-select: none;
--moz-user-select: none;
--o-user-select: none;
-user-select: none;
-
 margin: 0;
 padding: 0; /* table 'cellpadding' */
 
 border: none;
-
-background-color: red;
 
 text-align: center;
 vertical-align: middle;
 
 white-space: normal;
 overflow: hidden;
-
 /*
 text-overflow: ellipsis;
 */
-}
 
-.board td
-{
 border-width: 0.15em;
 border-style: dotted;
 
 background-color: #4E9258;
 }
 
-.board td.Normal
+.tableDivWrap td.Normal
 {
 border-style: solid;
 border-color: #306754;
@@ -122,36 +132,41 @@ border-color: #306754;
 background-color: #4E9258;
 }
 
-.board td.DoubleWord
+.tableDivWrap td.DoubleWord
 {
 border-color: #FBBBB9;
 
 background-color: #306754;
 }
 
-.board td.TripleWord
+.tableDivWrap td.TripleWord
 {
 border-color: #F75D59;
 
 background-color: #306754;
 }
 
-.board td.DoubleLetter
+.tableDivWrap td.DoubleLetter
 {
 border-color: #A0CFEC;
 
 background-color: #306754;
 }
 
-.board td.TripleLetter
+.tableDivWrap td.TripleLetter
 {
 border-color: #157DEC;
 
 background-color: #306754;
 }
 
-.board td a
+.tableDivWrap td a
 {
+-webkit-user-select: none;
+-moz-user-select: none;
+-o-user-select: none;
+user-select: none;
+
 text-decoration: none;
 
 display: block; /* table-cell */
@@ -172,113 +187,11 @@ line-height: 1.7em;
 
 width: 5em;
 height: 5em;
-}
 
-.board td a span
-{
-margin: 0;
-padding: 0;
-
-/*
-text-align: center;
-vertical-align: middle;
-*/
-}
-
-.board td.DoubleWord a
-{
-background-color: #FBBBB9;
-
-border: 0.35em solid #FBBBB9;
+border-width: 0.35em;
+border-style: solid;
 
 cursor: crosshair;
-}
-
-.board td.TripleWord a
-{
-background-color: #F75D59;
-
-border: 0.35em solid #F75D59;
-
-cursor: crosshair;
-}
-
-.board td.Normal a
-{
-background-color: #4E9258;
-
-border: 0.35em solid #4E9258;
-
-cursor: crosshair;
-}
-
-.board td.DoubleLetter a
-{
-background-color: #A0CFEC;
-
-border: 0.35em solid #A0CFEC;
-
-cursor: crosshair;
-}
-
-.board td.TripleLetter a
-{
-background-color: #157DEC;
-
-border: 0.35em solid #157DEC;
-
-cursor: crosshair;
-}
-
-.board td a.Tile
-{
-cursor: move;
-
-background-color: #ECE5B6;
-
-border: 0.35em outset #FFF8C6;
-
--moz-border-radius: 0.8em;
--webkit-border-radius: 0.8em;
--o-border-radius: 0.8em;
-border-radius: 0.8em;
-
-text-shadow: 1px 1px 2px #ffffff;
-}
-
-.board td a.Locked
-{
-cursor: default;
-color: #666633;
-}
-
-.board td a.Tile span.Letter
-{
-font-size: 2.2em;
-font-weight: bold;
-
-line-height: 2.5em;
-
-padding-left: 0.3em;
-}
-
-.board td a.Tile span.Score
-{
-font-size: 1.4em;
-vertical-align: sub;
-padding-left: -0.4em;
-}
-
-.board td.CenterStart a.Empty
-{
-border: 0.35em solid #306754;
-}
-
-.board td.CenterStart a.Empty span
-{
-font-size: 3.6em;
-line-height: 1.4em;
-color: #306754;
 }
 
 @-moz-keyframes glow
@@ -301,14 +214,88 @@ border: 0.35em solid #333333;
 }
 }
 
-.board td a.Temp:hover
+@keyframes glow
+{
+0% {
+border: 0.35em solid #FFFFFF;
+}
+100% {
+border: 0.35em solid #333333;
+}
+}
+
+.tableDivWrap td.DoubleWord a
+{
+background-color: #FBBBB9;
+
+border-color: #FBBBB9;
+}
+
+.tableDivWrap td.TripleWord a
+{
+background-color: #F75D59;
+
+border-color: #F75D59;
+}
+
+.tableDivWrap td.Normal a
+{
+background-color: #4E9258;
+
+border-color: #4E9258;
+}
+
+.tableDivWrap td.DoubleLetter a
+{
+background-color: #A0CFEC;
+
+border-color: #A0CFEC;
+}
+
+.tableDivWrap td.TripleLetter a
+{
+background-color: #157DEC;
+
+border-color: #157DEC;
+}
+
+.tableDivWrap td a.Tile
+{
+cursor: move;
+
+background-color: #ECE5B6;
+
+border-color: #FFF8C6;
+border-style: outset;
+
+-moz-border-radius: 0.8em;
+-webkit-border-radius: 0.8em;
+-o-border-radius: 0.8em;
+border-radius: 0.8em;
+
+text-shadow: 1px 1px 2px #ffffff;
+}
+
+.tableDivWrap td a.Locked
+{
+cursor: default;
+color: #666633;
+}
+
+.tableDivWrap td.CenterStart a.Empty
+{
+border-color: #306754;
+}
+
+.tableDivWrap td a.Temp:hover
 {
 color: black !important;
 
-border: 0.35em solid #333333;
+border-color: #DC143C;
 }
 
-.board td a.Selected
+
+.tableDivWrap td a.Selected, .dragBorder
 {
 color: black !important;
 
@@ -324,14 +311,20 @@ color: black !important;
 -moz-animation-direction: alternate;
 -moz-animation-timing-function: linear;
 
-border: 0.35em solid #333333 !important;
+animation-name: glow;
+animation-duration: 0.5s;
+animation-iteration-count: infinite;
+animation-direction: alternate;
+animation-timing-function: linear;
+
+border-color: #333333 !important;
 }
 
-a.dropActive, .board td a.Targeted:hover
+.tableDivWrap td a.dropActive, .tableDivWrap td a.Targeted:hover
 {
 cursor: pointer;
 
-border: 0.35em solid #333333 !important;
+border-color: #333333 !important;
 
 box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -webkit-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
@@ -339,8 +332,37 @@ box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -o-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 }
 
-.board table.rack
+.tableDivWrap td a span
 {
-border: 0.2em solid #333333;
-padding: 0.2em;
+margin: 0;
+padding: 0;
+
+/*
+text-align: center;
+vertical-align: middle;
+*/
+}
+
+.tableDivWrap td a.Tile span.Letter
+{
+font-size: 2.2em;
+font-weight: bold;
+
+line-height: 2.5em;
+
+padding-left: 0.3em;
+}
+
+.tableDivWrap td a.Tile span.Score
+{
+font-size: 1.4em;
+vertical-align: sub;
+padding-left: -0.4em;
+}
+
+.tableDivWrap td.CenterStart a.Empty span
+{
+font-size: 3.6em;
+line-height: 1.4em;
+color: #306754;
 }
