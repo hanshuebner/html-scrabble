@@ -497,6 +497,10 @@ _Board.prototype.MoveTile = function(tileXY, squareXY)
 	var tile = square1.Tile;
 	square1.PlaceTile(0);
 	square2.PlaceTile(tile);
+
+	var audio = document.getElementById(square2.Type == SquareType.Normal ? 'audio2' : 'audio3');
+	audio.pause();
+	audio.play();
 	
 	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square1 });
 	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square2 });
@@ -663,10 +667,6 @@ var _Html = function()
 				
 					//alert(x1 + "x" + y1);
 				
-					var audio = document.getElementById('audio2');
-					audio.pause();
-					audio.play();
-						
 					board.MoveTile({'x':x1, 'y':y1}, {'x':x2, 'y':y2});
 				}
 			});
