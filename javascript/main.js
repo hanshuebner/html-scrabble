@@ -211,6 +211,39 @@ EnsureNamespace("Scrabble.UI");
 
 var IDPrefix_SquareOrTile = "squareOrTile_";
 
+
+//=================================================
+// BEGIN Scrabble.Core.Tile ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Tile == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Tile"])
+_OBJECT_ROOT_.Scrabble.Core.Tile = (function(){
+
+console.log("inside Scrabble.Core.Tile code scope");
+
+with (Scrabble.Core)
+{
+
+//function _Tile()
+var _Tile = function()
+{
+	this.Letter = arguments[0];
+	this.Score = arguments[1];
+}
+
+_Tile.prototype.Letter = '';
+_Tile.prototype.Score = 0;
+
+_Tile.prototype.toString = function()
+{
+	return "Scrabble.Core.Tile toString(): [" + this.Letter + "] --> " + this.Score;
+}
+
+} // END - with (Scrabble.Core)
+
+return _Tile;
+})();
+// END Scrabble.Core.Tile ------------------
+//=================================================
+
 //=================================================
 // BEGIN Scrabble.Core.SquareType ------------------
 Scrabble.Core.SquareType =
@@ -267,6 +300,13 @@ var _Square = function()
 
 _Square.prototype.X = 0;
 _Square.prototype.Y = 0;
+
+_Square.prototype.Tile = 0;
+
+_Square.prototype.PlaceTile = function(tile)
+{
+	this.Tile = tile;
+}
 
 _Square.prototype.toString = function()
 {
@@ -377,58 +417,6 @@ var _Board = function()
 		
 		EventsManager.DispatchEvent(this.Event_ScrabbleBoardReady, { 'Board': this });
 	}
-	
-	function GenerateRandomTiles()
-	{
-		for (var y = 0; y < this.Dimension; y++)
-		{
-			for (var x = 0; x < this.Dimension; x++)
-			{
-				var centerStart = false;
-			
-				var square = this.SquaresList[x + this.Dimension * y];
-			
-				var middle = Math.floor(this.Dimension / 2);
-				var halfMiddle = Math.ceil(middle / 2);
-			
-				var makeTile = Math.floor(Math.random()*2);
-				if (!(makeTile && y < middle)) continue;
-				
-				var id = IDPrefix_SquareOrTile + x + "x" + y;
-				var td = document.getElementById(id).parentNode;
-				if (td.hasChildNodes())
-				{
-					while (td.childNodes.length >= 1)
-					{
-						td.removeChild(td.firstChild);
-				    }
-				}
-				
-				var a = document.createElement('a');
-				td.appendChild(a);
-
-				a.setAttribute('id', id);
-				//td.setAttribute('class', td.getAttribute('class') + ' Tile');
-				a.setAttribute('class', 'Tile');
-				
-				var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-				var letter_index = Math.floor(Math.random() * letters.length);
-				var letter = letters.substring(letter_index, letter_index+1);
-				var txt1 = document.createTextNode(letter);
-				var span1 = document.createElement('span');
-				span1.setAttribute('class', 'Letter');
-				span1.appendChild(txt1);
-				a.appendChild(span1);
-
-				var score = Math.floor(Math.random()*10) + 1;
-				var txt2 = document.createTextNode(score);
-				var span2 = document.createElement('span');
-				span2.setAttribute('class', 'Score');
-				span2.appendChild(txt2);
-				a.appendChild(span2);
-			}
-		}
-	}
 
 	function SetDimension()
 	{
@@ -491,14 +479,55 @@ var _Board = function()
 	//SetDimensions(arguments);
 	
 	CreateGrid.apply(this);
-	GenerateRandomTiles.apply(this);
+	this.GenerateRandomTiles();
 }
 
 _Board.prototype.Event_ScrabbleBoardReady = "ScrabbleBoardReady";
+_Board.prototype.Event_ScrabbleSquareTileChanged = "ScrabbleSquareTileChanged";
 
 _Board.prototype.Dimension = NaN;
 
 _Board.prototype.SquaresList = [];
+
+_Board.prototype.GenerateRandomTiles = function()
+{
+	for (var y = 0; y < this.Dimension; y++)
+	{
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			var centerStart = false;
+		
+			var square = this.SquaresList[x + this.Dimension * y];
+		
+			var middle = Math.floor(this.Dimension / 2);
+			var halfMiddle = Math.ceil(middle / 2);
+		
+			var makeTile = Math.floor(Math.random()*2);
+			if (makeTile && y < middle)
+			{
+				var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				var letter_index = Math.floor(Math.random() * letters.length);
+				var letter = letters.substring(letter_index, letter_index+1);
+			
+				var score = Math.floor(Math.random()*10) + 1;
+			
+				var tile = new Tile(letter, score);
+				square.PlaceTile(tile);
+			
+				EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged,
+											{ 'Board': this, 'Square': square });
+			}
+			else if (square.Tile != 0)
+			{
+				square.PlaceTile(0);
+				
+				EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged,
+											{ 'Board': this, 'Square': square });
+			}
+		}
+	}
+}
+
 
 _Board.prototype.toString = function()
 {
@@ -527,7 +556,91 @@ with (Scrabble.Core)
 {
 var _Html = function()
 {
+	function UpdateHtmlTableCell(board, square)
+	{
+		var id = IDPrefix_SquareOrTile + square.X + "x" + square.Y;
+		var td = document.getElementById(id).parentNode;
+		if (td.hasChildNodes())
+		{
+			while (td.childNodes.length >= 1)
+			{
+				td.removeChild(td.firstChild);
+		    }
+		}
+		
+		var a = document.createElement('a');
+		td.appendChild(a);
+		a.setAttribute('id', id);
+		
+		if (square.Tile != 0)
+		{
+			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
+			a.setAttribute('class', 'Tile');
+	
+			var txt1 = document.createTextNode(square.Tile.Letter);
+			var span1 = document.createElement('span');
+			span1.setAttribute('class', 'Letter');
+			span1.appendChild(txt1);
+			a.appendChild(span1);
 
+			var txt2 = document.createTextNode(square.Tile.Score);
+			var span2 = document.createElement('span');
+			span2.setAttribute('class', 'Score');
+			span2.appendChild(txt2);
+			a.appendChild(span2);
+		}
+		else
+		{
+			switch (square.Type)
+			{
+				case SquareType.Normal:
+					var span1 = document.createElement('span');
+					var txt1 = document.createTextNode(" ");
+					span1.appendChild(txt1);
+					a.appendChild(span1);
+		
+					break;
+				case SquareType.DoubleWord:
+					var span = document.createElement('span');
+					var txt1 = document.createTextNode("DOUBLE WORD SCORE");
+					
+					var middle = Math.floor(board.Dimension / 2);
+					if (square.X == middle && square.Y == middle)
+					{
+						txt1 = document.createTextNode('\u2605');
+					}
+					span.appendChild(txt1);
+			
+					a.appendChild(span);
+					break;
+				case SquareType.TripleWord:
+					var span = document.createElement('span');
+					var txt1 = document.createTextNode("TRIPLE WORD SCORE");
+					span.appendChild(txt1);
+			
+					a.appendChild(span);
+					break;
+				
+				case SquareType.DoubleLetter:
+					var span = document.createElement('span');
+					var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
+					span.appendChild(txt1);
+			
+					a.appendChild(span);
+					break;
+				case SquareType.TripleLetter:
+					var span = document.createElement('span');
+					var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
+					span.appendChild(txt1);
+			
+					a.appendChild(span);
+					break;
+				default:
+					break;
+			}
+		}
+	}
+	
 	function DrawHtmlTable(board)
 	{
 		var rootDiv = document.getElementById('board');
@@ -541,13 +654,13 @@ var _Html = function()
 		
 			for (var x = 0; x < board.Dimension; x++)
 			{
+				var square = board.SquaresList[x + board.Dimension * y];
+
 				var centerStart = false;
 			
 				var td = document.createElement('td');
 				tr.appendChild(td);
-			
-				var square = board.SquaresList[x + board.Dimension * y];
-			
+				
 				var middle = Math.floor(board.Dimension / 2);
 				var halfMiddle = Math.ceil(middle / 2);
 			
@@ -584,52 +697,8 @@ var _Html = function()
 				td.appendChild(a);
 				var id = IDPrefix_SquareOrTile + x + "x" + y;
 				a.setAttribute('id', id);
-			
-				switch (square.Type)
-				{
-					case SquareType.Normal:
-						var span1 = document.createElement('span');
-						var txt1 = document.createTextNode(" ");
-						span1.appendChild(txt1);
-						a.appendChild(span1);
-			
-						break;
-					case SquareType.DoubleWord:
-						var span = document.createElement('span');
-						var txt1 = document.createTextNode("DOUBLE WORD SCORE");
-						if (centerStart)
-						{
-							txt1 = document.createTextNode('\u2605');
-						}
-						span.appendChild(txt1);
 				
-						a.appendChild(span);
-						break;
-					case SquareType.TripleWord:
-						var span = document.createElement('span');
-						var txt1 = document.createTextNode("TRIPLE WORD SCORE");
-						span.appendChild(txt1);
-				
-						a.appendChild(span);
-						break;
-					
-					case SquareType.DoubleLetter:
-						var span = document.createElement('span');
-						var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
-						span.appendChild(txt1);
-				
-						a.appendChild(span);
-						break;
-					case SquareType.TripleLetter:
-						var span = document.createElement('span');
-						var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
-						span.appendChild(txt1);
-				
-						a.appendChild(span);
-						break;
-					default:
-						break;
-				}
+				UpdateHtmlTableCell(board, square);
 			}
 		}
 	}
@@ -640,6 +709,13 @@ var _Html = function()
 		};
 
 	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardReady, callback_ScrabbleBoardReady);
+	
+	var callback_ScrabbleSquareTileChanged = function(eventPayload)
+		{
+			UpdateHtmlTableCell(eventPayload.Board, eventPayload.Square);
+		};
+
+	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleSquareTileChanged, callback_ScrabbleSquareTileChanged);
 }
 } // END - with (Scrabble.Core)
 
