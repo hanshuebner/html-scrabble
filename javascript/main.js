@@ -614,7 +614,7 @@ with (Scrabble.Core)
 {
 var _Html = function()
 {
-	function UpdateHtmlTableCell(board, square)
+	function UpdateHtmlTableCell(html, board, square)
 	{
 		var id = IDPrefix_SquareOrTile + square.X + "x" + square.Y;
 		var td = document.getElementById(id).parentNode;
@@ -637,7 +637,38 @@ var _Html = function()
 			
 			if (!square.TileLocked)
 			{
-			$(a).mousedown(
+			$(a).click(
+				function () {
+					var id1 = $(this).attr("id");
+					var underscore1 = id1.indexOf("_");
+					var cross1 = id1.indexOf("x");
+					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+					var y1 = parseInt(id1.substring(cross1 + 1), 10);
+					
+					
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var aa = document.getElementById(idSelected);
+
+						$(aa).removeClass("Selected");
+						
+						if (x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y)
+						{
+							PlayAudio("audio1");
+						
+							html.CurrentlySelectedSquare = 0;
+							return;
+						}
+					}
+					
+					PlayAudio("audio3");
+					
+					html.CurrentlySelectedSquare = board.SquaresList[x1 + board.Dimension * y1];
+					$(this).addClass("Selected");
+				}
+			);
+			$(a).mousedown( // hack needed to make the clone drag'n'drop work correctly.
 				function () {
 					$(this).css({'border' : '0.35em outset #FFF8C6'});
 				}
@@ -651,6 +682,8 @@ var _Html = function()
 				//snap: ".Empty",
 				start: function(event, ui)
 				{
+					PlayAudio("audio3");
+					
 					$(this).css({ opacity: 0.5 });
 					
 					$(ui.helper).animate({'font-size' : '0.7em'}, 300); //height : '+=10px', width : '+=10px', 
@@ -694,6 +727,26 @@ var _Html = function()
 		{
 			a.setAttribute('class', 'Empty');
 			
+			$(a).click(
+				function () {
+					var id1 = $(this).attr("id");
+					var underscore1 = id1.indexOf("_");
+					var cross1 = id1.indexOf("x");
+					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+					var y1 = parseInt(id1.substring(cross1 + 1), 10);
+					
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var aa = document.getElementById(idSelected);
+
+						$(aa).removeClass("Selected");
+						
+						board.MoveTile({'x':html.CurrentlySelectedSquare.X, 'y':html.CurrentlySelectedSquare.Y}, {'x':x1, 'y':y1});
+					}
+				}
+			);
+
 			$(a).droppable({ //"#board .Empty"
 				//accept: ".Tile",
 				//activeClass: "dropActive",
@@ -774,7 +827,7 @@ var _Html = function()
 		}
 	}
 	
-	function DrawHtmlTable(board)
+	function DrawHtmlTable(html, board)
 	{
 		var rootDiv = document.getElementById('board');
 		var table = document.createElement('table');
@@ -831,25 +884,30 @@ var _Html = function()
 				var id = IDPrefix_SquareOrTile + x + "x" + y;
 				a.setAttribute('id', id);
 				
-				UpdateHtmlTableCell(board, square);
+				UpdateHtmlTableCell(html, board, square);
 			}
 		}
 	}
 
+	var thiz = this;
+	
 	var callback_ScrabbleBoardReady = function(eventPayload)
 		{
-			DrawHtmlTable(eventPayload.Board);
+			DrawHtmlTable(thiz, eventPayload.Board);
 		};
 
 	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardReady, callback_ScrabbleBoardReady);
 	
 	var callback_ScrabbleSquareTileChanged = function(eventPayload)
 		{
-			UpdateHtmlTableCell(eventPayload.Board, eventPayload.Square);
+			UpdateHtmlTableCell(thiz, eventPayload.Board, eventPayload.Square);
 		};
 
 	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleSquareTileChanged, callback_ScrabbleSquareTileChanged);
 }
+
+_Html.prototype.CurrentlySelectedSquare = 0;
+
 } // END - with (Scrabble.Core)
 
 return _Html;

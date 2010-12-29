@@ -292,6 +292,13 @@ border: 0.35em solid #333333;
 {
 color: black !important;
 
+border: 0.35em solid #333333;
+}
+
+.board td a.Selected
+{
+color: black !important;
+
 -webkit-animation-name: glow;
 -webkit-animation-duration: 0.5s;
 -webkit-animation-iteration-count: infinite;
@@ -304,7 +311,7 @@ color: black !important;
 -moz-animation-direction: alternate;
 -moz-animation-timing-function: linear;
 
-border: 0.35em solid #333333;
+border: 0.35em solid #333333 !important;
 }
 
 a.dropActive
