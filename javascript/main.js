@@ -742,7 +742,12 @@ var _Html = function()
 
 						$(aa).removeClass("Selected");
 						
-						board.MoveTile({'x':html.CurrentlySelectedSquare.X, 'y':html.CurrentlySelectedSquare.Y}, {'x':x1, 'y':y1});
+						var XX = html.CurrentlySelectedSquare.X;
+						var YY = html.CurrentlySelectedSquare.Y;
+						
+						html.CurrentlySelectedSquare = 0;
+						
+						board.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 					}
 				}
 			);
