@@ -39,6 +39,7 @@
 			// flag this function so we don't do the same thing twice
 			arguments.callee.done = true;
 			
+			var boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
 			var board = new window.Scrabble.Core.Board();
 		};
 

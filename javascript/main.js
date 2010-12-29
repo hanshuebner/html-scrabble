@@ -209,6 +209,7 @@ return _EventsManager;
 EnsureNamespace("Scrabble.Core");
 EnsureNamespace("Scrabble.UI");
 
+var IDPrefix_SquareOrTile = "squareOrTile_";
 
 //=================================================
 // BEGIN Scrabble.Core.SquareType ------------------
@@ -293,137 +294,6 @@ with (Scrabble.Core)
 //function _Board()
 var _Board = function()
 {
-	function DrawHtmlGrid()
-	{
-		var rootDiv = document.getElementById('board');
-		var table = document.createElement('table');
-		rootDiv.appendChild(table);
-		
-		for (var y = 0; y < this.Dimension; y++)
-		{
-			var tr = document.createElement('tr');
-			table.appendChild(tr);
-			
-			for (var x = 0; x < this.Dimension; x++)
-			{
-				var centerStart = false;
-				
-				var td = document.createElement('td');
-				tr.appendChild(td);
-				
-				var square = this.SquaresList[x + this.Dimension * y];
-				
-				var middle = Math.floor(this.Dimension / 2);
-				var halfMiddle = Math.ceil(middle / 2);
-				
-				if (square.Type == SquareType.TripleWord)
-				{
-					td.setAttribute('class', 'TripleWord');
-				}
-				else if (square.Type == SquareType.DoubleWord)
-				{
-					if (x == middle && y == middle)
-					{
-						centerStart = true;
-						td.setAttribute('class', 'DoubleWord CenterStart');
-					}
-					else
-					{
-						td.setAttribute('class', 'DoubleWord');
-					}
-				}
-				else if (square.Type == SquareType.DoubleLetter)
-				{
-					td.setAttribute('class', 'DoubleLetter');
-				}
-				else if (square.Type == SquareType.TripleLetter)
-				{
-					td.setAttribute('class', 'TripleLetter');
-				}
-				else
-				{
-					td.setAttribute('class', 'Normal');
-				}
-				
-				var a = document.createElement('a');
-				td.appendChild(a);
-				var id = "square_" + x + "x" + y;
-				a.setAttribute('id', id);
-				
-				var makeTile = Math.floor(Math.random()*2);
-				if (makeTile && y < middle)
-				{
-					td.setAttribute('class', td.getAttribute('class') + ' Tile');
-					
-					a.setAttribute('class', 'Tile');
-					var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-					var letter_index = Math.floor(Math.random() * letters.length);
-					var letter = letters.substring(letter_index, letter_index+1);
-					var txt1 = document.createTextNode(letter);
-					var span1 = document.createElement('span');
-					span1.setAttribute('class', 'Letter');
-					span1.appendChild(txt1);
-					a.appendChild(span1);
-
-					var score = Math.floor(Math.random()*10) + 1;
-					var txt2 = document.createTextNode(score);
-					var span2 = document.createElement('span');
-					span2.setAttribute('class', 'Score');
-					span2.appendChild(txt2);
-					a.appendChild(span2);
-				}
-				else
-				{
-					switch (square.Type)
-					{
-						case SquareType.Normal:
-							var span1 = document.createElement('span');
-							var txt1 = document.createTextNode(" ");
-							span1.appendChild(txt1);
-							a.appendChild(span1);
-					
-							break;
-						case SquareType.DoubleWord:
-							var span = document.createElement('span');
-							var txt1 = document.createTextNode("DOUBLE WORD SCORE");
-							if (centerStart)
-							{
-								txt1 = document.createTextNode('\u2605');
-							}
-							span.appendChild(txt1);
-						
-							a.appendChild(span);
-							break;
-						case SquareType.TripleWord:
-							var span = document.createElement('span');
-							var txt1 = document.createTextNode("TRIPLE WORD SCORE");
-							span.appendChild(txt1);
-						
-							a.appendChild(span);
-							break;
-							
-						case SquareType.DoubleLetter:
-							var span = document.createElement('span');
-							var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
-							span.appendChild(txt1);
-						
-							a.appendChild(span);
-							break;
-						case SquareType.TripleLetter:
-							var span = document.createElement('span');
-							var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
-							span.appendChild(txt1);
-						
-							a.appendChild(span);
-							break;
-						default:
-							break;
-					}
-				}
-			}
-		}
-	}
-
 	function CreateGrid()
 	{
 		for (var y = 0; y < this.Dimension; y++)
@@ -504,6 +374,60 @@ var _Board = function()
 				this.SquaresList.push(square);
 			}
 		}
+		
+		EventsManager.DispatchEvent(this.Event_ScrabbleBoardReady, { 'Board': this });
+	}
+	
+	function GenerateRandomTiles()
+	{
+		for (var y = 0; y < this.Dimension; y++)
+		{
+			for (var x = 0; x < this.Dimension; x++)
+			{
+				var centerStart = false;
+			
+				var square = this.SquaresList[x + this.Dimension * y];
+			
+				var middle = Math.floor(this.Dimension / 2);
+				var halfMiddle = Math.ceil(middle / 2);
+			
+				var makeTile = Math.floor(Math.random()*2);
+				if (!(makeTile && y < middle)) continue;
+				
+				var id = IDPrefix_SquareOrTile + x + "x" + y;
+				var td = document.getElementById(id).parentNode;
+				if (td.hasChildNodes())
+				{
+					while (td.childNodes.length >= 1)
+					{
+						td.removeChild(td.firstChild);
+				    }
+				}
+				
+				var a = document.createElement('a');
+				td.appendChild(a);
+
+				a.setAttribute('id', id);
+				//td.setAttribute('class', td.getAttribute('class') + ' Tile');
+				a.setAttribute('class', 'Tile');
+				
+				var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				var letter_index = Math.floor(Math.random() * letters.length);
+				var letter = letters.substring(letter_index, letter_index+1);
+				var txt1 = document.createTextNode(letter);
+				var span1 = document.createElement('span');
+				span1.setAttribute('class', 'Letter');
+				span1.appendChild(txt1);
+				a.appendChild(span1);
+
+				var score = Math.floor(Math.random()*10) + 1;
+				var txt2 = document.createTextNode(score);
+				var span2 = document.createElement('span');
+				span2.setAttribute('class', 'Score');
+				span2.appendChild(txt2);
+				a.appendChild(span2);
+			}
+		}
 	}
 
 	function SetDimension()
@@ -519,8 +443,8 @@ var _Board = function()
 		this.Dimension = val;
 	}
 
-	//_Board.prototype.SetSquares = function()
-	function SetSquares()
+	//_Board.prototype.SetDimensions = function()
+	function SetDimensions()
 	{
 		if (this instanceof _Board)
 		{
@@ -546,7 +470,7 @@ var _Board = function()
 						{
 							argumentsString += arguments[0] + ", ";
 						}
-						throw new Error("Illegal arguments Scrabble.Core.Board.SetSquares(): " + argumentsString);
+						throw new Error("Illegal arguments Scrabble.Core.Board.SetDimensions(): " + argumentsString);
 						break;
 				}
 			}
@@ -558,17 +482,19 @@ var _Board = function()
 		}
 		else
 		{
-			throw new Error('Illegal method call Scrabble.Core.Board.SetSquares() on :' + typeof this);
+			throw new Error('Illegal method call Scrabble.Core.Board.SetDimensions() on :' + typeof this);
 		}
 	}
 	
 	console.log("Scrabble.Core.Board constructor before applying parameters");
-	SetSquares.apply(this, arguments);
-	//SetSquares(arguments);
+	SetDimensions.apply(this, arguments);
+	//SetDimensions(arguments);
 	
 	CreateGrid.apply(this);
-	DrawHtmlGrid.apply(this);
+	GenerateRandomTiles.apply(this);
 }
+
+_Board.prototype.Event_ScrabbleBoardReady = "ScrabbleBoardReady";
 
 _Board.prototype.Dimension = NaN;
 
@@ -589,6 +515,139 @@ return _Board;
 //Tile
 //LetterDistribution
 
+//=================================================
+// BEGIN Scrabble.UI.Html ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.UI.Html == "undefined" || !_OBJECT_ROOT_.Scrabble.UI["Html"])
+_OBJECT_ROOT_.Scrabble.UI.Html = (function(){
+//var _Html = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
+
+console.log("inside Scrabble.UI.Html code scope");
+
+with (Scrabble.Core)
+{
+var _Html = function()
+{
+
+	function DrawHtmlTable(board)
+	{
+		var rootDiv = document.getElementById('board');
+		var table = document.createElement('table');
+		rootDiv.appendChild(table);
+	
+		for (var y = 0; y < board.Dimension; y++)
+		{
+			var tr = document.createElement('tr');
+			table.appendChild(tr);
+		
+			for (var x = 0; x < board.Dimension; x++)
+			{
+				var centerStart = false;
+			
+				var td = document.createElement('td');
+				tr.appendChild(td);
+			
+				var square = board.SquaresList[x + board.Dimension * y];
+			
+				var middle = Math.floor(board.Dimension / 2);
+				var halfMiddle = Math.ceil(middle / 2);
+			
+				if (square.Type == SquareType.TripleWord)
+				{
+					td.setAttribute('class', 'TripleWord');
+				}
+				else if (square.Type == SquareType.DoubleWord)
+				{
+					if (x == middle && y == middle)
+					{
+						centerStart = true;
+						td.setAttribute('class', 'DoubleWord CenterStart');
+					}
+					else
+					{
+						td.setAttribute('class', 'DoubleWord');
+					}
+				}
+				else if (square.Type == SquareType.DoubleLetter)
+				{
+					td.setAttribute('class', 'DoubleLetter');
+				}
+				else if (square.Type == SquareType.TripleLetter)
+				{
+					td.setAttribute('class', 'TripleLetter');
+				}
+				else
+				{
+					td.setAttribute('class', 'Normal');
+				}
+			
+				var a = document.createElement('a');
+				td.appendChild(a);
+				var id = IDPrefix_SquareOrTile + x + "x" + y;
+				a.setAttribute('id', id);
+			
+				switch (square.Type)
+				{
+					case SquareType.Normal:
+						var span1 = document.createElement('span');
+						var txt1 = document.createTextNode(" ");
+						span1.appendChild(txt1);
+						a.appendChild(span1);
+			
+						break;
+					case SquareType.DoubleWord:
+						var span = document.createElement('span');
+						var txt1 = document.createTextNode("DOUBLE WORD SCORE");
+						if (centerStart)
+						{
+							txt1 = document.createTextNode('\u2605');
+						}
+						span.appendChild(txt1);
+				
+						a.appendChild(span);
+						break;
+					case SquareType.TripleWord:
+						var span = document.createElement('span');
+						var txt1 = document.createTextNode("TRIPLE WORD SCORE");
+						span.appendChild(txt1);
+				
+						a.appendChild(span);
+						break;
+					
+					case SquareType.DoubleLetter:
+						var span = document.createElement('span');
+						var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
+						span.appendChild(txt1);
+				
+						a.appendChild(span);
+						break;
+					case SquareType.TripleLetter:
+						var span = document.createElement('span');
+						var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
+						span.appendChild(txt1);
+				
+						a.appendChild(span);
+						break;
+					default:
+						break;
+				}
+			}
+		}
+	}
+
+	var callback_ScrabbleBoardReady = function(eventPayload)
+		{
+			DrawHtmlTable(eventPayload.Board);
+		};
+
+	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardReady, callback_ScrabbleBoardReady);
+}
+} // END - with (Scrabble.Core)
+
+return _Html;
+})();
+// END Scrabble.UI.Html ------------------
+//=================================================
+
 })();
 // END script-scope ------------------
 
@@ -602,7 +661,6 @@ alert("DANIEL");
 with (Scrabble)
 {
 	var board = new Core.Board(); //15 by default, 21 works well too :)
-	//var boardUI = new UI.HtmlTableBoard();
 }
 
 /*

@@ -170,6 +170,8 @@ vertical-align: middle;
 background-color: #FBBBB9;
 
 border: 0.35em solid #FBBBB9;
+
+cursor: crosshair;
 }
 
 .board td.TripleWord a
@@ -177,6 +179,8 @@ border: 0.35em solid #FBBBB9;
 background-color: #F75D59;
 
 border: 0.35em solid #F75D59;
+
+cursor: crosshair;
 }
 
 .board td.Normal a
@@ -193,6 +197,8 @@ cursor: crosshair;
 background-color: #A0CFEC;
 
 border: 0.35em solid #A0CFEC;
+
+cursor: crosshair;
 }
 
 .board td.TripleLetter a
@@ -200,6 +206,8 @@ border: 0.35em solid #A0CFEC;
 background-color: #157DEC;
 
 border: 0.35em solid #157DEC;
+
+cursor: crosshair;
 }
 
 .board td a.Tile
