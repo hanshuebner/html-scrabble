@@ -29,9 +29,12 @@ lang="en">
 		@import "css/main.css";
 	</style>
 
-	<!-- script type="text/javascript" src="javascript/jquery-1.4.3.min.js"></script>
-	<script type="text/javascript" src="javascript/jquery.event.drag-2.0.js"></script>
+	<script type="text/javascript" src="javascript/jquery-1.4.3.min.js"></script>
+	
+	<!-- script type="text/javascript" src="javascript/jquery.event.drag-2.0.js"></script>
 	<script type="text/javascript" src="javascript/jquery.event.drop-2.0.js"></script -->
+	
+	<script type="text/javascript" src="javascript/jquery-ui-1.8.7.custom.min.js"></script>
 	
 	<script>var _sf_startpt=(new Date()).getTime()</script>
 	
@@ -44,10 +47,6 @@ lang="en">
 
 	function placeRandomTiles()
 	{
-		var audio1 = document.getElementById('audio1');
-		audio1.pause();
-		audio1.play();
-		
 		board.GenerateRandomTiles();
 	}
 	function init() {
@@ -61,8 +60,8 @@ lang="en">
 		var boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
 		board = new window.Scrabble.Core.Board();
 		
-		/*
 		$(document).ready(function(){
+		/*
 				$('.drag')
 					.drag("start",function( ev, dd ){
 
@@ -78,7 +77,10 @@ lang="en">
 						},{ relative:true });
 					})
 					.drag("end",function( ev, dd ){
-
+					$( dd.proxy ).animate({
+					            top: dd.originalY,
+					            left: dd.originalX
+					         }, 420 );
 						$( dd.proxy ).remove();
 					});
 				$('.drop')
@@ -91,8 +93,9 @@ lang="en">
 				      .drop("end",function(){
 				         $( this ).removeClass("dropActive");
 				      });
+						*/
 		   });
-		*/
+
 	};
 
 	/* for Mozilla */
@@ -129,13 +132,13 @@ lang="en">
 
 <table class="rack">
 <tr>
-<td class="Normal"><a class="Tile drag"><span class="Letter">T</span><span class="Score">10</span></a></td>
-<td class="Normal"><a class="Tile drag"><span class="Letter">F</span><span class="Score">7</span></a></td>
-<td class="Normal"><a class="Empty drop"><span> </span></a></td>
-<td class="Normal"><a class="Tile"><span class="Letter">G</span><span class="Score">3</span></a></td>
-<td class="Normal"><a class="Tile"><span class="Letter">P</span><span class="Score">3</span></a></td>
-<td class="Normal"><a class="Empty drop"><span> </span></a></td>
-<td class="Normal"><a class="Empty drop"><span> </span></a></td>
+<td class="Normal"><a class="Tile" id="tile1"><span class="Letter">T</span><span class="Score">10</span></a></td>
+<td class="Normal"><a class="Tile" id="tile2"><span class="Letter">F</span><span class="Score">7</span></a></td>
+<td class="Normal"><a class="Empty" id="empty1"><span> </span></a></td>
+<td class="Normal"><a class="Tile" id="tile3"><span class="Letter">G</span><span class="Score">3</span></a></td>
+<td class="Normal"><a class="Tile" id="tile4"><span class="Letter">P</span><span class="Score">3</span></a></td>
+<td class="Normal"><a class="Empty" id="empty2"><span> </span></a></td>
+<td class="Normal"><a class="Empty" id="empty3"><span> </span></a></td>
 </tr>
 </table>
 

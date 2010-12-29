@@ -489,8 +489,25 @@ _Board.prototype.Dimension = NaN;
 
 _Board.prototype.SquaresList = [];
 
+_Board.prototype.MoveTile = function(tileXY, squareXY)
+{
+	var square1 = this.SquaresList[tileXY.x + this.Dimension * tileXY.y];
+	var square2 = this.SquaresList[squareXY.x + this.Dimension * squareXY.y];
+
+	var tile = square1.Tile;
+	square1.PlaceTile(0);
+	square2.PlaceTile(tile);
+	
+	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square1 });
+	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square2 });
+}
+
 _Board.prototype.GenerateRandomTiles = function()
 {
+	var audio = document.getElementById('audio1');
+	audio.pause();
+	audio.play();
+	
 	for (var y = 0; y < this.Dimension; y++)
 	{
 		for (var x = 0; x < this.Dimension; x++)
@@ -503,7 +520,7 @@ _Board.prototype.GenerateRandomTiles = function()
 			var halfMiddle = Math.ceil(middle / 2);
 		
 			var makeTile = Math.floor(Math.random()*2);
-			if (makeTile && y < middle)
+			if (makeTile && y <= middle)
 			{
 				var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 				var letter_index = Math.floor(Math.random() * letters.length);
@@ -576,7 +593,33 @@ var _Html = function()
 		{
 			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
 			a.setAttribute('class', 'Tile');
-	
+			
+			$(a).draggable({ //"#board .Tile"
+				revert: "invalid",
+				cursor: "move",
+				opacity: 1,
+				helper: "clone",
+				//snap: ".Empty",
+				start: function(event, ui)
+				{
+					$(this).css({ opacity: 0.5 });
+					
+					$(ui.helper).animate({'font-size' : '0.7em'}, 300); //height : '+=10px', width : '+=10px', 
+					var shadow = "4px 4px 5px #333333";
+					$(ui.helper).css({"-webkit-box-shadow": shadow});
+					$(ui.helper).css({"-moz-box-shadow": shadow});
+					$(ui.helper).css({"box-shadow": shadow});
+					
+					
+					$(ui.helper).css({ "z-index": 1000 });
+				},
+				drag: function() {},
+				stop: function()
+				{
+					$(this).css({ opacity: 1 });
+				}
+				});
+				
 			var txt1 = document.createTextNode(square.Tile.Letter);
 			var span1 = document.createElement('span');
 			span1.setAttribute('class', 'Letter');
@@ -592,6 +635,41 @@ var _Html = function()
 		else
 		{
 			a.setAttribute('class', 'Empty');
+			
+			$(a).droppable({ //"#board .Empty"
+				//accept: ".Tile",
+				//activeClass: "dropActive",
+				hoverClass: "dropActive",
+				drop: function( event, ui )
+				{
+					//$( this ).addClass( "dropActive" );
+				
+					var id1 = $(ui.draggable).attr("id");
+					var id2 = $(this).attr("id");
+				
+					//alert(id1 + "-->" + id2);
+				
+					var underscore1 = id1.indexOf("_");
+					var cross1 = id1.indexOf("x");
+					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+					var y1 = parseInt(id1.substring(cross1 + 1), 10);
+				
+					//alert(x1 + "x" + y1);
+
+					var underscore2 = id2.indexOf("_");
+					var cross2 = id2.indexOf("x");
+					var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
+					var y2 = parseInt(id2.substring(cross2 + 1), 10);
+				
+					//alert(x1 + "x" + y1);
+				
+					var audio = document.getElementById('audio2');
+					audio.pause();
+					audio.play();
+						
+					board.MoveTile({'x':x1, 'y':y1}, {'x':x2, 'y':y2});
+				}
+			});
 			
 			switch (square.Type)
 			{
@@ -622,7 +700,6 @@ var _Html = function()
 			
 					a.appendChild(span);
 					break;
-				
 				case SquareType.DoubleLetter:
 					var span = document.createElement('span');
 					var txt1 = document.createTextNode("DOUBLE LETTER SCORE");

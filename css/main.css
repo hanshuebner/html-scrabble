@@ -245,7 +245,7 @@ vertical-align: sub;
 padding-left: -0.4em;
 }
 
-.board td.CenterStart a
+.board td.CenterStart a.Empty
 {
 border: 0.35em solid #306754;
 
@@ -255,19 +255,29 @@ border-radius: 9em;
 */
 }
 
-.board td.CenterStart a span
+.board td.CenterStart a.Empty span
 {
 font-size: 3.6em;
 line-height: 1.4em;
 color: #306754;
 }
 
-.board td a:hover, .dropActive
+.board td a.Tile:hover
 {
+/*
 border: 0.35em solid #FFFFFF;
 
 -moz-border-radius: 0.8em;
 border-radius: 0.8em;
+*/
+}
+
+a.dropActive
+{
+border: 0.35em solid #333333 !important;
+box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
+-webkit-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
+-moz-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 }
 
 #rack
