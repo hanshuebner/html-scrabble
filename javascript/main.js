@@ -34,8 +34,18 @@ var _OBJECT_ROOT_ = window;
 
 if (typeof _OBJECT_ROOT_.console == "undefined" || !_OBJECT_ROOT_.console)
 {
+	// !console.firebug
+    
+	//_OBJECT_ROOT_.console = {log: function() {}};
+	
+	var names = ["log", "debug", "info", "warn", "error", "assert", "dir", "dirxml", "group", "groupEnd", "time", "timeEnd", "count", "trace", "profile", "profileEnd"];
+
 	_OBJECT_ROOT_.console = {};
-	_OBJECT_ROOT_.console.log = function(){};
+
+	for (var i = 0; i < names.length; ++i)
+	{
+		_OBJECT_ROOT_.console[names[i]] = function(){};
+	}
 }
 
 function type_of(obj)
