@@ -614,32 +614,6 @@ with (Scrabble.Core)
 {
 var _Html = function()
 {
-	function SetCurrentlySelectedSquareUpdateTargets(html, board, square)
-	{
-		html.CurrentlySelectedSquare = square;
-		
-		for (var y = 0; y < board.Dimension; y++)
-		{
-			for (var x = 0; x < board.Dimension; x++)
-			{
-				var squareTarget = board.SquaresList[x + board.Dimension * y];
-				if (squareTarget.Tile == 0)
-				{
-					var idSelected = IDPrefix_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
-					var aa = document.getElementById(idSelected);
-					if (html.CurrentlySelectedSquare == 0)
-					{
-						$(aa).removeClass("Targeted");
-					}
-					else
-					{
-						$(aa).addClass("Targeted");
-					}
-				}
-			}
-		}
-	}
-	
 	function UpdateHtmlTableCell(html, board, square)
 	{
 		var id = IDPrefix_SquareOrTile + square.X + "x" + square.Y;
@@ -683,7 +657,7 @@ var _Html = function()
 						{
 							PlayAudio("audio1");
 						
-							SetCurrentlySelectedSquareUpdateTargets(html, board, 0);
+							html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
 							//html.CurrentlySelectedSquare = 0;
 							return;
 						}
@@ -691,7 +665,7 @@ var _Html = function()
 					
 					PlayAudio("audio3");
 					
-					SetCurrentlySelectedSquareUpdateTargets(html, board, board.SquaresList[x1 + board.Dimension * y1]);
+					html.SetCurrentlySelectedSquareUpdateTargets(board, board.SquaresList[x1 + board.Dimension * y1]);
 					//html.CurrentlySelectedSquare = ;
 					
 					$(this).addClass("Selected");
@@ -714,7 +688,7 @@ var _Html = function()
 					PlayAudio("audio3");
 					
 					$(this).removeClass("Selected");
-					SetCurrentlySelectedSquareUpdateTargets(html, board, 0);
+					html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
 					
 					$(this).css({ opacity: 0.5 });
 					
@@ -777,7 +751,7 @@ var _Html = function()
 						var XX = html.CurrentlySelectedSquare.X;
 						var YY = html.CurrentlySelectedSquare.Y;
 						
-						SetCurrentlySelectedSquareUpdateTargets(html, board, 0);
+						html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
 						//html.CurrentlySelectedSquare = 0;
 						
 						board.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
@@ -945,6 +919,33 @@ var _Html = function()
 }
 
 _Html.prototype.CurrentlySelectedSquare = 0;
+
+//TODO: make class method !! (currently some sort of static function)
+_Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(board, square)
+{
+	this.CurrentlySelectedSquare = square;
+	
+	for (var y = 0; y < board.Dimension; y++)
+	{
+		for (var x = 0; x < board.Dimension; x++)
+		{
+			var squareTarget = board.SquaresList[x + board.Dimension * y];
+			if (squareTarget.Tile == 0)
+			{
+				var idSelected = IDPrefix_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
+				var aa = document.getElementById(idSelected);
+				if (this.CurrentlySelectedSquare == 0)
+				{
+					$(aa).removeClass("Targeted");
+				}
+				else
+				{
+					$(aa).addClass("Targeted");
+				}
+			}
+		}
+	}
+}
 
 } // END - with (Scrabble.Core)
 

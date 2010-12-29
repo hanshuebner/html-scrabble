@@ -51,25 +51,24 @@ font-size: 100%;
 table-layout: fixed;
 */
 
+box-shadow: 0 0 1em #333333;
+-webkit-box-shadow: 0 0 1em #333333;
+-moz-box-shadow: 0 0 1em #333333;
+-o-box-shadow: 0 0 1em #333333;
+
 border-collapse: separate; /* collapse ==== zero 'cellspacing' */
 border-spacing: 0 0; /* horizontal, vertical */
 
 border: 0.2em solid #333333;
 
-margin-bottom: 0;
-margin-top: 0;
+margin-top: 1em;
+margin-bottom: 1em;
 margin-left: auto;
 margin-right: auto;
 
 padding: 0.5em;
 
 background-color: #306754;
-}
-
-.board table.rack
-{
-border: 0.2em solid #333333;
-padding: 0.2em;
 }
 
 .board tr
@@ -107,33 +106,47 @@ text-overflow: ellipsis;
 */
 }
 
+.board td
+{
+border-width: 0.15em;
+border-style: dotted;
+
+background-color: #4E9258;
+}
+
+.board td.Normal
+{
+border-style: solid;
+border-color: #306754;
+
+background-color: #4E9258;
+}
+
 .board td.DoubleWord
 {
-border: 0.15em dashed #FBBBB9;
+border-color: #FBBBB9;
+
 background-color: #306754;
 }
 
 .board td.TripleWord
 {
-border: 0.15em dashed #F75D59;
-background-color: #306754;
-}
+border-color: #F75D59;
 
-.board td.Normal
-{
-border: 0.15em solid #306754;
-background-color: #4E9258;
+background-color: #306754;
 }
 
 .board td.DoubleLetter
 {
-border: 0.15em dashed #A0CFEC;
+border-color: #A0CFEC;
+
 background-color: #306754;
 }
 
 .board td.TripleLetter
 {
-border: 0.15em dashed #157DEC;
+border-color: #157DEC;
+
 background-color: #306754;
 }
 
@@ -326,10 +339,8 @@ box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -o-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 }
 
-#rack
+.board table.rack
 {
-color: #000000;
-background-color: #FFFFFF;
-/* position:fixed;
-bottom: 0; */
+border: 0.2em solid #333333;
+padding: 0.2em;
 }

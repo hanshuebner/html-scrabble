@@ -44,9 +44,13 @@ lang="en">
 	<script type="text/javascript">
 
 	var board = 0;
+	var boardUI = 0;
 
 	function placeRandomTiles()
 	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(board, 0);
+		//boardUI.CurrentlySelectedSquare = 0;
+		
 		board.GenerateRandomTiles();
 	}
 	function init() {
@@ -57,7 +61,7 @@ lang="en">
 		// flag this function so we don't do the same thing twice
 		arguments.callee.done = true;
 		
-		var boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
+		boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
 		board = new window.Scrabble.Core.Board();
 		
 		$(document).ready(function(){
@@ -120,7 +124,9 @@ lang="en">
 <span>ELBBARCS</span>
 </div>
 
-<input type="submit" onclick="placeRandomTiles();" value="Random Tiles"></input>
+<p>
+	<input type="submit" onclick="placeRandomTiles();" value="Randomize Tiles"></input>
+</p>
 
 <audio id="audio0" src="audio/20258__Koops__Page_Turn_24.wav" preload="auto"></audio>
 <audio id="audio1" src="audio/1257__Anton__hit_on_wood.wav" preload="auto"></audio>
@@ -134,7 +140,7 @@ lang="en">
 
 <div id="rack" class="board">
 
-<table class="rack">
+<table>
 <tr>
 <td class="Normal"><a class="Tile" id="tile1"><span class="Letter">T</span><span class="Score">10</span></a></td>
 <td class="Normal"><a class="Tile" id="tile2"><span class="Letter">F</span><span class="Score">7</span></a></td>
