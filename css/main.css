@@ -260,6 +260,6 @@ border-radius: 0.8em;
 {
 color: #000000;
 background-color: #FFFFFF;
-position:fixed;
-bottom: 0;
+/* position:fixed;
+bottom: 0; */
 }

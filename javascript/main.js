@@ -264,6 +264,9 @@ var _Square = function()
 	}
 }
 
+_Square.prototype.X = 0;
+_Square.prototype.Y = 0;
+
 _Square.prototype.toString = function()
 {
 	return "Scrabble.Core.Square toString(): " + this.Type;
@@ -290,7 +293,7 @@ with (Scrabble.Core)
 //function _Board()
 var _Board = function()
 {
-	function CreateGrid()
+	function DrawHtmlGrid()
 	{
 		var rootDiv = document.getElementById('board');
 		var table = document.createElement('table');
@@ -308,40 +311,17 @@ var _Board = function()
 				var td = document.createElement('td');
 				tr.appendChild(td);
 				
-				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
-				var square = new Square(SquareType.Normal);
+				var square = this.SquaresList[x + this.Dimension * y];
 				
 				var middle = Math.floor(this.Dimension / 2);
 				var halfMiddle = Math.ceil(middle / 2);
 				
-				if (
-					(
-					x == 0 ||
-					x == this.Dimension - 1 ||
-					x == middle
-					)
-					&&
-					(
-					y == 0 ||
-					y == this.Dimension - 1 ||
-					y == middle && x != middle
-					)
-					)
+				if (square.Type == SquareType.TripleWord)
 				{
-					square = new Square(SquareType.TripleWord);
 					td.setAttribute('class', 'TripleWord');
 				}
-				else if (
-					x == middle
-					&&
-					y == middle
-					||
-					x > 0 && x < middle - 2 && (y == x || y == this.Dimension - x - 1)
-					||
-					x > middle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)
-					)
+				else if (square.Type == SquareType.DoubleWord)
 				{
-					square = new Square(SquareType.DoubleWord);
 					if (x == middle && y == middle)
 					{
 						centerStart = true;
@@ -352,34 +332,12 @@ var _Board = function()
 						td.setAttribute('class', 'DoubleWord');
 					}
 				}
-				else if (
-					(x == middle - 1 || x == middle + 1)
-					&&
-					(y == middle - 1 || y == middle + 1)
-					||
-					(x == 0 || x == this.Dimension - 1 || x == middle) && (y == middle + halfMiddle || y == middle - halfMiddle)
-					||
-					(y == 0 || y == this.Dimension - 1 || y == middle) && (x == middle + halfMiddle || x == middle - halfMiddle)
-					||
-					(y == middle + 1 || y == middle - 1) && (x == middle + halfMiddle + 1 || x == middle - halfMiddle - 1)
-					||
-					(x == middle + 1 || x == middle - 1) && (y == middle + halfMiddle + 1 || y == middle - halfMiddle - 1)
-					)
+				else if (square.Type == SquareType.DoubleLetter)
 				{
-					square = new Square(SquareType.DoubleLetter);
 					td.setAttribute('class', 'DoubleLetter');
 				}
-				else if (
-					(x == middle - 2 || x == middle + 2)
-					&&
-					(y == middle - 2 || y == middle + 2)
-					||
-					(y == middle + 2 || y == middle - 2) && (x == middle + halfMiddle + 2 || x == middle - halfMiddle - 2)
-					||
-					(x == middle + 2 || x == middle - 2) && (y == middle + halfMiddle + 2 || y == middle - halfMiddle - 2)
-					)
+				else if (square.Type == SquareType.TripleLetter)
 				{
-					square = new Square(SquareType.TripleLetter);
 					td.setAttribute('class', 'TripleLetter');
 				}
 				else
@@ -387,10 +345,10 @@ var _Board = function()
 					td.setAttribute('class', 'Normal');
 				}
 				
-				this.SquaresList.push(square);
-				
 				var a = document.createElement('a');
 				td.appendChild(a);
+				var id = "square_" + x + "x" + y;
+				a.setAttribute('id', id);
 				
 				var makeTile = Math.floor(Math.random()*2);
 				if (makeTile && y < middle)
@@ -466,6 +424,88 @@ var _Board = function()
 		}
 	}
 
+	function CreateGrid()
+	{
+		for (var y = 0; y < this.Dimension; y++)
+		{
+			for (var x = 0; x < this.Dimension; x++)
+			{
+				var centerStart = false;
+
+				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
+				var square = new Square(SquareType.Normal);
+				
+				var middle = Math.floor(this.Dimension / 2);
+				var halfMiddle = Math.ceil(middle / 2);
+				
+				if (
+					(
+					x == 0 ||
+					x == this.Dimension - 1 ||
+					x == middle
+					)
+					&&
+					(
+					y == 0 ||
+					y == this.Dimension - 1 ||
+					y == middle && x != middle
+					)
+					)
+				{
+					square = new Square(SquareType.TripleWord);
+				}
+				else if (
+					x == middle
+					&&
+					y == middle
+					||
+					x > 0 && x < middle - 2 && (y == x || y == this.Dimension - x - 1)
+					||
+					x > middle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)
+					)
+				{
+					square = new Square(SquareType.DoubleWord);
+					if (x == middle && y == middle)
+					{
+						centerStart = true;
+					}
+				}
+				else if (
+					(x == middle - 1 || x == middle + 1)
+					&&
+					(y == middle - 1 || y == middle + 1)
+					||
+					(x == 0 || x == this.Dimension - 1 || x == middle) && (y == middle + halfMiddle || y == middle - halfMiddle)
+					||
+					(y == 0 || y == this.Dimension - 1 || y == middle) && (x == middle + halfMiddle || x == middle - halfMiddle)
+					||
+					(y == middle + 1 || y == middle - 1) && (x == middle + halfMiddle + 1 || x == middle - halfMiddle - 1)
+					||
+					(x == middle + 1 || x == middle - 1) && (y == middle + halfMiddle + 1 || y == middle - halfMiddle - 1)
+					)
+				{
+					square = new Square(SquareType.DoubleLetter);
+				}
+				else if (
+					(x == middle - 2 || x == middle + 2)
+					&&
+					(y == middle - 2 || y == middle + 2)
+					||
+					(y == middle + 2 || y == middle - 2) && (x == middle + halfMiddle + 2 || x == middle - halfMiddle - 2)
+					||
+					(x == middle + 2 || x == middle - 2) && (y == middle + halfMiddle + 2 || y == middle - halfMiddle - 2)
+					)
+				{
+					square = new Square(SquareType.TripleLetter);
+				}
+				
+				square.X = x;
+				square.Y = y;
+				this.SquaresList.push(square);
+			}
+		}
+	}
+
 	function SetDimension()
 	{
 		var val = arguments[0];
@@ -527,6 +567,7 @@ var _Board = function()
 	//SetSquares(arguments);
 	
 	CreateGrid.apply(this);
+	DrawHtmlGrid.apply(this);
 }
 
 _Board.prototype.Dimension = NaN;
