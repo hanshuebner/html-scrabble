@@ -66,6 +66,12 @@ padding: 0.5em;
 background-color: #306754;
 }
 
+.board table.rack
+{
+border: 0.2em solid #333333;
+padding: 0.2em;
+}
+
 .board tr
 {
 margin: 0;
@@ -256,7 +262,7 @@ line-height: 1.4em;
 color: #306754;
 }
 
-.board td a:hover
+.board td a:hover, .dropActive
 {
 border: 0.35em solid #FFFFFF;
 

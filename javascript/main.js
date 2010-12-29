@@ -136,7 +136,7 @@ _EventsManager.DispatchEvent = function(eventName, eventPayload)
 
 	for (var i = 0; i < callbacks.length; i++)
 	{
-		console.log("Event.Dispatch - notifying: " + eventName + ", " + propsString);
+		//console.log("Event.Dispatch - notifying: " + eventName + ", " + propsString);
 		callbacks[i](eventPayload);
 	}
 };
@@ -591,6 +591,8 @@ var _Html = function()
 		}
 		else
 		{
+			a.setAttribute('class', 'Empty');
+			
 			switch (square.Type)
 			{
 				case SquareType.Normal:

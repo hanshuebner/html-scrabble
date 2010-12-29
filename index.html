@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html
+xmlns="http://www.w3.org/1999/xhtml"
+lang="en">
 <head>
-	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8" />
 	<!--[if IE]><![endif]-->
 
 	<title>HTML Scrabble</title>
@@ -25,67 +28,114 @@
 	<style type="text/css" media="all">
 		@import "css/main.css";
 	</style>
+
+	<!-- script type="text/javascript" src="javascript/jquery-1.4.3.min.js"></script>
+	<script type="text/javascript" src="javascript/jquery.event.drag-2.0.js"></script>
+	<script type="text/javascript" src="javascript/jquery.event.drop-2.0.js"></script -->
 	
 	<script>var _sf_startpt=(new Date()).getTime()</script>
+	
 	<script type="text/javascript" src="javascript/main.js"></script>
 	<!-- script type="text/javascript" src="scripts/dictionary.js"></script -->
 	
 	<script type="text/javascript">
+
 	var board = 0;
+
 	function placeRandomTiles()
 	{
+		var audio1 = document.getElementById('audio1');
+		audio1.pause();
+		audio1.play();
+		
 		board.GenerateRandomTiles();
 	}
-		function init() {
+	function init() {
 
-			// quit if this function has already been called
-			if (arguments.callee.done) return;
+		// quit if this function has already been called
+		if (arguments.callee.done) return;
 
-			// flag this function so we don't do the same thing twice
-			arguments.callee.done = true;
-			
-			var boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
-			board = new window.Scrabble.Core.Board();
-		};
+		// flag this function so we don't do the same thing twice
+		arguments.callee.done = true;
+		
+		var boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
+		board = new window.Scrabble.Core.Board();
+		
+		/*
+		$(document).ready(function(){
+				$('.drag')
+					.drag("start",function( ev, dd ){
 
-		/* for Mozilla */
-		if (document.addEventListener) {
-			document.addEventListener("DOMContentLoaded", init, false);
-		}
+						return $( this ).clone()
+							.css("opacity", .75 )
+							.appendTo(this.parentNode );
+					})
+					.drag(function( ev, dd ){
 
-		/* for Internet Explorer */
-		/*@cc_on @*/
-		/*@if (@_win32)
-		document.write("<script defer src=ie_onload.js><"+"/script>");
-		/*@end @*/
+						$( dd.proxy ).css({
+							top: dd.offsetY,
+							left: dd.offsetX
+						},{ relative:true });
+					})
+					.drag("end",function( ev, dd ){
 
-		/* for other browsers */
-		window.onload = init;
+						$( dd.proxy ).remove();
+					});
+				$('.drop')
+				.drop("start",function(){
+				         $( this ).addClass("dropActive");
+				      })
+				      .drop(function( ev, dd ){
+				         $( this ).toggleClass("dropped");
+				      })
+				      .drop("end",function(){
+				         $( this ).removeClass("dropActive");
+				      });
+		   });
+		*/
+	};
+
+	/* for Mozilla */
+	if (document.addEventListener) {
+		document.addEventListener("DOMContentLoaded", init, false);
+	}
+
+	/* for Internet Explorer */
+	/*@cc_on @*/
+	/*@if (@_win32)
+	document.write("<script defer src=ie_onload.js><"+"/script>");
+	/*@end @*/
+
+	/* for other browsers */
+	window.onload = init;
 	</script>
-</head>
-<body>
 
+</head>
+<body id="body">
 
 <div class="title">
 <span>ELBBARCS</span>
 </div>
 
-<input type="submit" onclick="placeRandomTiles();" value="Random Tiles" />
+<input type="submit" onclick="placeRandomTiles();" value="Random Tiles"></input>
+
+<audio id="audio1" src="audio/1257__Anton__hit_on_wood.wav" preload="auto"></audio>
+<audio id="audio2" src="audio/1258__Anton__hit_on_wood2.wav" preload="auto"></audio>
 
 <div id="board" class="board">
 </div>
 
 <div id="rack" class="board">
 
-<table>
+<table class="rack">
 <tr>
-<td class="Normal Tile"><a class="Tile"><span class="Letter">T</span><span class="Score">10</span></a></td>
-<td class="Normal Tile"><a class="Tile"><span class="Letter">F</span><span class="Score">7</span></a></td>
-<td class="Normal"><a><span> </span></a></td>
-<td class="Normal Tile"><a class="Tile"><span class="Letter">G</span><span class="Score">3</span></a></td>
-<td class="Normal Tile"><a class="Tile"><span class="Letter">P</span><span class="Score">3</span></a></td>
-<td class="Normal"><a><span> </span></a></td>
-<td class="Normal"><a><span> </span></a></td>
+<td class="Normal"><a class="Tile drag"><span class="Letter">T</span><span class="Score">10</span></a></td>
+<td class="Normal"><a class="Tile drag"><span class="Letter">F</span><span class="Score">7</span></a></td>
+<td class="Normal"><a class="Empty drop"><span> </span></a></td>
+<td class="Normal"><a class="Tile"><span class="Letter">G</span><span class="Score">3</span></a></td>
+<td class="Normal"><a class="Tile"><span class="Letter">P</span><span class="Score">3</span></a></td>
+<td class="Normal"><a class="Empty drop"><span> </span></a></td>
+<td class="Normal"><a class="Empty drop"><span> </span></a></td>
 </tr>
 </table>
 
