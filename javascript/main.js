@@ -598,7 +598,7 @@ _Board.prototype.GenerateRandomTiles = function()
 						//		table.animate({rotate: '+=45deg'});
 	
 	
-	var obj = $("#rack table");
+	var obj = $("#title");
 
 	//obj.effect("pulsate", { times:2 }, 500);
 
@@ -671,18 +671,21 @@ var _Html = function()
 		    }
 		}
 		
-		var a = document.createElement('a');
-		td.appendChild(a);
-		a.setAttribute('id', id);
+		var div = document.createElement('div');
+		td.appendChild(div);
+		div.setAttribute('id', id);
 		
+		var a = document.createElement('a');
+		div.appendChild(a);
+
 		if (square.Tile != 0)
 		{
 			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
-			a.setAttribute('class', square.TileLocked ? 'Tile Locked' : 'Tile Temp');
+			div.setAttribute('class', (square.TileLocked ? 'Tile Locked' : 'Tile Temp'));
 			
 			if (!square.TileLocked)
 			{
-			$(a).click(
+			$(div).click(
 				function () {
 					var id1 = $(this).attr("id");
 					var underscore1 = id1.indexOf("_");
@@ -694,9 +697,9 @@ var _Html = function()
 					if (html.CurrentlySelectedSquare != 0)
 					{
 						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
-						var aa = document.getElementById(idSelected);
+						var divz = document.getElementById(idSelected);
 
-						$(aa).removeClass("Selected");
+						$(divz).removeClass("Selected");
 						
 						if (x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y)
 						{
@@ -716,7 +719,7 @@ var _Html = function()
 					$(this).addClass("Selected");
 				}
 			);
-			$(a).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
+			$(div).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
 				function () {
 					//$(this).css({'border' : '0.35em outset #FFF8C6'});
 				}
@@ -724,7 +727,7 @@ var _Html = function()
 			
 			var doneOnce = false;
 			
-			$(a).draggable({ //"#board .Tile"
+			$(div).draggable({ //"#board .Tile"
 				revert: "invalid",
 				//cursor: "move",
 				opacity: 1,
@@ -737,14 +740,14 @@ var _Html = function()
 					if (html.CurrentlySelectedSquare != 0)
 					{
 						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
-						var aa = document.getElementById(idSelected);
-						$(aa).removeClass("Selected");
+						var divz = document.getElementById(idSelected);
+						$(divz).removeClass("Selected");
 					}
 					html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
 					
 					$(this).css({ opacity: 0.5 });
 					
-					$(ui.helper).animate({'font-size' : '0.7em'}, 300); //height : '+=10px', width : '+=10px', 
+					$(ui.helper).animate({'font-size' : '120%'}, 300); //height : '+=10px', width : '+=10px', 
 					var shadow = "4px 4px 5px #333333";
 					$(ui.helper).css({"-webkit-box-shadow": shadow});
 					$(ui.helper).css({"-moz-box-shadow": shadow});
@@ -798,9 +801,17 @@ var _Html = function()
 		}
 		else
 		{
-			a.setAttribute('class', 'Empty');
+			var middle = Math.floor(board.Dimension / 2);
+			if (square.X == middle && square.Y == middle)
+			{
+				div.setAttribute('class', "CenterStart");
+			}
+			else
+			{
+				div.setAttribute('class', 'Empty');
+			}
 			
-			$(a).click(
+			$(div).click(
 				function () {
 					var id1 = $(this).attr("id");
 					var underscore1 = id1.indexOf("_");
@@ -811,9 +822,9 @@ var _Html = function()
 					if (html.CurrentlySelectedSquare != 0)
 					{
 						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
-						var aa = document.getElementById(idSelected);
+						var divz = document.getElementById(idSelected);
 
-						$(aa).removeClass("Selected");
+						$(divz).removeClass("Selected");
 						
 						var XX = html.CurrentlySelectedSquare.X;
 						var YY = html.CurrentlySelectedSquare.Y;
@@ -826,7 +837,7 @@ var _Html = function()
 				}
 			);
 
-			$(a).droppable({ //"#board .Empty"
+			$(div).droppable({ //"#board .Empty"
 				//accept: ".Tile",
 				//activeClass: "dropActive",
 				hoverClass: "dropActive",
@@ -876,28 +887,28 @@ var _Html = function()
 						txt1 = document.createTextNode('\u2605');
 					}
 					span.appendChild(txt1);
-			
+
 					a.appendChild(span);
 					break;
 				case SquareType.TripleWord:
 					var span = document.createElement('span');
 					var txt1 = document.createTextNode("TRIPLE WORD SCORE");
 					span.appendChild(txt1);
-			
+
 					a.appendChild(span);
 					break;
 				case SquareType.DoubleLetter:
 					var span = document.createElement('span');
 					var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
 					span.appendChild(txt1);
-			
+
 					a.appendChild(span);
 					break;
 				case SquareType.TripleLetter:
 					var span = document.createElement('span');
 					var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
 					span.appendChild(txt1);
-			
+
 					a.appendChild(span);
 					break;
 				default:
@@ -938,12 +949,9 @@ var _Html = function()
 					if (x == middle && y == middle)
 					{
 						centerStart = true;
-						td.setAttribute('class', 'DoubleWord CenterStart');
 					}
-					else
-					{
-						td.setAttribute('class', 'DoubleWord');
-					}
+					
+					td.setAttribute('class', 'DoubleWord');
 				}
 				else if (square.Type == SquareType.DoubleLetter)
 				{
@@ -958,10 +966,14 @@ var _Html = function()
 					td.setAttribute('class', 'Normal');
 				}
 			
-				var a = document.createElement('a');
-				td.appendChild(a);
+				var div = document.createElement('div');
+				td.appendChild(div);
+				
 				var id = IDPrefix_SquareOrTile + x + "x" + y;
-				a.setAttribute('id', id);
+				div.setAttribute('id', id);
+				
+				var a = document.createElement('a');
+				div.appendChild(a);
 				
 				UpdateHtmlTableCell(html, board, square);
 			}
@@ -1000,14 +1012,14 @@ _Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(board, square
 			if (squareTarget.Tile == 0)
 			{
 				var idSelected = IDPrefix_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
-				var aa = document.getElementById(idSelected);
+				var divz = document.getElementById(idSelected);
 				if (this.CurrentlySelectedSquare == 0)
 				{
-					$(aa).removeClass("Targeted");
+					$(divz).removeClass("Targeted");
 				}
 				else
 				{
-					$(aa).addClass("Targeted");
+					$(divz).addClass("Targeted");
 				}
 			}
 		}
