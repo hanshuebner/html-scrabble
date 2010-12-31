@@ -1,3 +1,13 @@
+/*
+COLOR_CODE: GRID-OUTLINE
+306754 dark green
+AAA38E 54534A dark beige
+
+COLOR_CODE: GRID-SQUARES
+4E9258 light green
+BEB9A6 light beige
+*/
+
 body
 {
 font-family: helvetica, arial, sans-serif;
@@ -12,8 +22,10 @@ border: none;
 
 text-align: center;
 
-background: #BEB9A6 url('../images/Background_VOID.png') repeat left top;
-color: #333333;
+background: #333333;
+/* url('../images/Background.png') repeat left top; */
+
+color: #FDFDF6;
 }
 
 div#title
@@ -43,20 +55,13 @@ padding: 0;
 width: 100%;
 }
 
-div.surroundShade table
-{
-box-shadow: 0 0 1em #333333;
--webkit-box-shadow: 0 0 1em #333333;
--moz-box-shadow: 0 0 1em #333333;
--o-box-shadow: 0 0 1em #333333;
-}
-
+div.surroundShade table,
 div.bottomShade table
 {
-box-shadow: 0 0.5em 1em #333333;
--webkit-box-shadow: 0 0.5em 1em #333333;
--moz-box-shadow: 0 0.5em 1em #333333;
--o-box-shadow: 0 0.5em 1em #333333;
+box-shadow: 0 0 1em #000000;
+-webkit-box-shadow: 0 0 1em #000000;
+-moz-box-shadow: 0 0 1em #000000;
+-o-box-shadow: 0 0 1em #000000;
 }
 
 div.tableDivWrap table
@@ -79,7 +84,7 @@ margin-right: auto;
 
 padding: 0.5em;
 
-background-color: #306754;
+background-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
 }
 
 div#rack table
@@ -92,7 +97,7 @@ padding: 0.2em;
 /*
 #rack table td
 {
-border-bottom: 0.2em solid #54534A;
+border-bottom: 0.2em solid #AAA38E;
 }
 */
 
@@ -125,13 +130,14 @@ text-overflow: ellipsis;
 border-width: 0.15em;
 border-style: dotted;
 
-background-color: #4E9258;
+/* required for filling rounded corners of tiles */
+background-color: #BEB9A6; /* COLOR_CODE: GRID-SQUARES */
 }
 
 div.tableDivWrap td.Normal
 {
 border-style: solid;
-border-color: #306754;
+border-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
 }
 
 div.tableDivWrap td.DoubleWord,
@@ -139,7 +145,8 @@ div.tableDivWrap td.TripleWord,
 div.tableDivWrap td.DoubleLetter,
 div.tableDivWrap td.TripleLetter
 {
-background-color: #306754; /* required for background of dotted borders */
+/* required for background of dotted borders */
+background-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
 }
 
 div.tableDivWrap td.DoubleWord
@@ -180,11 +187,13 @@ width: 2.5em;
 height: 2.5em;
 
 border-style: solid;
-border-width: 0.21em;
+border-width: 0.15em;
 
 background-color: red;
 
 cursor: crosshair;
+
+color: #333333;
 }
 
 div.tableDivWrap td div a
@@ -210,30 +219,30 @@ text-align: center;
 @-moz-keyframes glow
 {
 0% {
-border: 0.22em solid #FFFFFF;
+border: 0.15em solid #FFFFFF;
 }
 100% {
-border: 0.22em solid #333333;
+border: 0.15em solid #333333;
 }
 }
 
 @-webkit-keyframes glow
 {
 0% {
-border: 0.22em solid #FFFFFF;
+border: 0.15em solid #FFFFFF;
 }
 100% {
-border: 0.22em solid #333333;
+border: 0.15em solid #333333;
 }
 }
 
 @keyframes glow
 {
 0% {
-border: 0.25em solid #FFFFFF;
+border: 0.15em solid #FFFFFF;
 }
 100% {
-border: 0.25em solid #333333;
+border: 0.15em solid #333333;
 }
 }
 
@@ -242,6 +251,8 @@ div.tableDivWrap td.DoubleWord div
 background-color: #FBBBB9;
 
 border-color: #FBBBB9;
+
+color: #F75D59;
 }
 
 div.tableDivWrap td.TripleWord div
@@ -249,13 +260,15 @@ div.tableDivWrap td.TripleWord div
 background-color: #F75D59;
 
 border-color: #F75D59;
+
+color: #8B0000;
 }
 
 div.tableDivWrap td.Normal div
 {
-background-color: #4E9258;
+background-color: #BEB9A6; /* COLOR_CODE: GRID-SQUARES */
 
-border-color: #4E9258;
+border-color: #BEB9A6; /* COLOR_CODE: GRID-SQUARES */
 }
 
 div.tableDivWrap td.DoubleLetter div
@@ -263,6 +276,8 @@ div.tableDivWrap td.DoubleLetter div
 background-color: #A0CFEC;
 
 border-color: #A0CFEC;
+
+color: #157DEC;
 }
 
 div.tableDivWrap td.TripleLetter div
@@ -270,21 +285,26 @@ div.tableDivWrap td.TripleLetter div
 background-color: #157DEC;
 
 border-color: #157DEC;
+
+color: #000080;
 }
 
 div.tableDivWrap td div.Tile
 {
 cursor: move;
 
-background-color: #ECE5B6;
+background-color: #EEE8AA; /* ECE5B6; */
 
-border-color: #FFF8C6;
-border-style: outset;
+border-color: #5F5D44;  /*C7B37F; FFF8C6; */
+border-left-color: #8F8B66;
+border-top-color: #8F8B66;
 
--moz-border-radius: 0.6em;
--webkit-border-radius: 0.6em;
--o-border-radius: 0.6em;
-border-radius: 0.6em;
+border-style: solid;
+
+-moz-border-radius: 0.4em;
+-webkit-border-radius: 0.4em;
+-o-border-radius: 0.4em;
+border-radius: 0.4em;
 }
 
 div.tableDivWrap td div.Tile a
@@ -295,19 +315,24 @@ text-shadow: 1px 1px 2px #ffffff;
 div.tableDivWrap td div.Locked
 {
 cursor: default;
-color: #666633;
+/* color: #666633; */
+}
+
+div.tableDivWrap td div.Temp
+{
+border-color: #FFFFFF;
 }
 
 div.tableDivWrap td div.CenterStart
 {
-border-color: #306754;
+border-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
 }
 
 div.tableDivWrap td div.Temp:hover
 {
 color: #000000 !important;
 
-border-color: #DC143C;
+border-color: #000000; /* DC143C */
 }
 
 
@@ -334,7 +359,7 @@ animation-iteration-count: infinite;
 animation-direction: alternate;
 animation-timing-function: linear;
 
-border-color: #333333 !important;
+border-color: #474633 !important;
 }
 
 .dragBorder
@@ -406,7 +431,7 @@ div.tableDivWrap td.DoubleWord div.Empty a br
 div.tableDivWrap td div.CenterStart a
 {
 font-size: 2.5em;
-color: #306754;
+color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
 }
 
 /*
