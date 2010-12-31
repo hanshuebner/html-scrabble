@@ -68,7 +68,7 @@ table-layout: fixed;
 border-collapse: separate; /* collapse ==== zero 'cellspacing' */
 border-spacing: 0 0; /* horizontal, vertical */
 
-border-width: 1em;
+border-width: 0.5em;
 border-style: solid;
 border-color:  #54534A;
 
@@ -85,10 +85,8 @@ background-color: #306754;
 div#rack table
 {
 border-width: 0.2em;
-border-bottom: 1em solid #306754;
 
 padding: 0.2em;
-padding-bottom: 0;
 }
 
 /*
@@ -124,7 +122,7 @@ overflow: hidden;
 text-overflow: ellipsis;
 */
 
-border-width: 0.16em;
+border-width: 0.15em;
 border-style: dotted;
 
 background-color: #4E9258;
@@ -182,7 +180,7 @@ width: 2.5em;
 height: 2.5em;
 
 border-style: solid;
-border-width: 0.22em;
+border-width: 0.21em;
 
 background-color: red;
 
@@ -439,6 +437,10 @@ div.tableDivWrap td div.Tile a span.Score
 margin-top: -0.5em; /* actually doesn't work :( */
 }
 }
+
+
+
+
 
 
 
