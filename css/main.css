@@ -45,6 +45,8 @@ padding: 0;
 font-weight: bold;
 letter-spacing: 0.7em;
 padding-left: 0.7em;
+
+/* text-shadow: 0px 0px 50px #333333; */
 }
 
 div.tableDivWrap
@@ -216,23 +218,23 @@ text-align: center;
 /* vertical-align: middle; */
 }
 
-@-moz-keyframes glow
-{
-0% {
-border: 0.15em solid #FFFFFF;
-}
-100% {
-border: 0.15em solid #333333;
-}
-}
-
 @-webkit-keyframes glow
 {
 0% {
-border: 0.15em solid #FFFFFF;
+border: 0.15em solid #FF9900;
 }
 100% {
-border: 0.15em solid #333333;
+border: 0.15em solid #DC143C;
+}
+}
+
+@-moz-keyframes glow
+{
+0% {
+border: 0.15em solid #FF9900;
+}
+100% {
+border: 0.15em solid #DC143C;
 }
 }
 
@@ -295,9 +297,7 @@ cursor: move;
 
 background-color: #EEE8AA; /* ECE5B6; */
 
-border-color: #5F5D44;  /*C7B37F; FFF8C6; */
-border-left-color: #8F8B66;
-border-top-color: #8F8B66;
+border-color: #777455;
 
 border-style: solid;
 
@@ -309,18 +309,22 @@ border-radius: 0.4em;
 
 div.tableDivWrap td div.Tile a
 {
-text-shadow: 1px 1px 2px #ffffff;
+/* text-shadow: 1px 1px 2px #ffffff; */
 }
 
 div.tableDivWrap td div.Locked
 {
 cursor: default;
-/* color: #666633; */
+color: #474633;
 }
 
 div.tableDivWrap td div.Temp
 {
-border-color: #FFFFFF;
+border-color: #474633;  /*C7B37F; FFF8C6; */
+/*
+border-left-color: #8F8B66;
+border-top-color: #8F8B66;
+*/
 }
 
 div.tableDivWrap td div.CenterStart
@@ -332,7 +336,7 @@ div.tableDivWrap td div.Temp:hover
 {
 color: #000000 !important;
 
-border-color: #000000; /* DC143C */
+border-color: #FF9900;
 }
 
 
@@ -359,15 +363,15 @@ animation-iteration-count: infinite;
 animation-direction: alternate;
 animation-timing-function: linear;
 
-border-color: #474633 !important;
+border-color: #DC143C !important;
 }
 
 .dragBorder
 {
--webkit-box-shadow: 4px 4px 5px #333333;
--moz-box-shadow: 4px 4px 5px #333333;
--o-box-shadow: 4px 4px 5px #333333;
-box-shadow: 4px 4px 5px #333333;
+-webkit-box-shadow: 0px 0px 0.5em #333333;
+-moz-box-shadow: 0px 0px 0.5em #333333;
+-o-box-shadow: 0px 0px 0.5em #333333;
+box-shadow: 0px 0px 0.5em #333333;
 z-index: 1000;
 }
 
@@ -378,10 +382,12 @@ cursor: pointer;
 
 border-color: #333333 !important;
 
+/* 
 box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -webkit-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -moz-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
 -o-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
+*/
 }
 
 div.tableDivWrap td div a span
@@ -431,7 +437,7 @@ div.tableDivWrap td.DoubleWord div.Empty a br
 div.tableDivWrap td div.CenterStart a
 {
 font-size: 2.5em;
-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
+color: #54534A;
 }
 
 /*
