@@ -666,7 +666,7 @@ var _Rack = function()
 				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
 				var square = new Square(SquareType.Normal);
 				square.X = x;
-				square.Y = 0;
+				square.Y = -1;
 				this.SquaresList.push(square);
 			}
 		
@@ -784,6 +784,47 @@ return _Rack;
 // END Scrabble.Core.Rack ------------------
 //=================================================
 
+
+//=================================================
+// BEGIN Scrabble.Core.Rack ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Game == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Game"])
+_OBJECT_ROOT_.Scrabble.Core.Game = (function(){
+//var _Game = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
+
+console.log("inside Scrabble.Core.Game code scope");
+
+with (Scrabble.Core)
+{
+
+//function _Rack()
+var _Game = function(board, rack)
+{
+	console.log("Scrabble.Core.Game constructor");
+	this.Board = board;
+	this.Rack = rack;
+}
+
+_Game.prototype.Board = 0;
+_Game.prototype.Rack = 0;
+
+_Game.prototype.MoveTile = function(square1, square2)
+{
+	//TODO
+}
+
+_Game.prototype.toString = function()
+{
+	return "Scrabble.Core.Game toString(): TODO ... ";
+}
+
+} // END - with (Scrabble.Core)
+
+return _Game;
+})();
+// END Scrabble.Core.Game ------------------
+//=================================================
+
+
 //=================================================
 // BEGIN Scrabble.UI.Html ------------------
 if (typeof _OBJECT_ROOT_.Scrabble.UI.Html == "undefined" || !_OBJECT_ROOT_.Scrabble.UI["Html"])
@@ -830,15 +871,18 @@ var _Html = function()
 					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
 					var y1 = parseInt(id1.substring(cross1 + 1), 10);
 					
-					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+						
+						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
 						
-						if (x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y)
+						if (!sourceInRack
+							&& x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y)
 						{
 							PlayAudio("audio1");
 						
@@ -876,7 +920,10 @@ var _Html = function()
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+						
+						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+
 						var divz = document.getElementById(idSelected);
 						$(divz).removeClass("Selected");
 					}
@@ -944,7 +991,10 @@ var _Html = function()
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+						
+						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+					
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
@@ -1125,7 +1175,7 @@ var _Html = function()
 
 	function UpdateHtmlTableCell_Rack(html, rack, square)
 	{
-		var id = IDPrefix_Rack_SquareOrTile + square.X;
+		var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
 		var td = document.getElementById(id).parentNode;
 		if (td.hasChildNodes())
 		{
@@ -1151,16 +1201,20 @@ var _Html = function()
 				function () {
 					var id1 = $(this).attr("id");
 					var underscore1 = id1.indexOf("_");
-					var x1 = parseInt(id1.substring(underscore1 + 1), 10);
+					var cross1 = id1.indexOf("x");
+					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+					var y1 = parseInt(id1.substring(cross1 + 1), 10);
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X;
+						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
 						
-						if (x1 == html.CurrentlySelectedSquare.X)
+						if (sourceInRack
+							&& x1 == html.CurrentlySelectedSquare.X)
 						{
 							PlayAudio("audio1");
 						
@@ -1198,7 +1252,7 @@ var _Html = function()
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X;
+						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 						$(divz).removeClass("Selected");
 					}
@@ -1251,21 +1305,24 @@ var _Html = function()
 				function () {
 					var id1 = $(this).attr("id");
 					var underscore1 = id1.indexOf("_");
-					var x1 = parseInt(id1.substring(underscore1 + 1), 10);
+					var cross1 = id1.indexOf("x");
+					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+					var y1 = parseInt(id1.substring(cross1 + 1), 10);
 
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X;
+						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
 						
 						var XX = html.CurrentlySelectedSquare.X;
+						var YY = html.CurrentlySelectedSquare.Y;
 						
 						html.SetCurrentlySelectedSquareUpdateTargets(0);
 						//html.CurrentlySelectedSquare = 0;
 						
-						rack.MoveTile({'x':XX}, {'x':x1});
+						rack.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 					}
 				}
 			);
@@ -1284,16 +1341,20 @@ var _Html = function()
 					//alert(id1 + "-->" + id2);
 				
 					var underscore1 = id1.indexOf("_");
-					var x1 = parseInt(id1.substring(underscore1 + 1), 10);
-				
+					var cross1 = id1.indexOf("x");
+					var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+					var y1 = parseInt(id1.substring(cross1 + 1), 10);
+					
 					//alert(x1 + "x" + y1);
 
 					var underscore2 = id2.indexOf("_");
-					var x2 = parseInt(id2.substring(underscore2 + 1), 10);
-				
+					var cross2 = id2.indexOf("x");
+					var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
+					var y2 = parseInt(id2.substring(cross2 + 1), 10);
+					
 					//alert(x1 + "x" + y1);
 				
-					rack.MoveTile({'x':x1}, {'x':x2});
+					rack.MoveTile({'x':x1, 'y':y1}, {'x':x2, 'y':y2});
 				}
 			});
 			
@@ -1332,7 +1393,7 @@ var _Html = function()
 			var div = document.createElement('div');
 			td.appendChild(div);
 			
-			var id = IDPrefix_Rack_SquareOrTile + x;
+			var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
 			div.setAttribute('id', id);
 			
 			var a = document.createElement('a');
@@ -1411,7 +1472,7 @@ _Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square)
 		var squareTarget = this.Rack.SquaresList[x];
 		if (squareTarget.Tile == 0)
 		{
-			var idSelected = IDPrefix_Rack_SquareOrTile + squareTarget.X;
+			var idSelected = IDPrefix_Rack_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
 			var divz = document.getElementById(idSelected);
 			if (this.CurrentlySelectedSquare == 0)
 			{
