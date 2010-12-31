@@ -1,5 +1,8 @@
 body
 {
+font-family: helvetica, arial, sans-serif;
+font-size: 100.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
+
 margin: 0;
 
 padding: 0;
@@ -8,9 +11,6 @@ padding-top: 1em;
 border: none;
 
 text-align: center;
-
-font-family: Helvetica, Arial, sans-serif;
-font-size: 100%;
 
 background: #BEB9A6 url('../images/Background_VOID.png') repeat left top;
 color: #333333;
@@ -25,7 +25,7 @@ padding-top: 1em;
 
 div#title span
 {
-font-size: 300%;
+font-size: 3em;
 
 margin: 0;
 padding: 0;
@@ -45,18 +45,18 @@ width: 100%;
 
 div.surroundShade table
 {
-	box-shadow: 0 0 1em #333333;
-	-webkit-box-shadow: 0 0 1em #333333;
-	-moz-box-shadow: 0 0 1em #333333;
-	-o-box-shadow: 0 0 1em #333333;
+box-shadow: 0 0 1em #333333;
+-webkit-box-shadow: 0 0 1em #333333;
+-moz-box-shadow: 0 0 1em #333333;
+-o-box-shadow: 0 0 1em #333333;
 }
 
 div.bottomShade table
 {
-	box-shadow: 0 0.5em 1em #333333;
-	-webkit-box-shadow: 0 0.5em 1em #333333;
-	-moz-box-shadow: 0 0.5em 1em #333333;
-	-o-box-shadow: 0 0.5em 1em #333333;
+box-shadow: 0 0.5em 1em #333333;
+-webkit-box-shadow: 0 0.5em 1em #333333;
+-moz-box-shadow: 0 0.5em 1em #333333;
+-o-box-shadow: 0 0.5em 1em #333333;
 }
 
 div.tableDivWrap table
@@ -113,8 +113,10 @@ padding: 0; /* table 'cellpadding' */
 
 border: none;
 
+/*
 text-align: center;
 vertical-align: middle;
+*/
 
 white-space: normal;
 overflow: hidden;
@@ -171,11 +173,13 @@ padding: 0;
 
 border: none;
 
+/*
 text-align: center;
 vertical-align: middle;
+*/
 
-width: 3em;
-height: 3em;
+width: 2.5em;
+height: 2.5em;
 
 border-style: solid;
 border-width: 0.22em;
@@ -202,7 +206,7 @@ padding: 0;
 border: none;
 
 text-align: center;
-vertical-align: middle;
+/* vertical-align: middle; */
 }
 
 @-moz-keyframes glow
@@ -335,6 +339,15 @@ animation-timing-function: linear;
 border-color: #333333 !important;
 }
 
+.dragBorder
+{
+-webkit-box-shadow: 4px 4px 5px #333333;
+-moz-box-shadow: 4px 4px 5px #333333;
+-o-box-shadow: 4px 4px 5px #333333;
+box-shadow: 4px 4px 5px #333333;
+z-index: 1000;
+}
+
 div.tableDivWrap td div.dropActive,
 div.tableDivWrap td div.Targeted:hover
 {
@@ -352,47 +365,115 @@ div.tableDivWrap td div a span
 {
 margin: 0;
 padding: 0;
-vertical-align: middle;
+/* vertical-align: middle; */
 }
 
 div.tableDivWrap td div.Tile a span.Letter
 {
-font-size: 100%;
+font-size: 1.1em;
 font-weight: bold;
 
-line-height: 2.8em;
+line-height: 2.2em;
 
-padding-left: 0.3em;
+padding-left: 0em;
 }
 
 div.tableDivWrap td div.Tile a span.Score
 {
-font-size: 50%;
+font-size: 0.6em;
 vertical-align: sub;
-padding-left: -0.3em;
+padding-left: -0.2em;
 }
-
 
 div.tableDivWrap td.DoubleWord div.Empty a,
 div.tableDivWrap td.TripleWord div.Empty a,
 div.tableDivWrap td.DoubleLetter div.Empty a,
-div.tableDivWrap td.TripleLetter div.Empty a
+div.tableDivWrap td.TripleLetter div.Empty a,
+div.tableDivWrap td.Normal div.Empty a span
 {
-line-height: 0.9em;
+font-size: 0.53em;
+padding-top: 0.2em;
+line-height: 1.5em;
+letter-spacing: 0.16em;
 }
 
-div.tableDivWrap td.DoubleWord div.Empty a span,
-div.tableDivWrap td.TripleWord div.Empty a span,
-div.tableDivWrap td.DoubleLetter div.Empty a span,
-div.tableDivWrap td.TripleLetter div.Empty a span
+/*
+div.tableDivWrap td.DoubleWord div.Empty a br
 {
-	font-size: 50%;
-	letter-spacing: 0.2em;
+	line-height: 5px;
+	height: 3px;
 }
+*/
 
 div.tableDivWrap td div.CenterStart a
 {
-font-size: 250%;
-line-height: 1.1em;
+font-size: 2.5em;
 color: #306754;
 }
+
+/*
+The CSS hack below targets Webkit only (Safari and Chrome), see:
+http://www.etchevarne.net/toolkit/css-hacks.html
+*/
+
+/*\*/
+@media screen and (-webkit-min-device-pixel-ratio:0)
+{
+body:nth-of-type(1) div.tableDivWrap td div.CenterStart a
+{
+margin-top: -0.2em;
+font-size: 2.2em;
+}
+}
+/**/
+
+/*
+The CSS hack below targets Firefox only, see:
+http://www.etchevarne.net/toolkit/css-hacks.html
+*/
+
+@-moz-document url-prefix()
+{
+div.tableDivWrap td div.Tile a span.Score
+{
+margin-top: -0.5em; /* actually doesn't work :( */
+}
+}
+
+
+
+
+
+
+
+@media all and (-webkit-min-device-pixel-ratio:10000), not all and (-webkit-min-device-pixel-ratio:0)
+{
+	.opera {display: block}
+}
+
+
+.ie6 {_display: block}
+
+*:first-child+html .ie7 {display: block}
+
+html>/**/body .ffsc{display: block}
+
+.ie67 {*display: block}
+
+/*\*/
+	html>body*.ie7sc {display: block}
+/**/
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+.webkit {display: block}
+}
+
+.ff2ie7, x:-moz-any-link {display: block}
+
+.ff3ie7, x:-moz-any-link, x:default {display: block}
+
+html>/**/body .modern {display: block}
+
+@-moz-document url-prefix() { .ff23 {display: block}}
+
+html>/**/body .ff3, x:-moz-any-link, x:default { } /* Only FireFox 3 */

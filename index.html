@@ -123,6 +123,36 @@ lang="en">
 	window.onload = init;
 	</script>
 
+	<!--[if IE]> 
+	<style type="text/css" media="all">
+	div.surroundShade table,
+	div.bottomShade table
+	{
+	zoom: 1;
+	filter: progid:DXImageTransform.Microsoft.Shadow(color='#333333', Direction=135, Strength=3);
+	}
+	</style>
+	<![endif]--> 
+
+	<!--[if lt IE 7]>
+	<style type="text/css" media="all">
+	.cie654 {display: block}
+	</style>
+	<![endif]--> 
+
+	<!--[if !lt IE 7]>
+	<style type="text/css" media="all">
+	.cie7 {display: block}
+	</style>		
+	<![endif]--> 
+
+	<!--[if IE 8]>
+	<style type="text/css" media="all">
+	.cie8 {display: block}
+	</style>		
+	<![endif]--> 
+
+	<!--[if !IE]>--> <style type="text/css" media="all">.cnotie {display: block}</style> <!--<![endif]-->
 </head>
 <body id="body">
 

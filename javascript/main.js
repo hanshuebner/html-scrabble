@@ -748,20 +748,6 @@ var _Html = function()
 					$(this).css({ opacity: 0.5 });
 					
 					$(ui.helper).animate({'font-size' : '120%'}, 300); //height : '+=10px', width : '+=10px', 
-					var shadow = "4px 4px 5px #333333";
-					$(ui.helper).css({"-webkit-box-shadow": shadow});
-					$(ui.helper).css({"-moz-box-shadow": shadow});
-					$(ui.helper).css({"-o-box-shadow": shadow});
-					$(ui.helper).css({"box-shadow": shadow});
-					
-					$(ui.helper).css({ "z-index": 1000 });
-					
-						/*
-						$(ui.helper).css({'border-color' : 'blue'});
-						$(ui.helper).css({'-webkit-animation-name' : 'void'});
-						$(ui.helper).css({'-moz-animation-name' : 'void'});
-						$(ui.helper).css({'animation-name' : 'void'});
-						*/
 						
 						$(ui.helper).addClass("dragBorder");
 					
@@ -878,17 +864,37 @@ var _Html = function()
 		
 					break;
 				case SquareType.DoubleWord:
-					var span = document.createElement('span');
-					var txt1 = document.createTextNode("DOUBLE WORD SCORE");
-					
+				
 					var middle = Math.floor(board.Dimension / 2);
 					if (square.X == middle && square.Y == middle)
 					{
-						txt1 = document.createTextNode('\u2605');
+						var txt1 = document.createTextNode('\u2605');
+						var span1 = document.createElement('span');
+						span1.appendChild(txt1);
+						a.appendChild(span1);
 					}
-					span.appendChild(txt1);
+					else
+					{
+						var txt1 = document.createTextNode("DOUBLE");
+						var txt2 = document.createTextNode("WORD");
+						var txt3 = document.createTextNode("SCORE");
+					
+					
+						var span1 = document.createElement('span');
+						span1.appendChild(txt1);
+					
+						var span2 = document.createElement('span');
+						span2.appendChild(txt2);
+					
+						var span3 = document.createElement('span');
+						span3.appendChild(txt3);
 
-					a.appendChild(span);
+						a.appendChild(span1);
+						a.appendChild(document.createElement('br'));
+						a.appendChild(span2);
+						a.appendChild(document.createElement('br'));
+						a.appendChild(span3);
+					}
 					break;
 				case SquareType.TripleWord:
 					var span = document.createElement('span');
