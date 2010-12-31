@@ -225,7 +225,6 @@ function PlayAudio(id)
 	if (audio.playing)
 	{
 		audio.pause();
-		alert("DEBUG 1");
 	}
     
 	audio.defaultPlaybackRate = 1;
@@ -243,10 +242,9 @@ function PlayAudio(id)
 			audio.currentTime = 0;
 			audio.removeEventListener("canplay", currentTime, true);
 			audio.play();
-			alert("DEBUG 3");
 		}
 		audio.addEventListener("canplay", currentTime, true);
-		alert("DEBUG 2" + e.message);
+		//alert("DEBUG 2" + e.message);
 	}
 }
 
