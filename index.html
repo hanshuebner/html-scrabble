@@ -50,14 +50,16 @@ lang="en">
 	<script type="text/javascript">
 
 	var board = 0;
+	var rack = 0;
 	var boardUI = 0;
 
 	function placeRandomTiles()
 	{
-		boardUI.SetCurrentlySelectedSquareUpdateTargets(board, 0);
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
 		
 		board.GenerateRandomTiles();
+		rack.GenerateRandomTiles();
 	}
 	function init() {
 
@@ -69,6 +71,7 @@ lang="en">
 		
 		boardUI = new window.Scrabble.UI.Html(); // must be instantiated first (to listen to Core events)
 		board = new window.Scrabble.Core.Board();
+		rack = new window.Scrabble.Core.Rack();
 		
 		$(document).ready(function(){
 		/*
@@ -177,19 +180,6 @@ lang="en">
 	</p>
 
 <div id="rack" class="tableDivWrap bottomShade">
-
-	<table>
-	<tr>
-	<td class="Normal"><div class="Tile" id="tile1"><a><span class="Letter">T</span><span class="Score">10</span></a></div></td>
-	<td class="Normal"><div class="Tile" id="tile2"><a><span class="Letter">F</span><span class="Score">7</span></a></div></td>
-	<td class="Normal"><div class="Empty" id="empty1"><a><span> </span></a></div></td>
-	<td class="Normal"><div class="Tile" id="tile3"><a><span class="Letter">G</span><span class="Score">3</span></a></div></td>
-	<td class="Normal"><div class="Tile" id="tile4"><a><span class="Letter">P</span><span class="Score">3</span></a></div></td>
-	<td class="Normal"><div class="Empty" id="empty2"><a><span> </span></a></div></td>
-	<td class="Normal"><div class="Empty" id="empty3"><a><span> </span></a></div></td>
-	</tr>
-	</table>
-
 </div>
 
 <div id="board" class="tableDivWrap surroundShade">

@@ -209,7 +209,8 @@ return _EventsManager;
 EnsureNamespace("Scrabble.Core");
 EnsureNamespace("Scrabble.UI");
 
-var IDPrefix_SquareOrTile = "squareOrTile_";
+var IDPrefix_Board_SquareOrTile = "BoardSquareOrTile_";
+var IDPrefix_Rack_SquareOrTile = "RackSquareOrTile_";
 
 function PlayAudio(id)
 {
@@ -303,7 +304,7 @@ console.log("inside Scrabble.Core.Square code scope");
 with (Scrabble.Core)
 {
 
-//function _Board()
+//function _Square()
 var _Square = function()
 {
 	switch (arguments[0])
@@ -521,7 +522,7 @@ var _Board = function()
 }
 
 _Board.prototype.Event_ScrabbleBoardReady = "ScrabbleBoardReady";
-_Board.prototype.Event_ScrabbleSquareTileChanged = "ScrabbleSquareTileChanged";
+_Board.prototype.Event_ScrabbleBoardSquareTileChanged = "ScrabbleBoardSquareTileChanged";
 
 _Board.prototype.Dimension = NaN;
 
@@ -541,8 +542,8 @@ _Board.prototype.MoveTile = function(tileXY, squareXY)
 	//var audio = document.getElementById('audio' + (random+1));
 	PlayAudio('audio4');
 	
-	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square1 });
-	EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged, { 'Board': this, 'Square': square2 });
+	EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square1 });
+	EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square2 });
 }
 
 _Board.prototype.GenerateRandomTiles = function()
@@ -570,18 +571,16 @@ _Board.prototype.GenerateRandomTiles = function()
 				var score = Math.floor(Math.random()*10) + 1;
 			
 				var tile = new Tile(letter, score);
-				var locked = Math.floor(Math.random() * 2);
-				square.PlaceTile(tile, locked == 0 ? true : false);
+				var locked = 1; // Math.floor(Math.random() * 2);
+				square.PlaceTile(tile, locked == 1 ? true : false);
 			
-				EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged,
-											{ 'Board': this, 'Square': square });
+				EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
 			}
 			else if (square.Tile != 0)
 			{
 				square.PlaceTile(0, false);
 				
-				EventsManager.DispatchEvent(this.Event_ScrabbleSquareTileChanged,
-											{ 'Board': this, 'Square': square });
+				EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
 			}
 		}
 	}
@@ -645,8 +644,145 @@ return _Board;
 // END Scrabble.Core.Board ------------------
 //=================================================
 
-//Tile
-//LetterDistribution
+
+//=================================================
+// BEGIN Scrabble.Core.Rack ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Rack == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Rack"])
+_OBJECT_ROOT_.Scrabble.Core.Rack = (function(){
+//var _Rack = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
+
+console.log("inside Scrabble.Core.Rack code scope");
+
+with (Scrabble.Core)
+{
+
+//function _Rack()
+var _Rack = function()
+{
+	function CreateGrid()
+	{
+			for (var x = 0; x < this.Dimension; x++)
+			{
+				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
+				var square = new Square(SquareType.Normal);
+				square.X = x;
+				square.Y = 0;
+				this.SquaresList.push(square);
+			}
+		
+		EventsManager.DispatchEvent(this.Event_ScrabbleRackReady, { 'Rack': this });
+	}
+
+	//_Rack.prototype.SetDimension = function()
+	function SetDimension()
+	{
+		if (this instanceof _Rack)
+		{
+			if (arguments.length > 0)
+			{
+				console.log("typeof ARGS: " + typeof arguments[0]);
+				console.log("typeof ARGS: " + type_of(arguments[0]));
+			
+				switch (type_of(arguments[0]))
+				{
+					case 'number':
+						var val = arguments[0];
+
+						if (val < 7)
+							throw new Error("Illegal argument Scrabble.Core.Rack.SetDimension(), number smaller than 7: " + val);
+
+						this.Dimension = val;
+						console.log("Scrabble.Core.Rack 'number' constructor: " + this.toString());
+						return;
+					case 'object':
+					case 'array':
+					default:
+						var argumentsString = "";
+						for (var i = 0; i < arguments.length; i++)
+						{
+							argumentsString += arguments[0] + ", ";
+						}
+						throw new Error("Illegal arguments Scrabble.Core.Rack.SetDimension(): " + argumentsString);
+						break;
+				}
+			}
+			else
+			{
+				this.Dimension = 8;
+				console.log("Scrabble.Core.Rack constructor with empty parameters (default "+this.Dimension+")");
+			}
+		}
+		else
+		{
+			throw new Error('Illegal method call Scrabble.Core.Rack.SetDimensions() on :' + typeof this);
+		}
+	}
+	
+	console.log("Scrabble.Core.Rack constructor before applying parameters");
+	SetDimension.apply(this, arguments);
+	//SetDimensions(arguments);
+	
+	CreateGrid.apply(this);
+	this.GenerateRandomTiles();
+}
+
+_Rack.prototype.Event_ScrabbleRackReady = "ScrabbleRackReady";
+_Rack.prototype.Event_ScrabbleRackSquareTileChanged = "ScrabbleRackSquareTileChanged";
+
+_Rack.prototype.Dimension = NaN;
+
+_Rack.prototype.SquaresList = [];
+
+_Rack.prototype.MoveTile = function(tileX, squareX)
+{
+	var square1 = this.SquaresList[tileX.x];
+	var square2 = this.SquaresList[squareX.x];
+
+	var tile = square1.Tile;
+	square1.PlaceTile(0, false);
+	square2.PlaceTile(tile, false);
+
+	//var random = Math.floor(Math.random()*3);
+	//var audio = document.getElementById(square2.Type == SquareType.Normal ? 'audio2' : 'audio3');
+	//var audio = document.getElementById('audio' + (random+1));
+	PlayAudio('audio4');
+	
+	EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square1 });
+	EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square2 });
+}
+
+_Rack.prototype.GenerateRandomTiles = function()
+{
+	for (var x = 0; x < (this.Dimension - 1); x++)
+	{
+		var square = this.SquaresList[x];
+		
+		var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		var letter_index = Math.floor(Math.random() * letters.length);
+		var letter = letters.substring(letter_index, letter_index+1);
+	
+		var score = Math.floor(Math.random()*10) + 1;
+	
+		var tile = new Tile(letter, score);
+		
+		square.PlaceTile(tile, false);
+	
+		EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
+	}
+}
+
+
+_Rack.prototype.toString = function()
+{
+	return "Scrabble.Core.Rack toString(): " + this.Dimension;
+}
+
+} // END - with (Scrabble.Core)
+
+return _Rack;
+})();
+// END Scrabble.Core.Rack ------------------
+//=================================================
 
 //=================================================
 // BEGIN Scrabble.UI.Html ------------------
@@ -660,9 +796,9 @@ with (Scrabble.Core)
 {
 var _Html = function()
 {
-	function UpdateHtmlTableCell(html, board, square)
+	function UpdateHtmlTableCell_Board(html, board, square)
 	{
-		var id = IDPrefix_SquareOrTile + square.X + "x" + square.Y;
+		var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
 		var td = document.getElementById(id).parentNode;
 		if (td.hasChildNodes())
 		{
@@ -697,7 +833,7 @@ var _Html = function()
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
@@ -706,7 +842,7 @@ var _Html = function()
 						{
 							PlayAudio("audio1");
 						
-							html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
+							html.SetCurrentlySelectedSquareUpdateTargets(0);
 							//html.CurrentlySelectedSquare = 0;
 							return;
 						}
@@ -714,7 +850,7 @@ var _Html = function()
 					
 					PlayAudio("audio3");
 					
-					html.SetCurrentlySelectedSquareUpdateTargets(board, board.SquaresList[x1 + board.Dimension * y1]);
+					html.SetCurrentlySelectedSquareUpdateTargets(board.SquaresList[x1 + board.Dimension * y1]);
 					//html.CurrentlySelectedSquare = ;
 					
 					$(this).addClass("Selected");
@@ -740,11 +876,11 @@ var _Html = function()
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 						$(divz).removeClass("Selected");
 					}
-					html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
+					html.SetCurrentlySelectedSquareUpdateTargets(0);
 					
 					$(this).css({ opacity: 0.5 });
 					
@@ -808,7 +944,7 @@ var _Html = function()
 					
 					if (html.CurrentlySelectedSquare != 0)
 					{
-						var idSelected = IDPrefix_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
@@ -816,7 +952,7 @@ var _Html = function()
 						var XX = html.CurrentlySelectedSquare.X;
 						var YY = html.CurrentlySelectedSquare.Y;
 						
-						html.SetCurrentlySelectedSquareUpdateTargets(board, 0);
+						html.SetCurrentlySelectedSquareUpdateTargets(0);
 						//html.CurrentlySelectedSquare = 0;
 						
 						board.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
@@ -924,7 +1060,7 @@ var _Html = function()
 		}
 	}
 	
-	function DrawHtmlTable(html, board)
+	function DrawHtmlTable_Board(html, board)
 	{
 		var rootDiv = document.getElementById('board');
 		var table = document.createElement('table');
@@ -976,49 +1112,287 @@ var _Html = function()
 				var div = document.createElement('div');
 				td.appendChild(div);
 				
-				var id = IDPrefix_SquareOrTile + x + "x" + y;
+				var id = IDPrefix_Board_SquareOrTile + x + "x" + y;
 				div.setAttribute('id', id);
 				
 				var a = document.createElement('a');
 				div.appendChild(a);
 				
-				UpdateHtmlTableCell(html, board, square);
+				UpdateHtmlTableCell_Board(html, board, square);
 			}
 		}
 	}
 
-	var thiz = this;
+	function UpdateHtmlTableCell_Rack(html, rack, square)
+	{
+		var id = IDPrefix_Rack_SquareOrTile + square.X;
+		var td = document.getElementById(id).parentNode;
+		if (td.hasChildNodes())
+		{
+			while (td.childNodes.length >= 1)
+			{
+				td.removeChild(td.firstChild);
+		    }
+		}
+		
+		var div = document.createElement('div');
+		td.appendChild(div);
+		div.setAttribute('id', id);
+		
+		var a = document.createElement('a');
+		div.appendChild(a);
+
+		if (square.Tile != 0)
+		{
+			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
+			div.setAttribute('class', 'Tile Temp');
+			
+			$(div).click(
+				function () {
+					var id1 = $(this).attr("id");
+					var underscore1 = id1.indexOf("_");
+					var x1 = parseInt(id1.substring(underscore1 + 1), 10);
+					
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X;
+						var divz = document.getElementById(idSelected);
+
+						$(divz).removeClass("Selected");
+						
+						if (x1 == html.CurrentlySelectedSquare.X)
+						{
+							PlayAudio("audio1");
+						
+							html.SetCurrentlySelectedSquareUpdateTargets(0);
+							//html.CurrentlySelectedSquare = 0;
+							return;
+						}
+					}
+					
+					PlayAudio("audio3");
+					
+					html.SetCurrentlySelectedSquareUpdateTargets(rack.SquaresList[x1]);
+					//html.CurrentlySelectedSquare = ;
+					
+					$(this).addClass("Selected");
+				}
+			);
+			$(div).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
+				function () {
+					//$(this).css({'border' : '0.35em outset #FFF8C6'});
+				}
+			);
+			
+			var doneOnce = false;
+			
+			$(div).draggable({ //"#rack .Tile"
+				revert: "invalid",
+				//cursor: "move",
+				opacity: 1,
+				helper: "clone",
+				//snap: ".Empty",
+				start: function(event, ui)
+				{
+					PlayAudio("audio3");
+					
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X;
+						var divz = document.getElementById(idSelected);
+						$(divz).removeClass("Selected");
+					}
+					html.SetCurrentlySelectedSquareUpdateTargets(0);
+					
+					$(this).css({ opacity: 0.5 });
+					
+					$(ui.helper).animate({'font-size' : '120%'}, 300); //height : '+=10px', width : '+=10px', 
+						
+						$(ui.helper).addClass("dragBorder");
+					
+				},
+				
+				drag: function(event, ui)
+				{
+					if (!doneOnce)
+					{
+						$(ui.helper).addClass("dragBorder");
+						
+						doneOnce = true;
+					}
+					
+					//$(ui.helper).css({"color": "#333333 !important"});
+				},
+				stop: function(event, ui)
+				{
+					$(this).css({ opacity: 1 });
+
+					PlayAudio('audio5');
+				}
+			});
+			
+			var txt1 = document.createTextNode(square.Tile.Letter);
+			var span1 = document.createElement('span');
+			span1.setAttribute('class', 'Letter');
+			span1.appendChild(txt1);
+			a.appendChild(span1);
+
+			var txt2 = document.createTextNode(square.Tile.Score);
+			var span2 = document.createElement('span');
+			span2.setAttribute('class', 'Score');
+			span2.appendChild(txt2);
+			a.appendChild(span2);
+		}
+		else
+		{
+			div.setAttribute('class', 'Empty');
+			
+			$(div).click(
+				function () {
+					var id1 = $(this).attr("id");
+					var underscore1 = id1.indexOf("_");
+					var x1 = parseInt(id1.substring(underscore1 + 1), 10);
+
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X;
+						var divz = document.getElementById(idSelected);
+
+						$(divz).removeClass("Selected");
+						
+						var XX = html.CurrentlySelectedSquare.X;
+						
+						html.SetCurrentlySelectedSquareUpdateTargets(0);
+						//html.CurrentlySelectedSquare = 0;
+						
+						rack.MoveTile({'x':XX}, {'x':x1});
+					}
+				}
+			);
+
+			$(div).droppable({ //"#rack .Empty"
+				//accept: ".Tile",
+				//activeClass: "dropActive",
+				hoverClass: "dropActive",
+				drop: function( event, ui )
+				{
+					//$( this ).addClass( "dropActive" );
+				
+					var id1 = $(ui.draggable).attr("id");
+					var id2 = $(this).attr("id");
+				
+					//alert(id1 + "-->" + id2);
+				
+					var underscore1 = id1.indexOf("_");
+					var x1 = parseInt(id1.substring(underscore1 + 1), 10);
+				
+					//alert(x1 + "x" + y1);
+
+					var underscore2 = id2.indexOf("_");
+					var x2 = parseInt(id2.substring(underscore2 + 1), 10);
+				
+					//alert(x1 + "x" + y1);
+				
+					rack.MoveTile({'x':x1}, {'x':x2});
+				}
+			});
+			
+			switch (square.Type)
+			{
+				case SquareType.Normal:
+					var span1 = document.createElement('span');
+					var txt1 = document.createTextNode(" ");
+					span1.appendChild(txt1);
+					a.appendChild(span1);
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	function DrawHtmlTable_Rack(html, rack)
+	{
+		var rootDiv = document.getElementById('rack');
+		var table = document.createElement('table');
+		rootDiv.appendChild(table);
+		
+		var tr = document.createElement('tr');
+		table.appendChild(tr);
+
+		for (var x = 0; x < rack.Dimension; x++)
+		{
+			var square = rack.SquaresList[x];
+
+			var td = document.createElement('td');
+			tr.appendChild(td);
+
+			td.setAttribute('class', 'Normal');
+		
+			var div = document.createElement('div');
+			td.appendChild(div);
+			
+			var id = IDPrefix_Rack_SquareOrTile + x;
+			div.setAttribute('id', id);
+			
+			var a = document.createElement('a');
+			div.appendChild(a);
+			
+			UpdateHtmlTableCell_Rack(html, rack, square);
+		}
+	}
 	
+	var thiz = this;
+
 	var callback_ScrabbleBoardReady = function(eventPayload)
 		{
-			DrawHtmlTable(thiz, eventPayload.Board);
+			thiz.Board = eventPayload.Board;
+			DrawHtmlTable_Board(thiz, eventPayload.Board);
 		};
 
 	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardReady, callback_ScrabbleBoardReady);
 	
-	var callback_ScrabbleSquareTileChanged = function(eventPayload)
+	var callback_ScrabbleBoardSquareTileChanged = function(eventPayload)
 		{
-			UpdateHtmlTableCell(thiz, eventPayload.Board, eventPayload.Square);
+			UpdateHtmlTableCell_Board(thiz, eventPayload.Board, eventPayload.Square);
 		};
 
-	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleSquareTileChanged, callback_ScrabbleSquareTileChanged);
+	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardSquareTileChanged, callback_ScrabbleBoardSquareTileChanged);
+
+	
+	var callback_ScrabbleRackReady = function(eventPayload)
+		{
+			thiz.Rack = eventPayload.Rack;
+			DrawHtmlTable_Rack(thiz, eventPayload.Rack);
+		};
+
+	EventsManager.AddEventListener(Rack.prototype.Event_ScrabbleRackReady, callback_ScrabbleRackReady);
+	
+	var callback_ScrabbleRackSquareTileChanged = function(eventPayload)
+		{
+			UpdateHtmlTableCell_Rack(thiz, eventPayload.Rack, eventPayload.Square);
+		};
+
+	EventsManager.AddEventListener(Rack.prototype.Event_ScrabbleRackSquareTileChanged, callback_ScrabbleRackSquareTileChanged);
 }
 
 _Html.prototype.CurrentlySelectedSquare = 0;
+_Html.prototype.Board = 0;
+_Html.prototype.Rack = 0;
 
 //TODO: make class method !! (currently some sort of static function)
-_Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(board, square)
+_Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square)
 {
 	this.CurrentlySelectedSquare = square;
 	
-	for (var y = 0; y < board.Dimension; y++)
+	for (var y = 0; y < this.Board.Dimension; y++)
 	{
-		for (var x = 0; x < board.Dimension; x++)
+		for (var x = 0; x < this.Board.Dimension; x++)
 		{
-			var squareTarget = board.SquaresList[x + board.Dimension * y];
+			var squareTarget = this.Board.SquaresList[x + this.Board.Dimension * y];
 			if (squareTarget.Tile == 0)
 			{
-				var idSelected = IDPrefix_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
+				var idSelected = IDPrefix_Board_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
 				var divz = document.getElementById(idSelected);
 				if (this.CurrentlySelectedSquare == 0)
 				{
@@ -1028,6 +1402,24 @@ _Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(board, square
 				{
 					$(divz).addClass("Targeted");
 				}
+			}
+		}
+	}
+	
+	for (var x = 0; x < this.Rack.Dimension; x++)
+	{
+		var squareTarget = this.Rack.SquaresList[x];
+		if (squareTarget.Tile == 0)
+		{
+			var idSelected = IDPrefix_Rack_SquareOrTile + squareTarget.X;
+			var divz = document.getElementById(idSelected);
+			if (this.CurrentlySelectedSquare == 0)
+			{
+				$(divz).removeClass("Targeted");
+			}
+			else
+			{
+				$(divz).addClass("Targeted");
 			}
 		}
 	}
