@@ -243,10 +243,10 @@ function PlayAudio(id)
 			audio.currentTime = 0;
 			audio.removeEventListener("canplay", currentTime, true);
 			audio.play();
-		alert("DEBUG 3");
+			alert("DEBUG 3");
 		}
 		audio.addEventListener("canplay", currentTime, true);
-		alert("DEBUG 2");
+		alert("DEBUG 2" + e.message);
 	}
 }
 
