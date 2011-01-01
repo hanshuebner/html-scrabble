@@ -875,14 +875,13 @@ var _Html = function()
 					{
 						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
 						
-						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
 						
-						if (!sourceInRack
-							&& x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y)
+						if (x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y)
 						{
 							PlayAudio("audio1");
 						
@@ -922,7 +921,7 @@ var _Html = function()
 					{
 						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
 						
-						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 
 						var divz = document.getElementById(idSelected);
 						$(divz).removeClass("Selected");
@@ -933,8 +932,7 @@ var _Html = function()
 					
 					$(ui.helper).animate({'font-size' : '120%'}, 300); //height : '+=10px', width : '+=10px', 
 						
-						$(ui.helper).addClass("dragBorder");
-					
+					$(ui.helper).addClass("dragBorder");
 				},
 				
 				drag: function(event, ui)
@@ -993,7 +991,7 @@ var _Html = function()
 					{
 						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
 						
-						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 					
 						var divz = document.getElementById(idSelected);
 
@@ -1208,7 +1206,7 @@ var _Html = function()
 					if (html.CurrentlySelectedSquare != 0)
 					{
 						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
-						var idSelected = sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+						var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
 						var divz = document.getElementById(idSelected);
 
 						$(divz).removeClass("Selected");
