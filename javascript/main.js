@@ -793,6 +793,14 @@ _Rack.prototype.GenerateRandomTiles = function()
 	
 		EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
 	}
+	
+	var square = this.SquaresList[this.Dimension - 1];
+	if (square.Tile != 0)
+	{
+		square.PlaceTile(0, false);
+		
+		EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
+	}
 }
 
 
