@@ -77,6 +77,17 @@ lang="en">
 
 		game = new window.Scrabble.Core.Game(board, rack);
 		
+		if (false)
+		{
+			board.GenerateRandomTiles();
+		}
+		else
+		{
+			board.GenerateTilesLetterDistribution("French");
+		}
+		
+		rack.GenerateRandomTiles();
+		
 		$(document).ready(function(){
 		/*
 				$('.drag')

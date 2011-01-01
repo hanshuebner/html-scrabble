@@ -457,10 +457,8 @@ var _Board = function()
 		EventsManager.DispatchEvent(this.Event_ScrabbleBoardReady, { 'Board': this });
 	}
 
-	function SetDimension()
+	function SetDimension(val)
 	{
-		var val = arguments[0];
-		
 		if (typeof val != 'number')
 			throw new Error("Illegal argument Scrabble.Core.Board.SetDimension(), not a number: " + typeof val);
 		
@@ -518,7 +516,6 @@ var _Board = function()
 	//SetDimensions(arguments);
 	
 	CreateGrid.apply(this);
-	this.GenerateRandomTiles();
 }
 
 _Board.prototype.Event_ScrabbleBoardReady = "ScrabbleBoardReady";
@@ -558,6 +555,58 @@ _Board.prototype.MoveTile = function(tileXY, squareXY)
 	EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square2 });
 }
 
+_Board.prototype.GenerateTilesLetterDistribution = function()
+{
+	PlayAudio('audio0');
+	
+	var letterDistribution = 0;
+	for (var i = 0; i < this.Game.LetterDistributions.length; ++i)
+	{
+		var ld = this.Game.LetterDistributions[i];
+		if (ld.Language == arguments[0])
+		{
+			letterDistribution = ld;
+		}
+	}
+	
+	var i = -1;
+	
+	for (var y = 0; y < this.Dimension; y++)
+	{
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			i++;
+			
+			var centerStart = false;
+		
+			var square = this.SquaresList[x + this.Dimension * y];
+		
+			var middle = Math.floor(this.Dimension / 2);
+			var halfMiddle = Math.ceil(middle / 2);
+
+			if (i < letterDistribution.Tiles.length)
+			{
+				var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				var letter_index = Math.floor(Math.random() * letters.length);
+				var letter = letters.substring(letter_index, letter_index+1);
+			
+				var score = Math.floor(Math.random()*10) + 1;
+			
+				var locked = 1; // Math.floor(Math.random() * 2);
+				square.PlaceTile(letterDistribution.Tiles[i], locked == 1 ? true : false);
+			
+				EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
+			}
+			else if (square.Tile != 0)
+			{
+				square.PlaceTile(0, false);
+				
+				EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
+			}
+		}
+	}
+}
+
 _Board.prototype.GenerateRandomTiles = function()
 {
 	PlayAudio('audio0');
@@ -576,14 +625,14 @@ _Board.prototype.GenerateRandomTiles = function()
 			var makeTile = Math.floor(Math.random()*2);
 			if (makeTile && y <= middle)
 			{
-				var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				var letters = this.Game.BlankLetter + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 				var letter_index = Math.floor(Math.random() * letters.length);
 				var letter = letters.substring(letter_index, letter_index+1);
 			
 				var score = Math.floor(Math.random()*10) + 1;
 			
 				var tile = new Tile(letter, score);
-				var locked = 1; // Math.floor(Math.random() * 2);
+				var locked = 0; // Math.floor(Math.random() * 2);
 				square.PlaceTile(tile, locked == 1 ? true : false);
 			
 				EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
@@ -735,7 +784,6 @@ var _Rack = function()
 	//SetDimensions(arguments);
 	
 	CreateGrid.apply(this);
-	this.GenerateRandomTiles();
 }
 
 _Rack.prototype.Event_ScrabbleRackReady = "ScrabbleRackReady";
@@ -827,8 +875,8 @@ console.log("inside Scrabble.Core.Game code scope");
 
 with (Scrabble.Core)
 {
-
-//function _Rack()
+	
+//function _Game()
 var _Game = function(board, rack)
 {
 	console.log("Scrabble.Core.Game constructor");
@@ -838,10 +886,125 @@ var _Game = function(board, rack)
 	
 	this.Rack = rack;
 	rack.Game = this;
+	
+	function initLetterDistributions_()
+	{
+		var data = arguments[0];
+		var language = arguments[1];
+		
+		var array = [];
+		
+		for (var i = 0; i < data.length; ++i)
+		{
+			var item = data[i];
+			for (var n = 0; n < item.Count; ++n)
+			{
+				var tile = new Tile(item.Letter, item.Score);
+				array.push(tile);
+			}
+		}
+		
+		this.LetterDistributions.push({Language: language, Tiles: array});
+	}
+	
+	function initLetterDistributions_English()
+	{
+		var data = [
+		{Letter: this.BlankLetter, Score: 0, Count: 2},
+		
+		{Letter: "E", Score: 1, Count: 12},
+		{Letter: "A", Score: 1, Count: 9},
+		{Letter: "I", Score: 1, Count: 9},
+		{Letter: "O", Score: 1, Count: 8},
+		{Letter: "N", Score: 1, Count: 6},
+		{Letter: "R", Score: 1, Count: 6},
+		{Letter: "T", Score: 1, Count: 6},
+		{Letter: "L", Score: 1, Count: 4},
+		{Letter: "S", Score: 1, Count: 4},
+		{Letter: "U", Score: 1, Count: 4},
+		
+		{Letter: "D", Score: 2, Count: 4},
+		{Letter: "G", Score: 2, Count: 3},
+		
+		{Letter: "B", Score: 3, Count: 2},
+		{Letter: "C", Score: 3, Count: 2},
+		{Letter: "M", Score: 3, Count: 2},
+		{Letter: "P", Score: 3, Count: 2},
+		
+		{Letter: "F", Score: 4, Count: 2},
+		{Letter: "H", Score: 4, Count: 2},
+		{Letter: "V", Score: 4, Count: 2},
+		{Letter: "W", Score: 4, Count: 2},
+		{Letter: "Y", Score: 4, Count: 2},
+		
+		{Letter: "K", Score: 5, Count: 1},
+		
+		{Letter: "J", Score: 8, Count: 1},
+		{Letter: "X", Score: 8, Count: 1},
+		
+		{Letter: "Q", Score: 10, Count: 1},
+		{Letter: "Z", Score: 10, Count: 1}
+		];
+		
+		initLetterDistributions_.apply(this, [data, "English"]);
+	}
+	
+	function initLetterDistributions_French()
+	{
+		var data = [
+		{Letter: this.BlankLetter, Score: 0, Count: 2},
+		{Letter: "E", Score: 1, Count: 15},
+		{Letter: "A", Score: 1, Count: 9},
+		{Letter: "I", Score: 1, Count: 8},
+		{Letter: "N", Score: 1, Count: 6},
+		{Letter: "O", Score: 1, Count: 6},
+		{Letter: "R", Score: 1, Count: 6},
+		{Letter: "S", Score: 1, Count: 6},
+		{Letter: "T", Score: 1, Count: 6},
+		{Letter: "U", Score: 1, Count: 6},
+		{Letter: "L", Score: 1, Count: 5},
+		
+		{Letter: "D", Score: 2, Count: 3},
+		{Letter: "G", Score: 2, Count: 2},
+		{Letter: "M", Score: 3, Count: 3},
+		
+		{Letter: "B", Score: 3, Count: 2},
+		{Letter: "C", Score: 3, Count: 2},
+		{Letter: "P", Score: 3, Count: 2},
+		
+		{Letter: "F", Score: 4, Count: 2},
+		{Letter: "H", Score: 4, Count: 2},
+		{Letter: "V", Score: 4, Count: 2},
+				
+		{Letter: "J", Score: 8, Count: 1},
+		{Letter: "Q", Score: 8, Count: 1},
+
+		{Letter: "K", Score: 10, Count: 1},
+		{Letter: "W", Score: 10, Count: 1},
+		{Letter: "X", Score: 10, Count: 1},
+		{Letter: "Y", Score: 10, Count: 1},
+		{Letter: "Z", Score: 10, Count: 1}
+		];
+		
+		initLetterDistributions_.apply(this, [data, "French"]);
+	}
+	
+	// TODO: parse data from JSON ?
+	initLetterDistributions_French.apply(this);
+	initLetterDistributions_English.apply(this);
+	
+	for (var i = 0; i < this.LetterDistributions.length; ++i)
+	{
+		var letterDistribution = this.LetterDistributions[i];
+		//alert(letterDistribution.Language + " --> " + letterDistribution.Tiles.length);
+	}
 }
 
 _Game.prototype.Board = 0;
 _Game.prototype.Rack = 0;
+
+_Game.prototype.LetterDistributions = [];
+_Game.prototype.BlankLetter = "-";
 
 _Game.prototype.MoveTile = function(tileXY, squareXY)
 {
