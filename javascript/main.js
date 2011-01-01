@@ -528,8 +528,20 @@ _Board.prototype.Dimension = NaN;
 
 _Board.prototype.SquaresList = [];
 
+_Board.prototype.Game = 0;
+
 _Board.prototype.MoveTile = function(tileXY, squareXY)
 {
+	if (tileXY.y == -1 || squareXY.y == -1)
+	{
+		if (this.Game != 0)
+		{
+			this.Game.MoveTile(tileXY, squareXY);
+		}
+		
+		return;
+	}
+	
 	var square1 = this.SquaresList[tileXY.x + this.Dimension * tileXY.y];
 	var square2 = this.SquaresList[squareXY.x + this.Dimension * squareXY.y];
 
@@ -733,10 +745,22 @@ _Rack.prototype.Dimension = NaN;
 
 _Rack.prototype.SquaresList = [];
 
-_Rack.prototype.MoveTile = function(tileX, squareX)
+_Rack.prototype.Game = 0;
+
+_Rack.prototype.MoveTile = function(tileXY, squareXY)
 {
-	var square1 = this.SquaresList[tileX.x];
-	var square2 = this.SquaresList[squareX.x];
+	if (tileXY.y != -1 || squareXY.y != -1)
+	{
+		if (this.Game != 0)
+		{
+			this.Game.MoveTile(tileXY, squareXY);
+		}
+		
+		return;
+	}
+	
+	var square1 = this.SquaresList[tileXY.x];
+	var square2 = this.SquaresList[squareXY.x];
 
 	var tile = square1.Tile;
 	square1.PlaceTile(0, false);
@@ -800,16 +824,70 @@ with (Scrabble.Core)
 var _Game = function(board, rack)
 {
 	console.log("Scrabble.Core.Game constructor");
+	
 	this.Board = board;
+	board.Game = this;
+	
 	this.Rack = rack;
+	rack.Game = this;
 }
 
 _Game.prototype.Board = 0;
 _Game.prototype.Rack = 0;
 
-_Game.prototype.MoveTile = function(square1, square2)
+_Game.prototype.MoveTile = function(tileXY, squareXY)
 {
-	//TODO
+	if (tileXY.y == -1 && squareXY.y == -1)
+	{
+		this.Rack.MoveTile(tileXY, squareXY);
+		return;
+	}
+	
+	if (tileXY.y != -1 && squareXY.y != -1)
+	{
+		this.Board.MoveTile(tileXY, squareXY);
+		return;
+	}
+	
+	if (tileXY.y == -1) // RACK to BOARD
+	{
+		var square1 = this.Rack.SquaresList[tileXY.x];
+		var square2 = this.Board.SquaresList[squareXY.x + this.Board.Dimension * squareXY.y];
+		
+		var tile = square1.Tile;
+		square1.PlaceTile(0, false);
+		square2.PlaceTile(tile, false);
+
+		//var random = Math.floor(Math.random()*3);
+		//var audio = document.getElementById(square2.Type == SquareType.Normal ? 'audio2' : 'audio3');
+		//var audio = document.getElementById('audio' + (random+1));
+		PlayAudio('audio4');
+		
+		EventsManager.DispatchEvent(this.Rack.Event_ScrabbleRackSquareTileChanged, { 'Rack': this.Rack, 'Square': square1 });
+		EventsManager.DispatchEvent(this.Board.Event_ScrabbleBoardSquareTileChanged, { 'Board': this.Board, 'Square': square2 });
+		
+		return;
+	}
+	
+	if (squareXY.y == -1) // BOARD to RACK
+	{
+		var square1 = this.Board.SquaresList[tileXY.x + this.Board.Dimension * tileXY.y];
+		var square2 = this.Rack.SquaresList[squareXY.x];
+		
+		var tile = square1.Tile;
+		square1.PlaceTile(0, false);
+		square2.PlaceTile(tile, false);
+
+		//var random = Math.floor(Math.random()*3);
+		//var audio = document.getElementById(square2.Type == SquareType.Normal ? 'audio2' : 'audio3');
+		//var audio = document.getElementById('audio' + (random+1));
+		PlayAudio('audio4');
+		
+		EventsManager.DispatchEvent(this.Board.Event_ScrabbleBoardSquareTileChanged, { 'Board': this.Board, 'Square': square1 });
+		EventsManager.DispatchEvent(this.Rack.Event_ScrabbleRackSquareTileChanged, { 'Rack': this.Rack, 'Square': square2 });
+		
+		return;
+	}
 }
 
 _Game.prototype.toString = function()
