@@ -62,6 +62,26 @@ lang="en">
 		board.GenerateRandomTiles();
 		rack.GenerateRandomTiles();
 	}
+
+	function placeTiles_French()
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+		
+		board.GenerateTilesLetterDistribution("French");
+		rack.GenerateRandomTiles();
+	}
+
+
+	function placeTiles_English()
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+		
+		board.GenerateTilesLetterDistribution("English");
+		rack.GenerateRandomTiles();
+	}
+
 	function init() {
 
 		// quit if this function has already been called
@@ -187,7 +207,9 @@ lang="en">
 </div>
 
 <p>
-	<input type="submit" onclick="placeRandomTiles();" value="Randomize Tiles"></input>
+<input type="submit" onclick="placeRandomTiles();" value="Randomize Tiles"></input>
+	<input type="submit" onclick="placeTiles_French();" value="French Tiles"></input>
+	<input type="submit" onclick="placeTiles_English();" value="English Tiles"></input>
 </p>
 
 	<p>
