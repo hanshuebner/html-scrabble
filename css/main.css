@@ -295,9 +295,9 @@ div.tableDivWrap td div.Tile
 {
 cursor: move;
 
-background-color: #EEE8AA; /* ECE5B6; */
+background-color: #F7F7E3; /* ECE5B6; */
 
-border-color: #777455;
+border-color: #DCDCC6;
 
 border-style: solid;
 
@@ -320,7 +320,7 @@ color: #474633;
 
 div.tableDivWrap td div.Temp
 {
-border-color: #474633;  /*C7B37F; FFF8C6; */
+border-color: #626258;  /*C7B37F; FFF8C6; */
 /*
 border-left-color: #8F8B66;
 border-top-color: #8F8B66;
