@@ -650,6 +650,8 @@ _Board.prototype.GenerateRandomTiles = function()
 	
 	board.EmptyTiles();
 	
+	var totalPlaced = 0;
+	
 	for (var y = 0; y < this.Dimension; y++)
 	{
 		for (var x = 0; x < this.Dimension; x++)
@@ -662,7 +664,7 @@ _Board.prototype.GenerateRandomTiles = function()
 			var halfMiddle = Math.ceil(middle / 2);
 		
 			var makeTile = Math.floor(Math.random()*2);
-			if (makeTile && y <= middle)
+			if (makeTile) // && y <= middle)
 			{
 				/*
 				var letters = Tile.prototype.BlankLetter + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -697,7 +699,7 @@ _Board.prototype.GenerateRandomTiles = function()
 
 				if (lastFreeTile == -1)
 				{
-					alert("No free tiles !"); // TODO: end of game ! :)
+					alert("No free tiles ! TOTAL placed: " + totalPlaced); // TODO: end of game ! :)
 					return;
 				}
 
@@ -719,6 +721,8 @@ _Board.prototype.GenerateRandomTiles = function()
 					alert("No free tiles ! (WTF ?)");
 					return;
 				}
+				
+				totalPlaced++;
 				
 				var locked = 0; // Math.floor(Math.random() * 2);
 				square.PlaceTile(tile, locked == 1 ? true : false);
