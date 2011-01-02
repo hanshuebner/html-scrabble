@@ -2366,6 +2366,113 @@ return _Html;
 // END Scrabble.UI.Html ------------------
 //=================================================
 
+
+function randomInt(N)
+{
+	// % 1 is needed because some implementations of Math.random() can
+	// actually return 1 (early version of Opera for example).
+	// | 0 does the same as Math.floor() would here, but is probably
+	// slightly quicker.
+	// For details, see: http://www.merlyn.demon.co.uk/js-randm.htm
+	return (N * (Math.random() % 1)) | 0;
+}
+
+function getCookie(cookieName) {
+	var theCookie = document.cookie;
+	if (!theCookie) return 0;
+	var cookies = theCookie.split("; ");
+	for (var i = 0; i < cookies.length; ++i) {
+		var nameVal = cookies[i].split("=");
+		if (nameVal[0] == cookieName) return nameVal[1];
+	}
+	return 0;
+}
+
+/*
+
+function getBestPlay() {
+	return getCookie("sscrable_bestplay");
+}
+
+function setBestPlay(value) {
+	document.cookie = "sscrable_bestplay=" + value + ";expires=Tue, 19-Jan-2038 03:14:07 GMT";
+}
+
+*/
+function checkDictionary(theWord)
+{
+	theWord = theWord.toLowerCase();
+	
+	if (theWord.length == 2)
+	{
+		return (D2.indexOf(theWord) != -1);
+	}
+	first3 = theWord.replace(/^(...).*/, "$1");
+	if (typeof(D[first3]) == "undefined")
+	{
+		return false;
+	}
+	var theEntry = D[first3];
+	if (!theEntry.match(/,$/))
+	{
+		// We've not looked at this entry before - uncompress it, etc.
+		theEntry = theEntry.replace(/W/g, "le");
+		theEntry = theEntry.replace(/K/g, "al");
+		theEntry = theEntry.replace(/F/g, "man");
+		theEntry = theEntry.replace(/U/g, "ous");
+		theEntry = theEntry.replace(/M/g, "ment");
+		theEntry = theEntry.replace(/B/g, "able");
+		theEntry = theEntry.replace(/C/g, "ic");
+		theEntry = theEntry.replace(/X/g, "on");
+		theEntry = theEntry.replace(/Q/g, "ng");
+		theEntry = theEntry.replace(/R/g, "ier");
+		theEntry = theEntry.replace(/S/g, "st");
+		theEntry = theEntry.replace(/Y/g, "ly");
+		theEntry = theEntry.replace(/J/g, "ally");
+		theEntry = theEntry.replace(/E/g, "es");
+		theEntry = theEntry.replace(/L/g, "less");
+		theEntry = theEntry.replace(/Z/g, "ies");
+		theEntry = theEntry.replace(/P/g, "tic");
+		theEntry = theEntry.replace(/I/g, "iti");
+		theEntry = theEntry.replace(/V/g, "tion");
+		theEntry = theEntry.replace(/H/g, "zation");
+		theEntry = theEntry.replace(/A/g, "abiliti");
+		theEntry = theEntry.replace(/O/g, "ologi");
+		theEntry = theEntry.replace(/T/g, "est");
+		theEntry = theEntry.replace(/D/g, "ed");
+		theEntry = theEntry.replace(/N/g, "ness");
+		theEntry = theEntry.replace(/G/g, "ing");
+		theEntry = "," + theEntry + ",";
+		// May have prefixes on prefixes, so need to repeat the replace.
+		var more = true;
+		while (more)
+		{
+			var theLength = theEntry.length;
+			theEntry = theEntry.replace(re, "$1$1");
+			theEntry = theEntry.replace(re0, "$1$2$1");
+			theEntry = theEntry.replace(re1, "$1$2$1");
+			theEntry = theEntry.replace(re2, "$1$2$1");
+			theEntry = theEntry.replace(re3, "$1$2$1");
+			theEntry = theEntry.replace(re4, "$1$2$1");
+			theEntry = theEntry.replace(re5, "$1$2$1");
+			theEntry = theEntry.replace(re6, "$1$2$1");
+			theEntry = theEntry.replace(re7, "$1$2$1");
+			theEntry = theEntry.replace(re8, "$1$2$1");
+			theEntry = theEntry.replace(re9, "$1$2$1");
+			more = (theLength != theEntry.length);
+		}
+		if (theEntry.match(/[0-@+]/))
+		{
+			alert("decompression oops!");
+		}
+		D[first3] = theEntry;
+	}
+	rest = theWord.replace(/^...?/, "");
+	return (D[first3].indexOf("," + rest + ",") != -1);
+}
+
+
+
 })();
 // END script-scope ------------------
 

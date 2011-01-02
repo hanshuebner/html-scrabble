@@ -44,6 +44,8 @@ lang="en">
 	
 	<script type="text/javascript" src="javascript/jquery-ui-1.8.7.custom.min.js"></script>
 	
+	<script type="text/javascript" src="javascript/dictionary_English.js"></script>
+	
 	<script>var _sf_startpt=(new Date()).getTime()</script>
 	
 	<script type="text/javascript" src="javascript/main.js"></script>
@@ -68,10 +70,22 @@ lang="en">
 	{}
 	
 	function playAction_drawNewTiles()
-	{}
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+
+		rack.EmptyTiles();
+	}
 	
 	function playAction_passTurn()
-	{}
+	{
+		if (!confirm("Are you sure you want to pass your turn ?"))
+		{
+			return;
+		}
+		
+		//TODO: pass
+	}
 
 	function emptyBoardAndRack()
 	{
