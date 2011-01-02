@@ -36,6 +36,8 @@ lang="en">
 	
 	<!-- script type="text/javascript" src="javascript/jquery.animate-enhanced.min.js"></script -->
 	
+	<script src="javascript/jquery.blockUI.js" type="text/javascript"></script>
+	
 	<script src="javascript/jquery-css-transform.js" type="text/javascript"></script>
 	<script src="javascript/jquery-animate-css-rotate-scale.js" type="text/javascript"></script>
 	<script src="javascript/rotate3Di.js" type="text/javascript"></script>
@@ -67,8 +69,9 @@ lang="en">
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
-		
-		board.GenerateTilesLetterDistribution("French");
+		game.Language = "French";
+		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
+		board.GenerateTilesLetterDistribution();
 		rack.GenerateRandomTiles();
 	}
 
@@ -77,8 +80,9 @@ lang="en">
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
-		
-		board.GenerateTilesLetterDistribution("English");
+		game.Language = "English";
+		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
+		board.GenerateTilesLetterDistribution();
 		rack.GenerateRandomTiles();
 	}
 
@@ -96,6 +100,7 @@ lang="en">
 		rack = new window.Scrabble.Core.Rack();
 
 		game = new window.Scrabble.Core.Game(board, rack);
+		game.Language = "French";
 		
 		if (false)
 		{
@@ -103,7 +108,7 @@ lang="en">
 		}
 		else
 		{
-			board.GenerateTilesLetterDistribution("French");
+			board.GenerateTilesLetterDistribution();
 		}
 		
 		rack.GenerateRandomTiles();
@@ -219,9 +224,11 @@ lang="en">
 <div id="rack" class="tableDivWrap bottomShade">
 </div>
 
-<div id="board" class="tableDivWrap surroundShade">
+<div id="letters" class="tableDivWrap letterTiles">
 </div>
 
+<div id="board" class="tableDivWrap surroundShade">
+</div>
 
 </body>
 </html>

@@ -211,6 +211,7 @@ EnsureNamespace("Scrabble.UI");
 
 var IDPrefix_Board_SquareOrTile = "BoardSquareOrTile_";
 var IDPrefix_Rack_SquareOrTile = "RackSquareOrTile_";
+var IDPrefix_Letters_SquareOrTile = "LettersSquareOrTile_";
 
 function PlayAudio(id)
 {
@@ -563,7 +564,7 @@ _Board.prototype.GenerateTilesLetterDistribution = function()
 	for (var i = 0; i < this.Game.LetterDistributions.length; ++i)
 	{
 		var ld = this.Game.LetterDistributions[i];
-		if (ld.Language == arguments[0])
+		if (ld.Language == this.Game.Language)
 		{
 			letterDistribution = ld;
 		}
@@ -722,14 +723,14 @@ var _Rack = function()
 {
 	function CreateGrid()
 	{
-			for (var x = 0; x < this.Dimension; x++)
-			{
-				//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
-				var square = new Square(SquareType.Normal);
-				square.X = x;
-				square.Y = -1;
-				this.SquaresList.push(square);
-			}
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
+			var square = new Square(SquareType.Normal);
+			square.X = x;
+			square.Y = -1;
+			this.SquaresList.push(square);
+		}
 		
 		EventsManager.DispatchEvent(this.Event_ScrabbleRackReady, { 'Rack': this });
 	}
@@ -892,19 +893,32 @@ var _Game = function(board, rack)
 		var data = arguments[0];
 		var language = arguments[1];
 		
-		var array = [];
+		var tiles = [];
+		var letters = [];
 		
 		for (var i = 0; i < data.length; ++i)
 		{
 			var item = data[i];
+			var tile = new Tile(item.Letter, item.Score);
+			
+			letters.push(tile);
+			
 			for (var n = 0; n < item.Count; ++n)
 			{
-				var tile = new Tile(item.Letter, item.Score);
-				array.push(tile);
+				tiles.push(tile);
 			}
 		}
 		
-		this.LetterDistributions.push({Language: language, Tiles: array});
+		letters.sort(function(a,b){ 
+		  var a = a.Letter;
+		  var b = b.Letter;
+
+		  if (a < b) return -1;
+		  if (a > b) return 1;
+		  return 0;
+		});
+		
+		this.LetterDistributions.push({Language: language, Tiles: tiles, Letters: letters});
 	}
 	
 	function initLetterDistributions_English()
@@ -993,18 +1007,20 @@ var _Game = function(board, rack)
 	initLetterDistributions_French.apply(this);
 	initLetterDistributions_English.apply(this);
 	
-	for (var i = 0; i < this.LetterDistributions.length; ++i)
-	{
-		var letterDistribution = this.LetterDistributions[i];
-		//alert(letterDistribution.Language + " --> " + letterDistribution.Tiles.length);
-	}
+	this.Language = "French";
+	EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
 }
+
+_Game.prototype.Event_ScrabbleLetterTilesReady = "ScrabbleLetterTilesReady";
+//_Game.prototype.SquaresList = [];
 
 _Game.prototype.Board = 0;
 _Game.prototype.Rack = 0;
 
 _Game.prototype.LetterDistributions = [];
 _Game.prototype.BlankLetter = "-";
+
+_Game.prototype.Language = "";
 
 _Game.prototype.MoveTile = function(tileXY, squareXY)
 {
@@ -1146,6 +1162,21 @@ var _Html = function()
 					//html.CurrentlySelectedSquare = ;
 					
 					$(this).addClass("Selected");
+					
+					if (square.Tile.Letter == board.Game.BlankLetter)
+					{
+						/*
+						z-index: 1001; position: fixed; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; width: 30%; top: 40%; left: 35%; text-align: center; color: rgb(0, 0, 0); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-color: rgb(170, 170, 170); border-right-color: rgb(170, 170, 170); border-bottom-color: rgb(170, 170, 170); border-left-color: rgb(170, 170, 170); background-color: rgb(255, 255, 255); cursor: wait; opacity: 0; 
+						*/
+						
+						$.blockUI({
+							message: $('#letters'),
+							css: { position: "absolute", width: "100%", left: 0, top: 0, border: "none" }
+						}); 
+
+						//$.unblockUI();
+				        setTimeout($.unblockUI, 4000);
+					}
 				}
 			);
 			$(div).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
@@ -1649,7 +1680,91 @@ var _Html = function()
 			UpdateHtmlTableCell_Rack(html, rack, square);
 		}
 	}
-	
+
+
+	function DrawHtmlTable_LetterTiles(html, game)
+	{
+		var letterDistribution = 0;
+		for (var i = 0; i < game.LetterDistributions.length; ++i)
+		{
+			var ld = game.LetterDistributions[i];
+			if (ld.Language == game.Language) // TODO user should select language
+			{
+				letterDistribution = ld;
+			}
+		}
+		
+		var rootDiv = document.getElementById('letters');
+		
+		if (rootDiv.hasChildNodes())
+		{
+			while (rootDiv.childNodes.length >= 1)
+			{
+				rootDiv.removeChild(rootDiv.firstChild);
+		    }
+		}
+		
+		var table = document.createElement('table');
+		rootDiv.appendChild(table);
+		
+		var tr = 0
+
+		var counter = 9;
+		for (var i = 0; i < letterDistribution.Letters.length; i++)
+		{
+			var tile = letterDistribution.Letters[i];
+			if (tile.Letter == game.BlankLetter) continue;
+
+			counter++;
+			if (counter > 9)
+			{
+				tr = document.createElement('tr');
+				table.appendChild(tr);
+
+				counter = 0;
+			}
+			
+			var td = document.createElement('td');
+			td.setAttribute('class', 'Normal');
+			tr.appendChild(td);
+		
+			var div = document.createElement('div');
+			td.appendChild(div);
+
+			var id = IDPrefix_Letters_SquareOrTile + i;
+			div.setAttribute('id', id);
+			
+			var a = document.createElement('a');
+			div.appendChild(a);
+
+			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
+			div.setAttribute('class', 'Tile Temp');
+
+			$(div).click(
+				function () {
+					var id1 = $(this).attr("id");
+					var underscore1 = id1.indexOf("_");
+
+					var i = parseInt(id1.substring(underscore1 + 1), 10);
+
+					$(this).addClass("Selected");
+				}
+			);
+
+			var txt1 = document.createTextNode(tile.Letter);
+			var span1 = document.createElement('span');
+			span1.setAttribute('class', 'Letter');
+			span1.appendChild(txt1);
+			a.appendChild(span1);
+
+			var txt2 = document.createTextNode(tile.Score);
+			var span2 = document.createElement('span');
+			span2.setAttribute('class', 'Score');
+			span2.appendChild(txt2);
+			a.appendChild(span2);
+		}
+	}
+
 	var thiz = this;
 
 	var callback_ScrabbleBoardReady = function(eventPayload)
@@ -1682,11 +1797,20 @@ var _Html = function()
 		};
 
 	EventsManager.AddEventListener(Rack.prototype.Event_ScrabbleRackSquareTileChanged, callback_ScrabbleRackSquareTileChanged);
+	
+	var callback_ScrabbleLetterTilesReady = function(eventPayload)
+		{
+			thiz.Game = eventPayload.Game;
+			DrawHtmlTable_LetterTiles(thiz, eventPayload.Game);
+		};
+
+	EventsManager.AddEventListener(Game.prototype.Event_ScrabbleLetterTilesReady, callback_ScrabbleLetterTilesReady);
 }
 
 _Html.prototype.CurrentlySelectedSquare = 0;
 _Html.prototype.Board = 0;
 _Html.prototype.Rack = 0;
+_Html.prototype.Game = 0;
 
 //TODO: make class method !! (currently some sort of static function)
 _Html.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square)
