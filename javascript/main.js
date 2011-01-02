@@ -265,9 +265,17 @@ var _Tile = function()
 {
 	this.Letter = arguments[0];
 	this.Score = arguments[1];
+	
+	if (this.Letter == this.BlankLetter)
+	{
+		this.IsBlank = true;
+	}
 }
 
+_Tile.prototype.BlankLetter = "-";
+
 _Tile.prototype.Letter = '';
+_Tile.prototype.IsBlank = false;
 _Tile.prototype.Score = 0;
 
 _Tile.prototype.toString = function()
@@ -626,11 +634,12 @@ _Board.prototype.GenerateRandomTiles = function()
 			var makeTile = Math.floor(Math.random()*2);
 			if (makeTile && y <= middle)
 			{
-				var letters = this.Game.BlankLetter + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				var letters = Tile.prototype.BlankLetter + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 				var letter_index = Math.floor(Math.random() * letters.length);
 				var letter = letters.substring(letter_index, letter_index+1);
 			
 				var score = Math.floor(Math.random()*10) + 1;
+				if (letter == Tile.prototype.BlankLetter) score = 0;
 			
 				var tile = new Tile(letter, score);
 				var locked = 0; // Math.floor(Math.random() * 2);
@@ -830,11 +839,18 @@ _Rack.prototype.GenerateRandomTiles = function()
 	{
 		var square = this.SquaresList[x];
 		
-		var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		var letters = Tile.prototype.BlankLetter + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		var letter_index = Math.floor(Math.random() * letters.length);
 		var letter = letters.substring(letter_index, letter_index+1);
 	
 		var score = Math.floor(Math.random()*10) + 1;
+		if (letter == Tile.prototype.BlankLetter) score = 0;
+	
+		if (x == 0)
+		{
+			letter = Tile.prototype.BlankLetter;
+			score = 0;
+		}
 	
 		var tile = new Tile(letter, score);
 		
@@ -924,7 +940,7 @@ var _Game = function(board, rack)
 	function initLetterDistributions_English()
 	{
 		var data = [
-		{Letter: this.BlankLetter, Score: 0, Count: 2},
+		{Letter: Tile.prototype.BlankLetter, Score: 0, Count: 2},
 		
 		{Letter: "E", Score: 1, Count: 12},
 		{Letter: "A", Score: 1, Count: 9},
@@ -966,7 +982,8 @@ var _Game = function(board, rack)
 	function initLetterDistributions_French()
 	{
 		var data = [
-		{Letter: this.BlankLetter, Score: 0, Count: 2},
+		{Letter: Tile.prototype.BlankLetter, Score: 0, Count: 2},
+		
 		{Letter: "E", Score: 1, Count: 15},
 		{Letter: "A", Score: 1, Count: 9},
 		{Letter: "I", Score: 1, Count: 8},
@@ -1018,7 +1035,9 @@ _Game.prototype.Board = 0;
 _Game.prototype.Rack = 0;
 
 _Game.prototype.LetterDistributions = [];
-_Game.prototype.BlankLetter = "-";
+
+_Game.prototype.SquareBlankLetterInWaitingBoard = 0;
+_Game.prototype.SquareBlankLetterInWaitingRack = 0;
 
 _Game.prototype.Language = "";
 
@@ -1124,7 +1143,8 @@ var _Html = function()
 		if (square.Tile != 0)
 		{
 			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
-			div.setAttribute('class', (square.TileLocked ? 'Tile Locked' : 'Tile Temp'));
+			div.setAttribute('class', (square.TileLocked ? 'Tile Locked' : 'Tile Temp')
+									+ (square.Tile.IsBlank ? " BlankLetter" : ""));
 			
 			if (!square.TileLocked)
 			{
@@ -1163,19 +1183,49 @@ var _Html = function()
 					
 					$(this).addClass("Selected");
 					
-					if (square.Tile.Letter == board.Game.BlankLetter)
+					if (square.Tile.IsBlank) //Letter == Tile.prototype.BlankLetter
 					{
-						/*
-						z-index: 1001; position: fixed; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; width: 30%; top: 40%; left: 35%; text-align: center; color: rgb(0, 0, 0); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-color: rgb(170, 170, 170); border-right-color: rgb(170, 170, 170); border-bottom-color: rgb(170, 170, 170); border-left-color: rgb(170, 170, 170); background-color: rgb(255, 255, 255); cursor: wait; opacity: 0; 
-						*/
+						board.Game.SquareBlankLetterInWaitingRack = 0;
+						board.Game.SquareBlankLetterInWaitingBoard = square;
 						
 						$.blockUI({
 							message: $('#letters'),
-							css: { position: "absolute", width: "100%", left: 0, top: 0, border: "none" }
+							focusInput: true,
+							bindEvents: true,
+							constrainTabKey: true,
+							fadeIn: 0,
+							fadeOut: 0,
+							showOverlay: true,
+							centerY: true,
+							css: { position: "absolute", backgroundColor: "transparent", width: "100%", left: 0, top: $(this).offset().top, border: "none", textAlign: "center" },
+							overlayCSS: { backgroundColor: '#333333', opacity: 0.4 },
+							onBlock: function()
+							{
+								console.log("modal activated");
+							}
 						}); 
-
+						
+						$('.blockOverlay').attr('title','Click to cancel');
+						$('.blockOverlay').click(
+							function()
+							{
+							$.unblockUI(
+							{
+								onUnblock: function()
+								{
+									console.log("modal dismissed");
+								}
+							});
+							}
+						);
 						//$.unblockUI();
-				        setTimeout($.unblockUI, 4000);
+				        //setTimeout($.unblockUI, 4000);
+						/* setTimeout(function() { 
+						            $.unblockUI({ 
+						                onUnblock: function(){ ; } 
+						            }); 
+						        }, 4000);
+						*/
 					}
 				}
 			);
@@ -1473,7 +1523,7 @@ var _Html = function()
 		if (square.Tile != 0)
 		{
 			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
-			div.setAttribute('class', 'Tile Temp');
+			div.setAttribute('class', 'Tile Temp' + (square.Tile.IsBlank ? " BlankLetter" : ""));
 			
 			$(div).click(
 				function () {
@@ -1508,6 +1558,51 @@ var _Html = function()
 					//html.CurrentlySelectedSquare = ;
 					
 					$(this).addClass("Selected");
+					
+					
+					if (square.Tile.IsBlank) //Letter == Tile.prototype.BlankLetter
+					{
+						board.Game.SquareBlankLetterInWaitingBoard = 0;
+						board.Game.SquareBlankLetterInWaitingRack = square;
+						
+						$.blockUI({
+							message: $('#letters'),
+							focusInput: true,
+							bindEvents: true,
+							constrainTabKey: true,
+							fadeIn: 0,
+							fadeOut: 0,
+							showOverlay: true,
+							centerY: true,
+							css: { position: "absolute", backgroundColor: "transparent", width: "100%", left: 0, top: $(this).offset().top, border: "none", textAlign: "center" },
+							overlayCSS: { backgroundColor: '#333333', opacity: 0.4 },
+							onBlock: function()
+							{
+								console.log("modal activated");
+							}
+						}); 
+						
+						$('.blockOverlay').attr('title','Click to cancel');
+						$('.blockOverlay').click(
+							function(){
+							$.unblockUI(
+							{
+								onUnblock: function()
+								{
+									console.log("modal dismissed");
+								}
+							});
+							}
+						);
+						//$.unblockUI();
+				        //setTimeout($.unblockUI, 4000);
+						/* setTimeout(function() { 
+						            $.unblockUI({ 
+						                onUnblock: function(){ ; } 
+						            }); 
+						        }, 4000);
+						*/
+					}
 				}
 			);
 			$(div).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
@@ -1713,7 +1808,7 @@ var _Html = function()
 		for (var i = 0; i < letterDistribution.Letters.length; i++)
 		{
 			var tile = letterDistribution.Letters[i];
-			if (tile.Letter == game.BlankLetter) continue;
+			if (tile.IsBlank) continue; //Letter == Tile.prototype.BlankLetter) continue;
 
 			counter++;
 			if (counter > 9)
@@ -1738,16 +1833,48 @@ var _Html = function()
 			div.appendChild(a);
 
 			//td.setAttribute('class', td.getAttribute('class') + ' Tile');
-			div.setAttribute('class', 'Tile Temp');
-
+			div.setAttribute('class', 'Tile Temp' + (tile.IsBlank ? " BlankLetter" : ""));
+			
 			$(div).click(
 				function () {
+
+					$.unblockUI();
+					
 					var id1 = $(this).attr("id");
 					var underscore1 = id1.indexOf("_");
+					var index = parseInt(id1.substring(underscore1 + 1), 10);
 
-					var i = parseInt(id1.substring(underscore1 + 1), 10);
+					var letterDistribution = 0;
+					for (var i = 0; i < game.LetterDistributions.length; ++i)
+					{
+						var ld = game.LetterDistributions[i];
+						if (ld.Language == game.Language) // TODO user should select language
+						{
+							letterDistribution = ld;
+						}
+					}
+					
+					if (game.SquareBlankLetterInWaitingBoard != 0)
+					{
+						game.SquareBlankLetterInWaitingBoard.Tile.Letter = letterDistribution.Letters[index].Letter;
 
-					$(this).addClass("Selected");
+						var square = game.SquareBlankLetterInWaitingBoard;
+						game.SquareBlankLetterInWaitingBoard = 0;
+
+						EventsManager.DispatchEvent(Board.prototype.Event_ScrabbleBoardSquareTileChanged, { 'Board': game.Board, 'Square': square });
+					}
+					
+					else if (game.SquareBlankLetterInWaitingRack != 0)
+					{
+						game.SquareBlankLetterInWaitingRack.Tile.Letter = letterDistribution.Letters[index].Letter;
+
+						var square = game.SquareBlankLetterInWaitingRack;
+						game.SquareBlankLetterInWaiting = 0;
+					
+						EventsManager.DispatchEvent(Rack.prototype.Event_ScrabbleRackSquareTileChanged, { 'Rack': game.Rack, 'Square': square });
+					}
+					
+					//$(this).addClass("Selected");
 				}
 			);
 
@@ -1763,6 +1890,16 @@ var _Html = function()
 			span2.appendChild(txt2);
 			a.appendChild(span2);
 		}
+		
+		var input = document.createElement('input');
+		input.setAttribute('type', 'submit');
+		input.setAttribute('value', 'Cancel');
+		input.setAttribute('onclick', '$.unblockUI();');
+		
+		var buttonDiv = document.createElement('div');
+		buttonDiv.setAttribute('style', 'background-color: #333333; width: auto; padding: 1em; padding-left: 2em; padding-right: 2em;');
+		buttonDiv.appendChild(input);
+		rootDiv.appendChild(buttonDiv);
 	}
 
 	var thiz = this;

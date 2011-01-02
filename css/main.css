@@ -54,7 +54,7 @@ div.tableDivWrap
 margin: 0;
 padding: 0;
 
-width: 100%;
+/* width: 100%; */
 }
 
 div.surroundShade table,
@@ -438,6 +438,18 @@ div.tableDivWrap td div.CenterStart a
 {
 font-size: 2.5em;
 color: #54534A;
+}
+
+div.tableDivWrap td div.BlankLetter a
+{
+/*
+box-shadow: inset 0 0 0.1em 0.1em #FFD700 !important;
+-webkit-box-shadow: inset 0 0 0.2em 0.2em #ADFF2F !important;
+-moz-box-shadow: inset 0 0 0.1em 0.1em #FFD700 !important;
+-o-box-shadow: inset 0 0 0.1em 0.1em #FFD700 !important;
+*/
+border-left: 0.2em solid #ADFF2F;
+border-right: 0.2em solid #ADFF2F;
 }
 
 /*
