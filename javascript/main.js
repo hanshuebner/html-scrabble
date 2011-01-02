@@ -699,7 +699,8 @@ _Board.prototype.GenerateRandomTiles = function()
 
 				if (lastFreeTile == -1)
 				{
-					alert("No free tiles ! TOTAL placed: " + totalPlaced); // TODO: end of game ! :)
+					//alert("No free tiles ! TOTAL placed: " + totalPlaced);
+					// TODO: end of game ! :)
 					return;
 				}
 
@@ -927,10 +928,85 @@ _Rack.prototype.MoveTile = function(tileXY, squareXY)
 	EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square2 });
 }
 
+
+_Rack.prototype.ReplenishRandomTiles = function()
+{
+	var existingTiles = [];
+	for (var x = 0; x < this.Dimension; x++)
+	{
+		var square = this.SquaresList[x];
+		if (square.Tile != 0)
+		{
+			existingTiles.push(square.Tile);
+		}
+	}
+
+	this.EmptyTiles();
+	
+	for (var x = 0; x < existingTiles.length; x++)
+	{
+		var square = this.SquaresList[x];
+		square.PlaceTile(existingTiles[x], false);
+		EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
+	}
+	
+	for (var x = existingTiles.length; x < (this.Dimension-1); x++)
+	{
+		var square = this.SquaresList[x];
+		
+		var letterDistribution = 0;
+		for (var i = 0; i < this.Game.LetterDistributions.length; ++i)
+		{
+			var ld = this.Game.LetterDistributions[i];
+			if (ld.Language == this.Game.Language)
+			{
+				letterDistribution = ld;
+			}
+		}
+		
+		var lastFreeTile = -1;
+		for (var i = 0; i < letterDistribution.Tiles.length; ++i)
+		{
+			var tile = letterDistribution.Tiles[i];
+			if (!tile.Placed)
+			{
+				lastFreeTile = i;
+			}
+		}
+		
+		if (lastFreeTile == -1)
+		{
+			alert("No free tiles !"); // TODO: end of game ! :)
+			return;
+		}
+		
+		var tile_index = 1000;
+		while (tile_index > lastFreeTile)
+		{
+			tile_index = Math.floor(Math.random() * letterDistribution.Tiles.length);
+		}
+		
+		var tile = 0;
+		do
+		{
+			tile = letterDistribution.Tiles[tile_index++];
+		}
+		while (tile.Placed && tile_index < letterDistribution.Tiles.length);
+		
+		if (tile == 0 || tile.Placed)
+		{
+			alert("No free tiles ! (WTF ?)");
+			return;
+		}
+		
+		square.PlaceTile(tile, false);
+	
+		EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
+	}
+}
+
 _Rack.prototype.GenerateRandomTiles = function()
 {
-	rack.EmptyTiles();
-	
 	for (var x = 0; x < (this.Dimension - 1); x++)
 	{
 		var square = this.SquaresList[x];

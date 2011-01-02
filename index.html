@@ -65,6 +65,14 @@ lang="en">
 		rack.EmptyTiles();
 	}
 	
+	function replenishRack()
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+		
+		rack.ReplenishRandomTiles();
+	}
+	
 	function placeRandomTiles_Rack()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
@@ -235,6 +243,7 @@ lang="en">
 	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Rack();" value="Randomize rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
+	<input type="submit" onclick="replenishRack();" value="Replenish rack"></input>
 	<input type="submit" onclick="placeTiles_French();" value="show French tile set"></input>
 	<input type="submit" onclick="placeTiles_English();" value="show English tile set"></input>
 </p>
