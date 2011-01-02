@@ -2086,6 +2086,11 @@ var _Html = function()
 					
 					if (game.SquareBlankLetterInWaitingBoard != 0)
 					{
+						if (html.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingBoard)
+						{
+							alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingBoard");
+						}
+						
 						game.SquareBlankLetterInWaitingBoard.Tile.Letter = letterDistribution.Letters[index].Letter;
 
 						var square = game.SquareBlankLetterInWaitingBoard;
@@ -2096,6 +2101,11 @@ var _Html = function()
 					
 					else if (game.SquareBlankLetterInWaitingRack != 0)
 					{
+						if (html.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingRack)
+						{
+							alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingRack");
+						}
+						
 						game.SquareBlankLetterInWaitingRack.Tile.Letter = letterDistribution.Letters[index].Letter;
 
 						var square = game.SquareBlankLetterInWaitingRack;
@@ -2104,7 +2114,18 @@ var _Html = function()
 						EventsManager.DispatchEvent(Rack.prototype.Event_ScrabbleRackSquareTileChanged, { 'Rack': game.Rack, 'Square': square });
 					}
 					
-					//$(this).addClass("Selected");
+					
+					if (html.CurrentlySelectedSquare != 0)
+					{
+						var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+						
+						var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+
+						var divz = document.getElementById(idSelected);
+
+						//$(divz).removeClass("Selected");
+						$(divz).addClass("Selected");
+					}
 				}
 			);
 
