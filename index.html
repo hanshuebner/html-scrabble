@@ -65,15 +65,22 @@ lang="en">
 		rack.EmptyTiles();
 	}
 	
-	function placeRandomTiles()
+	function placeRandomTiles_Rack()
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+		
+		rack.GenerateRandomTiles();
+	}
+	
+	function placeRandomTiles_Board()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
 		
 		board.GenerateRandomTiles();
-		rack.GenerateRandomTiles();
 	}
-
+	
 	function placeTiles_French()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
@@ -81,11 +88,9 @@ lang="en">
 		game.Language = "French";
 		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
 		
-		board.EmptyTiles();
 		board.GenerateTilesLetterDistribution();
 		//rack.GenerateRandomTiles();
 	}
-
 
 	function placeTiles_English()
 	{
@@ -94,7 +99,6 @@ lang="en">
 		game.Language = "English";
 		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
 		
-		board.EmptyTiles();
 		board.GenerateTilesLetterDistribution();
 		//rack.GenerateRandomTiles();
 	}
@@ -114,6 +118,7 @@ lang="en">
 
 		game = new window.Scrabble.Core.Game(board, rack);
 		game.Language = "French";
+		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
 		
 		/*
 		if (false)
@@ -126,7 +131,7 @@ lang="en">
 		}
 		*/
 		
-		rack.GenerateRandomTiles();
+		//rack.GenerateRandomTiles();
 		
 		$(document).ready(function(){
 		/*
@@ -228,26 +233,17 @@ lang="en">
 
 <p>
 	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
-	<input type="submit" onclick="placeRandomTiles();" value="Randomize board and rack"></input>
+	<input type="submit" onclick="placeRandomTiles_Rack();" value="Randomize rack"></input>
+	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
 	<input type="submit" onclick="placeTiles_French();" value="show French tile set"></input>
 	<input type="submit" onclick="placeTiles_English();" value="show English tile set"></input>
 </p>
 
-	<p>
-		Testing font size...
-	</p>
+<div id="rack" class="tableDivWrap bottomShade"></div>
 
-<div id="rack" class="tableDivWrap bottomShade">
-</div>
+<div id="board" class="tableDivWrap surroundShade"></div>
 
-<div id="board" class="tableDivWrap surroundShade">
-</div>
-
-<!-- div id="letters_wrap" style="display:none; background-color: #333333; padding: 1em; width: auto;" -->
-<div id="letters" class="tableDivWrap" style="display:none;">
-</div>
-<!-- input type="submit" onclick="$.unblockUI();" value="Cancel"></input>
-</div -->
+<div id="letters" class="tableDivWrap" style="display:none;"></div>
 
 </body>
 </html>
