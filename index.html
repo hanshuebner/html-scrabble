@@ -56,6 +56,23 @@ lang="en">
 	var rack = 0;
 	var boardUI = 0;
 
+	function playAction_resetTilesOnRack()
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+	
+		rack.TakeTilesBack();
+	}
+	
+	function playAction_submitWords()
+	{}
+	
+	function playAction_drawNewTiles()
+	{}
+	
+	function playAction_passTurn()
+	{}
+
 	function emptyBoardAndRack()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
@@ -249,6 +266,13 @@ lang="en">
 </p>
 
 <div id="rack" class="tableDivWrap bottomShade"></div>
+
+<p>
+	<input type="submit" onclick="playAction_resetTilesOnRack();" value="Take tiles back"></input>
+	<input type="submit" onclick="playAction_submitWords();" value="Submit word(s)"></input>
+	<input type="submit" onclick="playAction_drawNewTiles();" value="Draw new tiles (pass turn)"></input>
+	<input type="submit" onclick="playAction_passTurn();" value="Pass turn"></input>
+</p>
 
 <div id="board" class="tableDivWrap surroundShade"></div>
 

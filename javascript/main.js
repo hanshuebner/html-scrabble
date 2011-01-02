@@ -73,7 +73,7 @@ EnsureNamespace("HTMLScrabble.Core");
 function EnsureNamespace(nsString)
 //_OBJECT_ROOT_.EnsureNamespace = function(nsString)
 {
-	console.log("Ensuring namespace: " + nsString);
+	//console.log("Ensuring namespace: " + nsString);
 	
 	var nsStrings = nsString.split(".");
 	var root = _OBJECT_ROOT_;
@@ -83,12 +83,12 @@ function EnsureNamespace(nsString)
 		var val = root[nsName];
 		if (typeof val == "undefined" || !val)
 		{
-			console.log("Creating namespace object: " + nsName);
+			//console.log("Creating namespace object: " + nsName);
 			root[nsName] = new Object(); // {} ?
 		}
 		else
 		{
-			console.log("Namespace object already exists: " + nsName);
+			//console.log("Namespace object already exists: " + nsName);
 		}
 		root = root[nsName];
 	}
@@ -146,7 +146,7 @@ _EventsManager.AddEventListener = function(eventName, callback)
 	var callbacks = _EventListeners[eventName]; // simple indexed array of callback functions
 	if (typeof callbacks == "undefined" || !callbacks)
 	{
-		console.log("Event.AddEventListener - init empty callbacks for eventName: " + eventName);
+		//console.log("Event.AddEventListener - init empty callbacks for eventName: " + eventName);
 		_EventListeners[eventName] = [];
 		callbacks = _EventListeners[eventName];
 	}
@@ -185,7 +185,7 @@ _EventsManager.RemoveEventListener = function(eventName, callback)
 		if (callbacks[i] == callback)
 		{
 			atLeastOneRemoved = true;
-			console.log("Event.RemoveEventListener - unregistered: " + eventName + ", " + callback);
+			//console.log("Event.RemoveEventListener - unregistered: " + eventName + ", " + callback);
 			//delete callbacks[i];
 			callbacks.splice(i--, 1);
 		}
@@ -193,12 +193,14 @@ _EventsManager.RemoveEventListener = function(eventName, callback)
 	
 	if (callbacks.length == 0)
 	{
-		console.log("Event.RemoveEventListener - empty callback list, removing eventName entirely: " + eventName);
+		//console.log("Event.RemoveEventListener - empty callback list, removing eventName entirely: " + eventName);
 		delete _EventListeners[eventName];
 	}
 
 	if (!atLeastOneRemoved)
+	{
 		console.log("Event.RemoveEventListener - callback for eventName not found: " + eventName + ", " + callback);
+	}
 };
 
 return _EventsManager;
@@ -255,7 +257,7 @@ function PlayAudio(id)
 if (typeof _OBJECT_ROOT_.Scrabble.Core.Tile == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Tile"])
 _OBJECT_ROOT_.Scrabble.Core.Tile = (function(){
 
-console.log("inside Scrabble.Core.Tile code scope");
+//console.log("inside Scrabble.Core.Tile code scope");
 
 with (Scrabble.Core)
 {
@@ -309,7 +311,7 @@ Scrabble.Core.SquareType =
 if (typeof _OBJECT_ROOT_.Scrabble.Core.Square == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Square"])
 _OBJECT_ROOT_.Scrabble.Core.Square = (function(){
 
-console.log("inside Scrabble.Core.Square code scope");
+//console.log("inside Scrabble.Core.Square code scope");
 
 with (Scrabble.Core)
 {
@@ -389,7 +391,7 @@ if (typeof _OBJECT_ROOT_.Scrabble.Core.Board == "undefined" || !_OBJECT_ROOT_.Sc
 _OBJECT_ROOT_.Scrabble.Core.Board = (function(){
 //var _Board = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
 
-console.log("inside Scrabble.Core.Board code scope");
+//console.log("inside Scrabble.Core.Board code scope");
 
 with (Scrabble.Core)
 {
@@ -499,18 +501,18 @@ var _Board = function()
 		{
 			if (arguments.length > 0)
 			{
-				console.log("typeof ARGS: " + typeof arguments[0]);
-				console.log("typeof ARGS: " + type_of(arguments[0]));
+				//console.log("typeof ARGS: " + typeof arguments[0]);
+				//console.log("typeof ARGS: " + type_of(arguments[0]));
 			
 				switch (type_of(arguments[0]))
 				{
 					case 'number':
 						SetDimension.apply(this, [arguments[0]]);
-						console.log("Scrabble.Core.Board 'number' constructor: " + this.toString());
+						//console.log("Scrabble.Core.Board 'number' constructor: " + this.toString());
 						return;
 					case 'object':
 						SetDimension.apply(this, [arguments[0]['Dimension']]);
-						console.log("Scrabble.Core.Board 'object' constructor: " + this.toString());
+						//console.log("Scrabble.Core.Board 'object' constructor: " + this.toString());
 						return;
 					case 'array':
 					default:
@@ -526,7 +528,7 @@ var _Board = function()
 			else
 			{
 				this.Dimension = 15;
-				console.log("Scrabble.Core.Board constructor with empty parameters (default "+this.Dimension+"x"+this.Dimension+")");
+				//console.log("Scrabble.Core.Board constructor with empty parameters (default "+this.Dimension+"x"+this.Dimension+")");
 			}
 		}
 		else
@@ -535,7 +537,7 @@ var _Board = function()
 		}
 	}
 	
-	console.log("Scrabble.Core.Board constructor before applying parameters");
+	//console.log("Scrabble.Core.Board constructor before applying parameters");
 	SetDimensions.apply(this, arguments);
 	//SetDimensions(arguments);
 	
@@ -550,6 +552,30 @@ _Board.prototype.Dimension = NaN;
 _Board.prototype.SquaresList = [];
 
 _Board.prototype.Game = 0;
+
+_Board.prototype.RemoveFreeTiles = function()
+{
+	var tiles = [];
+	
+	for (var y = 0; y < this.Dimension; y++)
+	{
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			var square = this.SquaresList[x + this.Dimension * y];
+		
+			if (square.Tile != 0 && !square.Tile.Locked)
+			{
+				tiles.push(square.Tile);
+				
+				square.PlaceTile(0, false);
+			
+				EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
+			}
+		}
+	}
+	
+	return tiles;
+}
 
 _Board.prototype.EmptyTiles = function()
 {
@@ -805,7 +831,7 @@ if (typeof _OBJECT_ROOT_.Scrabble.Core.Rack == "undefined" || !_OBJECT_ROOT_.Scr
 _OBJECT_ROOT_.Scrabble.Core.Rack = (function(){
 //var _Rack = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
 
-console.log("inside Scrabble.Core.Rack code scope");
+//console.log("inside Scrabble.Core.Rack code scope");
 
 with (Scrabble.Core)
 {
@@ -834,8 +860,8 @@ var _Rack = function()
 		{
 			if (arguments.length > 0)
 			{
-				console.log("typeof ARGS: " + typeof arguments[0]);
-				console.log("typeof ARGS: " + type_of(arguments[0]));
+				//console.log("typeof ARGS: " + typeof arguments[0]);
+				//console.log("typeof ARGS: " + type_of(arguments[0]));
 			
 				switch (type_of(arguments[0]))
 				{
@@ -846,7 +872,7 @@ var _Rack = function()
 							throw new Error("Illegal argument Scrabble.Core.Rack.SetDimension(), number smaller than 7: " + val);
 
 						this.Dimension = val;
-						console.log("Scrabble.Core.Rack 'number' constructor: " + this.toString());
+						//console.log("Scrabble.Core.Rack 'number' constructor: " + this.toString());
 						return;
 					case 'object':
 					case 'array':
@@ -863,7 +889,7 @@ var _Rack = function()
 			else
 			{
 				this.Dimension = 8;
-				console.log("Scrabble.Core.Rack constructor with empty parameters (default "+this.Dimension+")");
+				//console.log("Scrabble.Core.Rack constructor with empty parameters (default "+this.Dimension+")");
 			}
 		}
 		else
@@ -872,7 +898,7 @@ var _Rack = function()
 		}
 	}
 	
-	console.log("Scrabble.Core.Rack constructor before applying parameters");
+	//console.log("Scrabble.Core.Rack constructor before applying parameters");
 	SetDimension.apply(this, arguments);
 	//SetDimensions(arguments);
 	
@@ -887,6 +913,46 @@ _Rack.prototype.Dimension = NaN;
 _Rack.prototype.SquaresList = [];
 
 _Rack.prototype.Game = 0;
+
+_Rack.prototype.TakeTilesBack = function()
+{
+	var freeTilesCount = 0;
+	for (var x = 0; x < this.Dimension; x++)
+	{
+		var square = this.SquaresList[x];
+		if (square.Tile == 0)
+		{
+			freeTilesCount++;
+		}
+	}
+	
+	freeTilesCount--;
+	if (freeTilesCount <= 0) return;
+	
+	var tiles = this.Game.Board.RemoveFreeTiles();
+	var count = tiles.length;
+
+	if (count > freeTilesCount)
+	{
+		count = freeTilesCount;
+	}
+	
+	for (var i = 0; i < count; i++)
+	{
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			var square = this.SquaresList[x];
+			if (square.Tile == 0)
+			{
+				square.PlaceTile(tiles[i], false);
+
+				EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
+				
+				break;
+			}
+		}
+	}
+}
 
 _Rack.prototype.EmptyTiles = function()
 {
@@ -1075,7 +1141,7 @@ if (typeof _OBJECT_ROOT_.Scrabble.Core.Game == "undefined" || !_OBJECT_ROOT_.Scr
 _OBJECT_ROOT_.Scrabble.Core.Game = (function(){
 //var _Game = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
 
-console.log("inside Scrabble.Core.Game code scope");
+//console.log("inside Scrabble.Core.Game code scope");
 
 with (Scrabble.Core)
 {
@@ -1083,7 +1149,7 @@ with (Scrabble.Core)
 //function _Game()
 var _Game = function(board, rack)
 {
-	console.log("Scrabble.Core.Game constructor");
+	//console.log("Scrabble.Core.Game constructor");
 	
 	this.Board = board;
 	board.Game = this;
@@ -1392,7 +1458,7 @@ if (typeof _OBJECT_ROOT_.Scrabble.UI.Html == "undefined" || !_OBJECT_ROOT_.Scrab
 _OBJECT_ROOT_.Scrabble.UI.Html = (function(){
 //var _Html = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
 
-console.log("inside Scrabble.UI.Html code scope");
+//console.log("inside Scrabble.UI.Html code scope");
 
 with (Scrabble.Core)
 {
@@ -1478,7 +1544,7 @@ var _Html = function()
 							overlayCSS: { backgroundColor: '#333333', opacity: 0.7 },
 							onBlock: function()
 							{
-								console.log("modal activated");
+								//console.log("modal activated");
 							}
 						}); 
 						
@@ -1490,7 +1556,7 @@ var _Html = function()
 							{
 								onUnblock: function()
 								{
-									console.log("modal dismissed");
+									//console.log("modal dismissed");
 								}
 							});
 							}
@@ -1855,7 +1921,7 @@ var _Html = function()
 							overlayCSS: { backgroundColor: '#333333', opacity: 0.7 },
 							onBlock: function()
 							{
-								console.log("modal activated");
+								//console.log("modal activated");
 							}
 						}); 
 						
@@ -1866,7 +1932,7 @@ var _Html = function()
 							{
 								onUnblock: function()
 								{
-									console.log("modal dismissed");
+									//console.log("modal dismissed");
 								}
 							});
 							}
