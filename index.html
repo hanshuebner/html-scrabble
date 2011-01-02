@@ -56,6 +56,15 @@ lang="en">
 	var rack = 0;
 	var boardUI = 0;
 
+	function emptyBoardAndRack()
+	{
+		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
+		//boardUI.CurrentlySelectedSquare = 0;
+		
+		board.EmptyTiles();
+		rack.EmptyTiles();
+	}
+	
 	function placeRandomTiles()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
@@ -71,8 +80,10 @@ lang="en">
 		//boardUI.CurrentlySelectedSquare = 0;
 		game.Language = "French";
 		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
+		
+		board.EmptyTiles();
 		board.GenerateTilesLetterDistribution();
-		rack.GenerateRandomTiles();
+		//rack.GenerateRandomTiles();
 	}
 
 
@@ -82,8 +93,10 @@ lang="en">
 		//boardUI.CurrentlySelectedSquare = 0;
 		game.Language = "English";
 		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
+		
+		board.EmptyTiles();
 		board.GenerateTilesLetterDistribution();
-		rack.GenerateRandomTiles();
+		//rack.GenerateRandomTiles();
 	}
 
 	function init() {
@@ -102,6 +115,7 @@ lang="en">
 		game = new window.Scrabble.Core.Game(board, rack);
 		game.Language = "French";
 		
+		/*
 		if (false)
 		{
 			board.GenerateRandomTiles();
@@ -110,6 +124,7 @@ lang="en">
 		{
 			board.GenerateTilesLetterDistribution();
 		}
+		*/
 		
 		rack.GenerateRandomTiles();
 		
@@ -212,9 +227,10 @@ lang="en">
 </div>
 
 <p>
-<input type="submit" onclick="placeRandomTiles();" value="Randomize Tiles"></input>
-	<input type="submit" onclick="placeTiles_French();" value="French Tiles"></input>
-	<input type="submit" onclick="placeTiles_English();" value="English Tiles"></input>
+	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
+	<input type="submit" onclick="placeRandomTiles();" value="Randomize board and rack"></input>
+	<input type="submit" onclick="placeTiles_French();" value="show French tile set"></input>
+	<input type="submit" onclick="placeTiles_English();" value="show English tile set"></input>
 </p>
 
 	<p>

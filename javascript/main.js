@@ -536,6 +536,21 @@ _Board.prototype.SquaresList = [];
 
 _Board.prototype.Game = 0;
 
+_Board.prototype.EmptyTiles = function()
+{
+	for (var y = 0; y < this.Dimension; y++)
+	{
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			var square = this.SquaresList[x + this.Dimension * y];
+		
+			square.PlaceTile(0, false);
+			
+			EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
+		}
+	}
+}
+
 _Board.prototype.MoveTile = function(tileXY, squareXY)
 {
 	if (tileXY.y == -1 || squareXY.y == -1)
@@ -805,6 +820,18 @@ _Rack.prototype.SquaresList = [];
 
 _Rack.prototype.Game = 0;
 
+_Rack.prototype.EmptyTiles = function()
+{
+	for (var x = 0; x < this.Dimension; x++)
+	{
+		var square = this.SquaresList[x];
+		
+		square.PlaceTile(0, false);
+
+		EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square });
+	}
+}
+
 _Rack.prototype.MoveTile = function(tileXY, squareXY)
 {
 	if (tileXY.y != -1 || squareXY.y != -1)
@@ -1026,6 +1053,95 @@ var _Game = function(board, rack)
 	
 	this.Language = "French";
 	EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
+	
+	function handleKeyup(event)
+	{
+		// NN4 passes the event as a parameter.  For MSIE4 (and others)
+		// we need to get the event from the window.
+		if (document.all)
+		{
+			event = window.event;
+		}
+
+		var key = event.which;
+		if (!key)
+		{
+			key = event.keyCode;
+		}
+
+		if (key == 27) // ESC key
+		{
+			document.getElementById('cancelBlockUi').click();
+			//TODO: move all temp tiles from board back to rack.
+		}
+
+		return true;
+	}
+	
+	function handleKeypress(event)
+	{
+		// NN4 passes the event as a parameter.  For MSIE4 (and others)
+		// we need to get the event from the window.
+		if (document.all)
+		{
+			event = window.event;
+		}
+		
+		if (event.ctrlKey || event.altKey)
+		{
+			return true;
+		}
+
+		var key = event.which;
+		if (!key)
+		{
+			key = event.keyCode;
+		}
+
+		if (key > 96)
+		{
+			key -= 32;
+		}
+
+		if (key != 13 && key != 32 && (key < 65 || key > 65 + 26))
+		{
+			return true;
+		}
+
+		if (key == 13) // ENTER/RETURN key
+		{
+			//TODO submit player turn
+		}
+		else
+		{
+			var keyChar = String.fromCharCode(key);
+			
+			//TODO
+		}
+		if (document.all)
+		{
+			event.cancelBubble = true;
+			event.returnValue = false;
+		}
+		else
+		{
+			event.stopPropagation();
+			event.preventDefault();
+		}
+
+		return false;
+	}
+	
+	if (document.all)
+	{
+		document.attachEvent("onkeypress", handleKeypress);
+		document.attachEvent("onkeyup", handleKeyup);
+	}
+	else
+	{
+		document.onkeypress = handleKeypress;
+		document.onkeyup = handleKeyup;
+	}
 }
 
 _Game.prototype.Event_ScrabbleLetterTilesReady = "ScrabbleLetterTilesReady";
@@ -1198,7 +1314,7 @@ var _Html = function()
 							showOverlay: true,
 							centerY: true,
 							css: { position: "absolute", backgroundColor: "transparent", width: "100%", left: 0, top: $(this).offset().top, border: "none", textAlign: "center" },
-							overlayCSS: { backgroundColor: '#333333', opacity: 0.4 },
+							overlayCSS: { backgroundColor: '#333333', opacity: 0.7 },
 							onBlock: function()
 							{
 								console.log("modal activated");
@@ -1575,7 +1691,7 @@ var _Html = function()
 							showOverlay: true,
 							centerY: true,
 							css: { position: "absolute", backgroundColor: "transparent", width: "100%", left: 0, top: $(this).offset().top, border: "none", textAlign: "center" },
-							overlayCSS: { backgroundColor: '#333333', opacity: 0.4 },
+							overlayCSS: { backgroundColor: '#333333', opacity: 0.7 },
 							onBlock: function()
 							{
 								console.log("modal activated");
@@ -1892,6 +2008,7 @@ var _Html = function()
 		}
 		
 		var input = document.createElement('input');
+		input.setAttribute('id', 'cancelBlockUi');
 		input.setAttribute('type', 'submit');
 		input.setAttribute('value', 'Cancel');
 		input.setAttribute('onclick', '$.unblockUI();');
