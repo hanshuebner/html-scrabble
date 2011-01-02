@@ -928,6 +928,55 @@ _Rack.prototype.MoveTile = function(tileXY, squareXY)
 	EventsManager.DispatchEvent(this.Event_ScrabbleRackSquareTileChanged, { 'Rack': this, 'Square': square2 });
 }
 
+_Rack.prototype.GetRandomFreeTile = function()
+{
+	var letterDistribution = 0;
+	for (var i = 0; i < this.Game.LetterDistributions.length; ++i)
+	{
+		var ld = this.Game.LetterDistributions[i];
+		if (ld.Language == this.Game.Language)
+		{
+			letterDistribution = ld;
+		}
+	}
+	
+	var lastFreeTile = -1;
+	for (var i = 0; i < letterDistribution.Tiles.length; ++i)
+	{
+		var tile = letterDistribution.Tiles[i];
+		if (!tile.Placed)
+		{
+			lastFreeTile = i;
+		}
+	}
+	
+	if (lastFreeTile == -1)
+	{
+		alert("No free tiles !"); // TODO: end of game ! :)
+		return 0;
+	}
+	
+	var tile_index = 1000;
+	while (tile_index > lastFreeTile)
+	{
+		tile_index = Math.floor(Math.random() * letterDistribution.Tiles.length);
+	}
+	
+	var tile = 0;
+	do
+	{
+		tile = letterDistribution.Tiles[tile_index++];
+	}
+	while (tile.Placed && tile_index < letterDistribution.Tiles.length);
+	
+	if (tile == 0 || tile.Placed)
+	{
+		alert("No free tiles ! (WTF ?)");
+		return 0;
+	}
+	
+	return tile;
+}
 
 _Rack.prototype.ReplenishRandomTiles = function()
 {
@@ -954,50 +1003,8 @@ _Rack.prototype.ReplenishRandomTiles = function()
 	{
 		var square = this.SquaresList[x];
 		
-		var letterDistribution = 0;
-		for (var i = 0; i < this.Game.LetterDistributions.length; ++i)
-		{
-			var ld = this.Game.LetterDistributions[i];
-			if (ld.Language == this.Game.Language)
-			{
-				letterDistribution = ld;
-			}
-		}
-		
-		var lastFreeTile = -1;
-		for (var i = 0; i < letterDistribution.Tiles.length; ++i)
-		{
-			var tile = letterDistribution.Tiles[i];
-			if (!tile.Placed)
-			{
-				lastFreeTile = i;
-			}
-		}
-		
-		if (lastFreeTile == -1)
-		{
-			alert("No free tiles !"); // TODO: end of game ! :)
-			return;
-		}
-		
-		var tile_index = 1000;
-		while (tile_index > lastFreeTile)
-		{
-			tile_index = Math.floor(Math.random() * letterDistribution.Tiles.length);
-		}
-		
-		var tile = 0;
-		do
-		{
-			tile = letterDistribution.Tiles[tile_index++];
-		}
-		while (tile.Placed && tile_index < letterDistribution.Tiles.length);
-		
-		if (tile == 0 || tile.Placed)
-		{
-			alert("No free tiles ! (WTF ?)");
-			return;
-		}
+		var tile = this.GetRandomFreeTile();
+		if (tile == 0) return;
 		
 		square.PlaceTile(tile, false);
 	
@@ -1007,6 +1014,8 @@ _Rack.prototype.ReplenishRandomTiles = function()
 
 _Rack.prototype.GenerateRandomTiles = function()
 {
+	rack.EmptyTiles();
+
 	for (var x = 0; x < (this.Dimension - 1); x++)
 	{
 		var square = this.SquaresList[x];
@@ -1028,51 +1037,9 @@ _Rack.prototype.GenerateRandomTiles = function()
 	
 		var tile = new Tile(letter, score);
 		*/
-
-		var letterDistribution = 0;
-		for (var i = 0; i < this.Game.LetterDistributions.length; ++i)
-		{
-			var ld = this.Game.LetterDistributions[i];
-			if (ld.Language == this.Game.Language)
-			{
-				letterDistribution = ld;
-			}
-		}
 		
-		var lastFreeTile = -1;
-		for (var i = 0; i < letterDistribution.Tiles.length; ++i)
-		{
-			var tile = letterDistribution.Tiles[i];
-			if (!tile.Placed)
-			{
-				lastFreeTile = i;
-			}
-		}
-		
-		if (lastFreeTile == -1)
-		{
-			alert("No free tiles !"); // TODO: end of game ! :)
-			return;
-		}
-		
-		var tile_index = 1000;
-		while (tile_index > lastFreeTile)
-		{
-			tile_index = Math.floor(Math.random() * letterDistribution.Tiles.length);
-		}
-		
-		var tile = 0;
-		do
-		{
-			tile = letterDistribution.Tiles[tile_index++];
-		}
-		while (tile.Placed && tile_index < letterDistribution.Tiles.length);
-		
-		if (tile == 0 || tile.Placed)
-		{
-			alert("No free tiles ! (WTF ?)");
-			return;
-		}
+		var tile = this.GetRandomFreeTile();
+		if (tile == 0) return;
 		
 		square.PlaceTile(tile, false);
 	
