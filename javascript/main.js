@@ -561,15 +561,18 @@ _Board.prototype.CheckDictionary = function()
 	
 	var validHorizontalWords = [];
 	var validVerticalWords = [];
-	
-	// 4 passes:
-	// invalid horizontal words
-	// invalid vertical words
-	// valid horizontal words
-	// valid vertical words
-	
+
 	var invalidSquares = [];
+
+	var middle = Math.floor(this.Dimension / 2);
+	var square = this.SquaresList[middle + this.Dimension * middle];
+	if (square.Tile == 0)
+	{
+		EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 1 });
 	
+		invalidSquares.push(square);
+	}
+
 	for (var y = 0; y < this.Dimension; y++)
 	{
 		for (var x = 0; x < this.Dimension; x++)

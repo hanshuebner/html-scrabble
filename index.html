@@ -105,7 +105,7 @@ lang="en">
 			Scrabble.UI.Html.prototype.OnUnblockUIFunction = function() { boardUI.CleanupErrorLayer(); };
 			
 			$.blockUI({
-				message: "<p>Some words are invalid !</p><input type=\"submit\" value=\"Return to the game\" onclick=\"boardUI.UnblockUIFunction();\"></input>",
+				message: "<p>Invalid words !</p><input type=\"submit\" value=\"Return\" onclick=\"boardUI.UnblockUIFunction();\"></input>",
 				focusInput: true,
 				bindEvents: true,
 				constrainTabKey: true,
@@ -328,13 +328,13 @@ lang="en">
 	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
 	<input type="submit" onclick="placeTiles_French();" value="Show French tile set"></input>
 	<input type="submit" onclick="placeTiles_English();" value="Show English tile set"></input>
-	<input type="submit" onclick="checkDictionary();" value="Check dictionary"></input>
 </p>
 
 <div id="rack" class="tableDivWrap bottomShade"></div>
 
 <p>
 	<input type="submit" onclick="playAction_resetTilesOnRack();" value="Take tiles back"></input>
+	<input type="submit" onclick="checkDictionary();" value="Check dictionary"></input>
 	<input type="submit" onclick="playAction_submitWords();" value="Submit word(s)"></input>
 	<input type="submit" onclick="playAction_drawNewTiles();" value="Draw new tiles (pass turn)"></input>
 	<input type="submit" onclick="playAction_passTurn();" value="Pass turn"></input>
