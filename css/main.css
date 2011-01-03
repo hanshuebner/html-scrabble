@@ -466,6 +466,13 @@ border-color: green;
 background-color: green;
 }
 
+div.tableDivWrap td.ValidButWrongPlacement
+{
+border-style: solid;
+border-color: orange;
+background-color: orange;
+}
+
 /*
 The CSS hack below targets Webkit only (Safari and Chrome), see:
 http://www.etchevarne.net/toolkit/css-hacks.html

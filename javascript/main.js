@@ -16,7 +16,9 @@ http://en.wikipedia.org/wiki/Scrabble_letter_distributions
 http://en.wikipedia.org/wiki/Scrabble
 http://fr.wikipedia.org/wiki/Scrabble
 
-http://ngrams.googlelabs.com/datasets
+http://www.hasbro.com/scrabble/en_US/glossary.cfm
+http://www.hasbro.com/scrabble/en_US/rulesSetup.cfm
+
 */
 
 /*
@@ -674,6 +676,15 @@ _Board.prototype.CheckDictionary = function()
 	for (var i = 0; i < validVerticalWords.length; i++)
 	{
 		wordSquares = validVerticalWords[i];
+		
+		for (var j = 0; j < wordSquares.length; j++)
+		{
+			var square = wordSquares[j];
+			//TODO: check if there is a path to the center square
+			//TODO: check played tiles (!Tile.Locked) are vertical XOR horizontal, and without gaps
+			//EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 2 });
+		}
+		
 		for (var j = 0; j < wordSquares.length; j++)
 		{
 			var square = wordSquares[j];
@@ -1524,6 +1535,7 @@ var _Html = function()
 		var td = document.getElementById(id).parentNode;
 		$(td).removeClass("Invalid");
 		$(td).removeClass("Valid");
+		$(td).removeClass("ValidButWrongPlacement");
 		
 		if (state == 0)
 		{
@@ -1532,6 +1544,10 @@ var _Html = function()
 		else if (state == 1)
 		{
 			$(td).addClass("Invalid");
+		}
+		else if (state == 2)
+		{
+			$(td).addClass("ValidButWrongPlacement");
 		}
 	}
 	
@@ -2366,6 +2382,7 @@ var _Html = function()
 				var td = document.getElementById(id).parentNode;
 				$(td).removeClass("Invalid");
 				$(td).removeClass("Valid");
+				$(td).removeClass("ValidButWrongPlacement");
 			}
 		}
 	}
@@ -2414,7 +2431,15 @@ var _Html = function()
 		{
 			key = event.keyCode;
 		}
-
+		
+		if(event.charCode == null || event.charCode == 0)
+		{
+			if (nKeyCode >= 112 && nKeyCode <= 123)
+			{
+				return true;
+			}
+		}
+		
 		if (key > 96)
 		{
 			key -= 32;
@@ -2599,6 +2624,15 @@ function setBestPlay(value) {
 
 */
 
+
+
+// DAWG => Directed Acyclic Word Graph
+//http://en.wikipedia.org/wiki/Directed_acyclic_word_graph
+//http://eyes-free.googlecode.com/svn/trunk/ocr/src/com/android/ocr/spellcheck/Lexicon.java
+//http://ngrams.googlelabs.com/datasets
+//http://www.metagrams.com/view.mod/dictionaries.html
+//http://eyes-free.googlecode.com/svn/trunk/ocr/src/com/android/ocr/spellcheck/Lexicon.java
+//http://www.wutka.com/dawg.html
 
 var re = /(,[a-z]+)\+/g;
 var re0 = /(,[a-z])([a-z]*)0/g;

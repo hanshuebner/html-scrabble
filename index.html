@@ -46,12 +46,120 @@ lang="en">
 	
 	<script type="text/javascript" src="javascript/dictionary_English.js"></script>
 	
+	<script type="text/javascript" src="javascript/BinFileReader.js"></script>	
+	
 	<script>var _sf_startpt=(new Date()).getTime()</script>
 	
 	<script type="text/javascript" src="javascript/main.js"></script>
 	<!-- script type="text/javascript" src="scripts/dictionary.js"></script -->
 	
 	<script type="text/javascript">
+	
+	var LETTER_BIT_SHIFT = 25;
+	var LETTER_BIT_MASK = 1040187392;
+	var CHILD_INDEX_BIT_MASK = 33554431;
+	var END_OF_WORD_BIT_MASK = 2147483648;
+	var END_OF_LIST_BIT_MASK = 1073741824;
+	var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	
+	var DAWGReader = new BinFileReader("DAWG_ODS5_French.dat");
+	DAWGReader.movePointerTo(0);
+	var NumberOfNodes = DAWGReader.readNumber(4);
+	alert("NumberOfNodes: " + NumberOfNodes);
+	
+	function DAWG_Letter(dataIndex)
+	{
+		var byteOffset = 4 * dataIndex + 4;
+		DAWGReader.movePointerTo(byteOffset);
+		
+		var alphabetPos = ((DAWGReader.readNumber(4) & LETTER_BIT_MASK) >> LETTER_BIT_SHIFT);
+		var letter = alphabet.substring(alphabetPos, alphabetPos+1);
+		return letter;
+	}
+	function DAWG_IsEndOfWord(dataIndex)
+	{
+		var byteOffset = 4 * dataIndex + 4;
+		DAWGReader.movePointerTo(byteOffset);
+	
+		var val = (DAWGReader.readNumber(4) & END_OF_WORD_BIT_MASK);
+		return val == 0 ? false : true;
+	}
+	function DAWG_NextIndex(dataIndex)
+	{
+		var byteOffset = 4 * dataIndex + 4;
+		DAWGReader.movePointerTo(byteOffset);
+		
+		var val = (DAWGReader.readNumber(4) & END_OF_LIST_BIT_MASK);
+		return val == 0 ? (dataIndex + 1) : 0;
+	}
+	function DAWG_ChildIndex(dataIndex)
+	{
+		var byteOffset = 4 * dataIndex + 4;
+		DAWGReader.movePointerTo(byteOffset);
+		
+		var val = (DAWGReader.readNumber(4) & CHILD_INDEX_BIT_MASK);
+		return val;
+	}
+	alert("DAWG_Letter(0): " + DAWG_Letter(0));
+	
+	var iterations = 0;
+	var wordCount = 0;
+	var currentString = [];
+	for (var i = 0; i < 20; i++)
+	{
+		currentString.push(i + "");
+	}
+	alert(currentString);
+	
+	function DAWG_ParseRecursive(dawg_index, string_index)
+	{
+		iterations++;
+		if (iterations > 50)
+		{
+			alert("max iterations");
+			return;
+		}
+		
+		var letter = DAWG_Letter(dawg_index);
+		//alert("letter: " + letter);
+		
+		currentString[string_index] = letter;
+		
+		if (DAWG_IsEndOfWord(dawg_index))
+		{
+			wordCount++;
+			
+			var string = "";
+			for (var i = 0; i <= string_index; i++)
+			{
+				string += currentString[i];
+			}
+			
+			alert("Full word (" + wordCount + "): " + string);
+
+			if (wordCount > 10)
+			{
+				alert("max words");
+				return;
+			}
+		}
+		
+		var childIndex = DAWG_ChildIndex(dawg_index);
+		//alert("DAWG_ChildIndex: " + childIndex);
+		if (childIndex > 0)
+		{
+			DAWG_ParseRecursive(childIndex, string_index+1);
+		}
+		
+		var nextIndex = DAWG_NextIndex(dawg_index);
+		//alert("DAWG_NextIndex: " + nextIndex);
+		if (nextIndex > 0)
+		{
+			DAWG_ParseRecursive(nextIndex, string_index);
+		}
+	}
+	
+	DAWG_ParseRecursive(0, 0);
 
 	var game = 0;
 	var board = 0;
