@@ -452,6 +452,20 @@ border-left: 0.2em solid #ADFF2F;
 border-right: 0.2em solid #ADFF2F;
 }
 
+div.tableDivWrap td.Invalid
+{
+border-style: solid;
+border-color: red;
+background-color: red;
+}
+
+div.tableDivWrap td.Valid
+{
+border-style: solid;
+border-color: green;
+background-color: green;
+}
+
 /*
 The CSS hack below targets Webkit only (Safari and Chrome), see:
 http://www.etchevarne.net/toolkit/css-hacks.html

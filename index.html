@@ -74,7 +74,14 @@ lang="en">
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
 
+		/*
 		rack.EmptyTiles();
+		rack.ReplenishRandomTiles();
+		*/
+		
+		rack.GenerateRandomTiles();
+		
+		//TODO: pass turn
 	}
 	
 	function playAction_passTurn()
@@ -86,7 +93,45 @@ lang="en">
 		
 		//TODO: pass
 	}
+	
+	function checkDictionary()
+	{
+		boardUI.CleanupErrorLayer();
+		
+		var valid = board.CheckDictionary();
 
+		if (!valid)
+		{
+			
+			Scrabble.UI.Html.prototype.OnUnblockUIFunction = function() {boardUI.CleanupErrorLayer();};
+			
+			$.blockUI({
+				message: "<p>Some words are invalid !</p><input type=\"submit\" value=\"Return to the game\" onclick=\"boardUI.UnblockUIFunction();\"></input>",
+				focusInput: true,
+				bindEvents: true,
+				constrainTabKey: true,
+				fadeIn: 0,
+				fadeOut: 0,
+				showOverlay: true,
+				centerY: true,
+				css: { position: "absolute", padding: "1em", backgroundColor: "black", color: "white", width: "100%", left: 0, top: $("#rack").offset().top, border: "none", textAlign: "center" },
+				overlayCSS: { backgroundColor: '#FFFFFF', opacity: 0.2 },
+				onBlock: function()
+				{
+					//console.log("modal activated");
+				}
+			}); 
+
+			$('.blockOverlay').attr('title','Click to return to the game');
+			$('.blockOverlay').click(
+				boardUI.UnblockUIFunction
+			);
+		}
+
+		//if (!valid) alert("Some words are invalid !");
+		//else alert("All words are valid !");
+	}
+	
 	function emptyBoardAndRack()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
@@ -275,8 +320,9 @@ lang="en">
 	<input type="submit" onclick="placeRandomTiles_Rack();" value="Randomize rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
 	<input type="submit" onclick="replenishRack();" value="Replenish rack"></input>
-	<input type="submit" onclick="placeTiles_French();" value="show French tile set"></input>
-	<input type="submit" onclick="placeTiles_English();" value="show English tile set"></input>
+	<input type="submit" onclick="placeTiles_French();" value="Show French tile set"></input>
+	<input type="submit" onclick="placeTiles_English();" value="Show English tile set"></input>
+	<input type="submit" onclick="checkDictionary();" value="Check dictionary"></input>
 </p>
 
 <div id="rack" class="tableDivWrap bottomShade"></div>

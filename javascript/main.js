@@ -546,12 +546,140 @@ var _Board = function()
 
 _Board.prototype.Event_ScrabbleBoardReady = "ScrabbleBoardReady";
 _Board.prototype.Event_ScrabbleBoardSquareTileChanged = "ScrabbleBoardSquareTileChanged";
+_Board.prototype.Event_ScrabbleBoardSquareStateChanged = "ScrabbleBoardSquareStateChanged";
 
 _Board.prototype.Dimension = NaN;
 
 _Board.prototype.SquaresList = [];
 
 _Board.prototype.Game = 0;
+
+_Board.prototype.CheckDictionary = function()
+{
+	var word = "";
+	var wordSquares = [];
+	
+	var validHorizontalWords = [];
+	var validVerticalWords = [];
+	
+	// 4 passes:
+	// invalid horizontal words
+	// invalid vertical words
+	// valid horizontal words
+	// valid vertical words
+	
+	var invalid = false;
+	
+	for (var y = 0; y < this.Dimension; y++)
+	{
+		for (var x = 0; x < this.Dimension; x++)
+		{
+			var square = this.SquaresList[x + this.Dimension * y];
+			if (square.Tile != 0)
+			{
+				wordSquares.push(square);
+				word += square.Tile.Letter;
+			}
+			else
+			{
+				if (word.length <= 1 || !checkDictionary(word))
+				{
+					for (var i = 0; i < wordSquares.length; i++)
+					{
+						var square = wordSquares[i];
+						var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+						var td = document.getElementById(id).parentNode;
+						
+						//$(td).addClass("Invalid");
+						EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 1 });
+						
+						invalid = true;
+					}
+				
+					//TODO: highlight squares TD.Invalid CSS in HTML view Scrabble.UI layer, not in Scrabble.Core
+				}
+				else
+				{
+					var newArray = wordSquares.slice();
+					validHorizontalWords.push(newArray);
+				}
+				
+				word = "";
+				wordSquares = [];
+			}
+		}
+	}
+	
+	for (var x = 0; x < this.Dimension; x++)
+	{
+		for (var y = 0; y < this.Dimension; y++)
+		{
+			var square = this.SquaresList[x + this.Dimension * y];
+			if (square.Tile != 0)
+			{
+				wordSquares.push(square);
+				word += square.Tile.Letter;
+			}
+			else
+			{
+				if (word.length <= 1 || !checkDictionary(word))
+				{
+					for (var i = 0; i < wordSquares.length; i++)
+					{
+						var square = wordSquares[i];
+						var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+						var td = document.getElementById(id).parentNode;
+						
+						$(td).addClass("Invalid");
+						EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 1 });
+						
+						invalid = true;
+					}
+				
+					//TODO: highlight squares TD.Invalid CSS in HTML view Scrabble.UI layer, not in Scrabble.Core
+				}
+				else
+				{
+					var newArray = wordSquares.slice();
+					validVerticalWords.push(newArray);
+				}
+				
+				word = "";
+				wordSquares = [];
+			}
+		}
+	}
+
+	for (var i = 0; i < validHorizontalWords.length; i++)
+	{
+		wordSquares = validHorizontalWords[i];
+		for (var j = 0; j < wordSquares.length; j++)
+		{
+			var square = wordSquares[j];
+			var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+			var td = document.getElementById(id).parentNode;
+			//$(td).removeClass("Invalid");
+			//$(td).addClass("Valid");
+			EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 0 });
+		}
+	}
+	
+	for (var i = 0; i < validVerticalWords.length; i++)
+	{
+		wordSquares = validVerticalWords[i];
+		for (var j = 0; j < wordSquares.length; j++)
+		{
+			var square = wordSquares[j];
+			var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+			var td = document.getElementById(id).parentNode;
+			//$(td).removeClass("Invalid");
+			//$(td).addClass("Valid");
+			EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 0 });
+		}
+	}
+
+	return !invalid;
+}
 
 _Board.prototype.RemoveFreeTiles = function()
 {
@@ -1280,95 +1408,6 @@ var _Game = function(board, rack)
 	
 	this.Language = "French";
 	EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
-	
-	function handleKeyup(event)
-	{
-		// NN4 passes the event as a parameter.  For MSIE4 (and others)
-		// we need to get the event from the window.
-		if (document.all)
-		{
-			event = window.event;
-		}
-
-		var key = event.which;
-		if (!key)
-		{
-			key = event.keyCode;
-		}
-
-		if (key == 27) // ESC key
-		{
-			document.getElementById('cancelBlockUi').click();
-			//TODO: move all temp tiles from board back to rack.
-		}
-
-		return true;
-	}
-	
-	function handleKeypress(event)
-	{
-		// NN4 passes the event as a parameter.  For MSIE4 (and others)
-		// we need to get the event from the window.
-		if (document.all)
-		{
-			event = window.event;
-		}
-		
-		if (event.ctrlKey || event.altKey)
-		{
-			return true;
-		}
-
-		var key = event.which;
-		if (!key)
-		{
-			key = event.keyCode;
-		}
-
-		if (key > 96)
-		{
-			key -= 32;
-		}
-
-		if (key != 13 && key != 32 && (key < 65 || key > 65 + 26))
-		{
-			return true;
-		}
-
-		if (key == 13) // ENTER/RETURN key
-		{
-			//TODO submit player turn
-		}
-		else
-		{
-			var keyChar = String.fromCharCode(key);
-			
-			//TODO
-		}
-		if (document.all)
-		{
-			event.cancelBubble = true;
-			event.returnValue = false;
-		}
-		else
-		{
-			event.stopPropagation();
-			event.preventDefault();
-		}
-
-		return false;
-	}
-	
-	if (document.all)
-	{
-		document.attachEvent("onkeypress", handleKeypress);
-		document.attachEvent("onkeyup", handleKeyup);
-	}
-	else
-	{
-		document.onkeypress = handleKeypress;
-		document.onkeyup = handleKeyup;
-	}
 }
 
 _Game.prototype.Event_ScrabbleLetterTilesReady = "ScrabbleLetterTilesReady";
@@ -1464,6 +1503,23 @@ with (Scrabble.Core)
 {
 var _Html = function()
 {
+	function UpdateHtmlTableCellState(html, board, square, state)
+	{
+		var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+		var td = document.getElementById(id).parentNode;
+		$(td).removeClass("Invalid");
+		$(td).removeClass("Valid");
+		
+		if (state == 0)
+		{
+			$(td).addClass("Valid");
+		}
+		else if (state == 1)
+		{
+			$(td).addClass("Invalid");
+		}
+	}
+	
 	function UpdateHtmlTableCell_Board(html, board, square)
 	{
 		var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
@@ -2256,7 +2312,7 @@ var _Html = function()
 		}
 		
 		var input = document.createElement('input');
-		input.setAttribute('id', 'cancelBlockUi');
+		//input.setAttribute('id', 'cancelBlockUi');
 		input.setAttribute('type', 'submit');
 		input.setAttribute('value', 'Cancel');
 		input.setAttribute('onclick', '$.unblockUI();');
@@ -2266,7 +2322,129 @@ var _Html = function()
 		buttonDiv.appendChild(input);
 		rootDiv.appendChild(buttonDiv);
 	}
+	
+	
+	_Html.prototype.OnUnblockUIFunction = function(){;};
+	
+	_Html.prototype.UnblockUIFunction =
+		function()
+		{
+		$.unblockUI(
+		{
+			onUnblock: function()
+			{
+				//console.log("modal dismissed");
+				_Html.prototype.OnUnblockUIFunction();
+				_Html.prototype.OnUnblockUIFunction = function(){;};
+			}
+		});
+		};
+	
+	_Html.prototype.CleanupErrorLayer = function()
+	{
+		for (var y = 0; y < this.Board.Dimension; y++)
+		{
+			for (var x = 0; x < this.Board.Dimension; x++)
+			{
+				var square = this.Board.SquaresList[x + this.Board.Dimension * y];
+				var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+				var td = document.getElementById(id).parentNode;
+				$(td).removeClass("Invalid");
+				$(td).removeClass("Valid");
+			}
+		}
+	}
+	
+	function handleKeyup(event)
+	{
+		// NN4 passes the event as a parameter.  For MSIE4 (and others)
+		// we need to get the event from the window.
+		if (document.all)
+		{
+			event = window.event;
+		}
 
+		var key = event.which;
+		if (!key)
+		{
+			key = event.keyCode;
+		}
+
+		if (key == 27) // ESC key
+		{
+			//document.getElementById('cancelBlockUi').click();
+			_Html.prototype.UnblockUIFunction();
+			//TODO: move all temp tiles from board back to rack ?
+		}
+
+		return true;
+	}
+	
+	function handleKeypress(event)
+	{
+		// NN4 passes the event as a parameter.  For MSIE4 (and others)
+		// we need to get the event from the window.
+		if (document.all)
+		{
+			event = window.event;
+		}
+		
+		if (event.ctrlKey || event.altKey)
+		{
+			return true;
+		}
+
+		var key = event.which;
+		if (!key)
+		{
+			key = event.keyCode;
+		}
+
+		if (key > 96)
+		{
+			key -= 32;
+		}
+
+		if (key != 13 && key != 32 && (key < 65 || key > 65 + 26))
+		{
+			return true;
+		}
+
+		if (key == 13) // ENTER/RETURN key
+		{
+			//TODO submit player turn
+		}
+		else
+		{
+			var keyChar = String.fromCharCode(key);
+			
+			//TODO
+		}
+		if (document.all)
+		{
+			event.cancelBubble = true;
+			event.returnValue = false;
+		}
+		else
+		{
+			event.stopPropagation();
+			event.preventDefault();
+		}
+
+		return false;
+	}
+	
+	if (document.all)
+	{
+		document.attachEvent("onkeypress", handleKeypress);
+		document.attachEvent("onkeyup", handleKeyup);
+	}
+	else
+	{
+		document.onkeypress = handleKeypress;
+		document.onkeyup = handleKeyup;
+	}
+	
 	var thiz = this;
 
 	var callback_ScrabbleBoardReady = function(eventPayload)
@@ -2283,7 +2461,13 @@ var _Html = function()
 		};
 
 	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardSquareTileChanged, callback_ScrabbleBoardSquareTileChanged);
+	
+	var callback_ScrabbleBoardSquareStateChanged = function(eventPayload)
+		{
+			UpdateHtmlTableCellState(thiz, eventPayload.Board, eventPayload.Square, eventPayload.State);
+		};
 
+	EventsManager.AddEventListener(Board.prototype.Event_ScrabbleBoardSquareStateChanged, callback_ScrabbleBoardSquareStateChanged);
 	
 	var callback_ScrabbleRackReady = function(eventPayload)
 		{
@@ -2399,6 +2583,20 @@ function setBestPlay(value) {
 }
 
 */
+
+
+var re = /(,[a-z]+)\+/g;
+var re0 = /(,[a-z])([a-z]*)0/g;
+var re1 = /(,[a-z]{2})([a-z]*)1/g;
+var re2 = /(,[a-z]{3})([a-z]*)2/g;
+var re3 = /(,[a-z]{4})([a-z]*)3/g;
+var re4 = /(,[a-z]{5})([a-z]*)4/g;
+var re5 = /(,[a-z]{6})([a-z]*)5/g;
+var re6 = /(,[a-z]{7})([a-z]*)6/g;
+var re7 = /(,[a-z]{8})([a-z]*)7/g;
+var re8 = /(,[a-z]{9})([a-z]*)8/g;
+var re9 = /(,[a-z]{10})([a-z]*)9/g;
+
 function checkDictionary(theWord)
 {
 	theWord = theWord.toLowerCase();
