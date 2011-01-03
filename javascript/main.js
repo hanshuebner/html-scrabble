@@ -568,7 +568,7 @@ _Board.prototype.CheckDictionary = function()
 	// valid horizontal words
 	// valid vertical words
 	
-	var invalid = false;
+	var invalidSquares = [];
 	
 	for (var y = 0; y < this.Dimension; y++)
 	{
@@ -593,10 +593,8 @@ _Board.prototype.CheckDictionary = function()
 						//$(td).addClass("Invalid");
 						EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 1 });
 						
-						invalid = true;
+						invalidSquares.push(square);
 					}
-				
-					//TODO: highlight squares TD.Invalid CSS in HTML view Scrabble.UI layer, not in Scrabble.Core
 				}
 				else
 				{
@@ -633,10 +631,8 @@ _Board.prototype.CheckDictionary = function()
 						$(td).addClass("Invalid");
 						EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 1 });
 						
-						invalid = true;
+						invalidSquares.push(square);
 					}
-				
-					//TODO: highlight squares TD.Invalid CSS in HTML view Scrabble.UI layer, not in Scrabble.Core
 				}
 				else
 				{
@@ -661,6 +657,14 @@ _Board.prototype.CheckDictionary = function()
 			//$(td).removeClass("Invalid");
 			//$(td).addClass("Valid");
 			EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 0 });
+			
+			for (var k = 0; k < invalidSquares.length; k++)
+			{
+				if (invalidSquares[k] == square)
+				{
+					invalidSquares.splice(k--, 1);
+				}
+			}
 		}
 	}
 	
@@ -675,10 +679,18 @@ _Board.prototype.CheckDictionary = function()
 			//$(td).removeClass("Invalid");
 			//$(td).addClass("Valid");
 			EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareStateChanged, { 'Board': this, 'Square': square, 'State': 0 });
+			
+			for (var k = 0; k < invalidSquares.length; k++)
+			{
+				if (invalidSquares[k] == square)
+				{
+					invalidSquares.splice(k--, 1);
+				}
+			}
 		}
 	}
 
-	return !invalid;
+	return invalidSquares.length == 0;
 }
 
 _Board.prototype.RemoveFreeTiles = function()

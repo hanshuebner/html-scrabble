@@ -102,8 +102,7 @@ lang="en">
 
 		if (!valid)
 		{
-			
-			Scrabble.UI.Html.prototype.OnUnblockUIFunction = function() {boardUI.CleanupErrorLayer();};
+			Scrabble.UI.Html.prototype.OnUnblockUIFunction = function() { boardUI.CleanupErrorLayer(); };
 			
 			$.blockUI({
 				message: "<p>Some words are invalid !</p><input type=\"submit\" value=\"Return to the game\" onclick=\"boardUI.UnblockUIFunction();\"></input>",
@@ -126,6 +125,13 @@ lang="en">
 			$('.blockOverlay').click(
 				boardUI.UnblockUIFunction
 			);
+		}
+		else
+		{
+			setTimeout(function()
+			{
+				boardUI.CleanupErrorLayer(); 
+			}, 1000);
 		}
 
 		//if (!valid) alert("Some words are invalid !");
@@ -317,9 +323,9 @@ lang="en">
 
 <p>
 	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
+	<input type="submit" onclick="replenishRack();" value="Replenish rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Rack();" value="Randomize rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
-	<input type="submit" onclick="replenishRack();" value="Replenish rack"></input>
 	<input type="submit" onclick="placeTiles_French();" value="Show French tile set"></input>
 	<input type="submit" onclick="placeTiles_English();" value="Show English tile set"></input>
 	<input type="submit" onclick="checkDictionary();" value="Check dictionary"></input>
