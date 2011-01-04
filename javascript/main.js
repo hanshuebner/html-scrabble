@@ -254,6 +254,196 @@ function PlayAudio(id)
 	}
 }
 
+
+//=================================================
+// BEGIN Scrabble.Core.Dictionary ------------------
+if (typeof _OBJECT_ROOT_.Scrabble.Core.Dictionary == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Dictionary"])
+_OBJECT_ROOT_.Scrabble.Core.Dictionary = (function(){
+//var _Dictionary = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated function)
+
+//console.log("inside Scrabble.Core.Dictionary code scope");
+
+// DAWG => Directed Acyclic Word Graph
+//http://en.wikipedia.org/wiki/Directed_acyclic_word_graph
+//http://eyes-free.googlecode.com/svn/trunk/ocr/src/com/android/ocr/spellcheck/Lexicon.java
+//http://ngrams.googlelabs.com/datasets
+//http://www.metagrams.com/view.mod/dictionaries.html
+//http://eyes-free.googlecode.com/svn/trunk/ocr/src/com/android/ocr/spellcheck/Lexicon.java
+//http://www.wutka.com/dawg.html
+
+with (Scrabble.Core)
+{
+var _Dictionary = function(dictionaryFileURL, maxWordLength, indexedAlphabet)
+{
+	this.IndexedAlphabet = indexedAlphabet;
+	this.DAWGReader = new BinFileReader(dictionaryFileURL);
+	this.DAWGReader.movePointerTo(0);
+	//var NumberOfNodes = this.DAWGReader.readNumber(4);
+
+//Below: test code, not necessary parseRecursive(1, 0);
+/*
+	var iterations = 0;
+	var wordCount = 0;
+	var currentString = [];
+	for (var i = 0; i < maxWordLength; i++)
+	{
+		currentString.push(i + "");
+	}
+	function parseRecursive(dawg_index, string_index)
+	{
+		iterations++;
+		if (iterations > 50)
+		{
+			//alert("max iterations");
+			return;
+		}
+		
+		var letter = DAWG_Letter(dawg_index);
+		//alert("letter: " + letter);
+$('#words').append('<p>----DAWG_Letter: ' + letter + '</p>');
+		
+		currentString[string_index] = letter;
+		
+		if (DAWG_IsEndOfWord(dawg_index))
+		{
+			wordCount++;
+			
+			var string = "";
+			for (var i = 0; i <= string_index; i++)
+			{
+				string += currentString[i];
+			}
+			
+			//alert("Full word (" + wordCount + "): " + string);
+			$('#words').append('<p>' + string + " (" + wordCount + ")" + '</p>');
+
+			if (wordCount > 10)
+			{
+				//alert("max words");
+				return;
+			}
+		}
+		
+		var childIndex = DAWG_ChildIndex(dawg_index);
+		//alert("DAWG_ChildIndex: " + childIndex);
+		if (childIndex > 0)
+		{
+$('#words').append('<p>----DAWG_ChildIndex</p>');
+			DAWG_ParseRecursive(childIndex, string_index+1);
+		}
+		
+		var nextIndex = DAWG_NextIndex(dawg_index);
+		//alert("DAWG_NextIndex: " + nextIndex);
+		if (nextIndex > 0)
+		{
+$('#words').append('<p>----DAWG_NextIndex</p>');
+			DAWG_ParseRecursive(nextIndex, string_index);
+		}
+	}
+	*/
+}
+
+_Dictionary.prototype.LETTER_BIT_SHIFT = 25;
+_Dictionary.prototype.LETTER_BIT_MASK = 1040187392;
+_Dictionary.prototype.CHILD_INDEX_BIT_MASK = 33554431;
+_Dictionary.prototype.END_OF_WORD_BIT_MASK = 2147483648;
+_Dictionary.prototype.END_OF_LIST_BIT_MASK = 1073741824;
+
+_Dictionary.prototype.DAWGReader = 0;
+_Dictionary.prototype.IndexedAlphabet = "";
+
+_Dictionary.prototype.DAWG_Letter = function(dataIndex)
+{
+	var byteOffset = 4 * dataIndex + 4;
+	this.DAWGReader.movePointerTo(byteOffset);
+	
+	var alphabetPos = ((this.DAWGReader.readNumber(4) & this.LETTER_BIT_MASK) >> this.LETTER_BIT_SHIFT);
+	var letter = this.IndexedAlphabet.substring(alphabetPos, alphabetPos+1);
+	return letter;
+}
+_Dictionary.prototype.DAWG_IsEndOfWord = function(dataIndex)
+{
+	var byteOffset = 4 * dataIndex + 4;
+	this.DAWGReader.movePointerTo(byteOffset);
+
+	var val = (this.DAWGReader.readNumber(4) & this.END_OF_WORD_BIT_MASK);
+	return val == 0 ? false : true;
+}
+_Dictionary.prototype.DAWG_NextIndex = function(dataIndex)
+{
+	var byteOffset = 4 * dataIndex + 4;
+	this.DAWGReader.movePointerTo(byteOffset);
+	
+	var val = (this.DAWGReader.readNumber(4) & this.END_OF_LIST_BIT_MASK);
+	return val == 0 ? (dataIndex + 1) : 0;
+}
+_Dictionary.prototype.DAWG_ChildIndex = function(dataIndex)
+{
+	var byteOffset = 4 * dataIndex + 4;
+	this.DAWGReader.movePointerTo(byteOffset);
+	
+	var val = (this.DAWGReader.readNumber(4) & this.CHILD_INDEX_BIT_MASK);
+	return val;
+}
+
+_Dictionary.prototype.CheckDictionaryRecursive = function(theWord, string_index, dawg_index)
+{
+	var ch = theWord[string_index];
+	var letter = this.DAWG_Letter(dawg_index);
+	if (letter == ch)
+	{
+		if (string_index == (theWord.length - 1))
+		{
+			if (this.DAWG_IsEndOfWord(dawg_index))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			var childIndex = this.DAWG_ChildIndex(dawg_index);
+			if (childIndex > 0)
+			{
+				return this.CheckDictionaryRecursive(theWord, string_index+1, childIndex);
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		var nextIndex = this.DAWG_NextIndex(dawg_index);
+		if (nextIndex > 0)
+		{
+			return this.CheckDictionaryRecursive(theWord, string_index, nextIndex);
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
+_Dictionary.prototype.CheckWord = function(theWord)
+{
+	theWord = theWord.toUpperCase();
+	return this.CheckDictionaryRecursive(theWord, 0, 1);
+}
+
+} // END - with (Scrabble.Core)
+
+return _Dictionary;
+})();
+// END Scrabble.Core.Dictionary ------------------
+//=================================================
+
+
 //=================================================
 // BEGIN Scrabble.Core.Tile ------------------
 if (typeof _OBJECT_ROOT_.Scrabble.Core.Tile == "undefined" || !_OBJECT_ROOT_.Scrabble.Core["Tile"])
@@ -587,7 +777,7 @@ _Board.prototype.CheckDictionary = function()
 			}
 			else
 			{
-				if (word.length <= 1 || !checkDictionary(word))
+				if (word.length <= 1 || !this.Game.Dictionary.CheckWord(word))
 				{
 					for (var i = 0; i < wordSquares.length; i++)
 					{
@@ -625,7 +815,7 @@ _Board.prototype.CheckDictionary = function()
 			}
 			else
 			{
-				if (word.length <= 1 || !checkDictionary(word))
+				if (word.length <= 1 || !this.Game.Dictionary.CheckWord(word))
 				{
 					for (var i = 0; i < wordSquares.length; i++)
 					{
@@ -1432,9 +1622,13 @@ var _Game = function(board, rack)
 	initLetterDistributions_French.apply(this);
 	initLetterDistributions_English.apply(this);
 	
+	this.Dictionary = new Dictionary("DAWG_ODS5_French.dat", this.Board.Dimension, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	
 	this.Language = "French";
 	EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
 }
+
+_Game.prototype.Dictionary = 0;
 
 _Game.prototype.Event_ScrabbleLetterTilesReady = "ScrabbleLetterTilesReady";
 //_Game.prototype.SquaresList = [];
@@ -2626,97 +2820,7 @@ function setBestPlay(value) {
 
 
 
-// DAWG => Directed Acyclic Word Graph
-//http://en.wikipedia.org/wiki/Directed_acyclic_word_graph
-//http://eyes-free.googlecode.com/svn/trunk/ocr/src/com/android/ocr/spellcheck/Lexicon.java
-//http://ngrams.googlelabs.com/datasets
-//http://www.metagrams.com/view.mod/dictionaries.html
-//http://eyes-free.googlecode.com/svn/trunk/ocr/src/com/android/ocr/spellcheck/Lexicon.java
-//http://www.wutka.com/dawg.html
 
-var re = /(,[a-z]+)\+/g;
-var re0 = /(,[a-z])([a-z]*)0/g;
-var re1 = /(,[a-z]{2})([a-z]*)1/g;
-var re2 = /(,[a-z]{3})([a-z]*)2/g;
-var re3 = /(,[a-z]{4})([a-z]*)3/g;
-var re4 = /(,[a-z]{5})([a-z]*)4/g;
-var re5 = /(,[a-z]{6})([a-z]*)5/g;
-var re6 = /(,[a-z]{7})([a-z]*)6/g;
-var re7 = /(,[a-z]{8})([a-z]*)7/g;
-var re8 = /(,[a-z]{9})([a-z]*)8/g;
-var re9 = /(,[a-z]{10})([a-z]*)9/g;
-
-function checkDictionary(theWord)
-{
-	theWord = theWord.toLowerCase();
-	
-	if (theWord.length == 2)
-	{
-		return (D2.indexOf(theWord) != -1);
-	}
-	first3 = theWord.replace(/^(...).*/, "$1");
-	if (typeof(D[first3]) == "undefined")
-	{
-		return false;
-	}
-	var theEntry = D[first3];
-	if (!theEntry.match(/,$/))
-	{
-		// We've not looked at this entry before - uncompress it, etc.
-		theEntry = theEntry.replace(/W/g, "le");
-		theEntry = theEntry.replace(/K/g, "al");
-		theEntry = theEntry.replace(/F/g, "man");
-		theEntry = theEntry.replace(/U/g, "ous");
-		theEntry = theEntry.replace(/M/g, "ment");
-		theEntry = theEntry.replace(/B/g, "able");
-		theEntry = theEntry.replace(/C/g, "ic");
-		theEntry = theEntry.replace(/X/g, "on");
-		theEntry = theEntry.replace(/Q/g, "ng");
-		theEntry = theEntry.replace(/R/g, "ier");
-		theEntry = theEntry.replace(/S/g, "st");
-		theEntry = theEntry.replace(/Y/g, "ly");
-		theEntry = theEntry.replace(/J/g, "ally");
-		theEntry = theEntry.replace(/E/g, "es");
-		theEntry = theEntry.replace(/L/g, "less");
-		theEntry = theEntry.replace(/Z/g, "ies");
-		theEntry = theEntry.replace(/P/g, "tic");
-		theEntry = theEntry.replace(/I/g, "iti");
-		theEntry = theEntry.replace(/V/g, "tion");
-		theEntry = theEntry.replace(/H/g, "zation");
-		theEntry = theEntry.replace(/A/g, "abiliti");
-		theEntry = theEntry.replace(/O/g, "ologi");
-		theEntry = theEntry.replace(/T/g, "est");
-		theEntry = theEntry.replace(/D/g, "ed");
-		theEntry = theEntry.replace(/N/g, "ness");
-		theEntry = theEntry.replace(/G/g, "ing");
-		theEntry = "," + theEntry + ",";
-		// May have prefixes on prefixes, so need to repeat the replace.
-		var more = true;
-		while (more)
-		{
-			var theLength = theEntry.length;
-			theEntry = theEntry.replace(re, "$1$1");
-			theEntry = theEntry.replace(re0, "$1$2$1");
-			theEntry = theEntry.replace(re1, "$1$2$1");
-			theEntry = theEntry.replace(re2, "$1$2$1");
-			theEntry = theEntry.replace(re3, "$1$2$1");
-			theEntry = theEntry.replace(re4, "$1$2$1");
-			theEntry = theEntry.replace(re5, "$1$2$1");
-			theEntry = theEntry.replace(re6, "$1$2$1");
-			theEntry = theEntry.replace(re7, "$1$2$1");
-			theEntry = theEntry.replace(re8, "$1$2$1");
-			theEntry = theEntry.replace(re9, "$1$2$1");
-			more = (theLength != theEntry.length);
-		}
-		if (theEntry.match(/[0-@+]/))
-		{
-			alert("decompression oops!");
-		}
-		D[first3] = theEntry;
-	}
-	rest = theWord.replace(/^...?/, "");
-	return (D[first3].indexOf("," + rest + ",") != -1);
-}
 
 
 

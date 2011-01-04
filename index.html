@@ -44,7 +44,92 @@ lang="en">
 	
 	<script type="text/javascript" src="javascript/jquery-ui-1.8.7.custom.min.js"></script>
 	
-	<script type="text/javascript" src="javascript/dictionary_English.js"></script>
+	<!-- script type="text/javascript" src="javascript/dictionary_English.js"></script -->
+	<!--
+	var re = /(,[a-z]+)\+/g;
+	var re0 = /(,[a-z])([a-z]*)0/g;
+	var re1 = /(,[a-z]{2})([a-z]*)1/g;
+	var re2 = /(,[a-z]{3})([a-z]*)2/g;
+	var re3 = /(,[a-z]{4})([a-z]*)3/g;
+	var re4 = /(,[a-z]{5})([a-z]*)4/g;
+	var re5 = /(,[a-z]{6})([a-z]*)5/g;
+	var re6 = /(,[a-z]{7})([a-z]*)6/g;
+	var re7 = /(,[a-z]{8})([a-z]*)7/g;
+	var re8 = /(,[a-z]{9})([a-z]*)8/g;
+	var re9 = /(,[a-z]{10})([a-z]*)9/g;
+
+	function checkDictionary(theWord)
+	{
+		theWord = theWord.toLowerCase();
+
+		if (theWord.length == 2)
+		{
+			return (D2.indexOf(theWord) != -1);
+		}
+		first3 = theWord.replace(/^(...).*/, "$1");
+		if (typeof(D[first3]) == "undefined")
+		{
+			return false;
+		}
+		var theEntry = D[first3];
+		if (!theEntry.match(/,$/))
+		{
+			// We've not looked at this entry before - uncompress it, etc.
+			theEntry = theEntry.replace(/W/g, "le");
+			theEntry = theEntry.replace(/K/g, "al");
+			theEntry = theEntry.replace(/F/g, "man");
+			theEntry = theEntry.replace(/U/g, "ous");
+			theEntry = theEntry.replace(/M/g, "ment");
+			theEntry = theEntry.replace(/B/g, "able");
+			theEntry = theEntry.replace(/C/g, "ic");
+			theEntry = theEntry.replace(/X/g, "on");
+			theEntry = theEntry.replace(/Q/g, "ng");
+			theEntry = theEntry.replace(/R/g, "ier");
+			theEntry = theEntry.replace(/S/g, "st");
+			theEntry = theEntry.replace(/Y/g, "ly");
+			theEntry = theEntry.replace(/J/g, "ally");
+			theEntry = theEntry.replace(/E/g, "es");
+			theEntry = theEntry.replace(/L/g, "less");
+			theEntry = theEntry.replace(/Z/g, "ies");
+			theEntry = theEntry.replace(/P/g, "tic");
+			theEntry = theEntry.replace(/I/g, "iti");
+			theEntry = theEntry.replace(/V/g, "tion");
+			theEntry = theEntry.replace(/H/g, "zation");
+			theEntry = theEntry.replace(/A/g, "abiliti");
+			theEntry = theEntry.replace(/O/g, "ologi");
+			theEntry = theEntry.replace(/T/g, "est");
+			theEntry = theEntry.replace(/D/g, "ed");
+			theEntry = theEntry.replace(/N/g, "ness");
+			theEntry = theEntry.replace(/G/g, "ing");
+			theEntry = "," + theEntry + ",";
+			// May have prefixes on prefixes, so need to repeat the replace.
+			var more = true;
+			while (more)
+			{
+				var theLength = theEntry.length;
+				theEntry = theEntry.replace(re, "$1$1");
+				theEntry = theEntry.replace(re0, "$1$2$1");
+				theEntry = theEntry.replace(re1, "$1$2$1");
+				theEntry = theEntry.replace(re2, "$1$2$1");
+				theEntry = theEntry.replace(re3, "$1$2$1");
+				theEntry = theEntry.replace(re4, "$1$2$1");
+				theEntry = theEntry.replace(re5, "$1$2$1");
+				theEntry = theEntry.replace(re6, "$1$2$1");
+				theEntry = theEntry.replace(re7, "$1$2$1");
+				theEntry = theEntry.replace(re8, "$1$2$1");
+				theEntry = theEntry.replace(re9, "$1$2$1");
+				more = (theLength != theEntry.length);
+			}
+			if (theEntry.match(/[0-@+]/))
+			{
+				alert("decompression oops!");
+			}
+			D[first3] = theEntry;
+		}
+		rest = theWord.replace(/^...?/, "");
+		return (D[first3].indexOf("," + rest + ",") != -1);
+	}
+	-->
 	
 	<script type="text/javascript" src="javascript/BinFileReader.js"></script>	
 	
@@ -55,112 +140,6 @@ lang="en">
 	
 	<script type="text/javascript">
 	
-	var LETTER_BIT_SHIFT = 25;
-	var LETTER_BIT_MASK = 1040187392;
-	var CHILD_INDEX_BIT_MASK = 33554431;
-	var END_OF_WORD_BIT_MASK = 2147483648;
-	var END_OF_LIST_BIT_MASK = 1073741824;
-	var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	
-	var DAWGReader = new BinFileReader("DAWG_ODS5_French.dat");
-	DAWGReader.movePointerTo(0);
-	var NumberOfNodes = DAWGReader.readNumber(4);
-	alert("NumberOfNodes: " + NumberOfNodes);
-	
-	function DAWG_Letter(dataIndex)
-	{
-		var byteOffset = 4 * dataIndex + 4;
-		DAWGReader.movePointerTo(byteOffset);
-		
-		var alphabetPos = ((DAWGReader.readNumber(4) & LETTER_BIT_MASK) >> LETTER_BIT_SHIFT);
-		var letter = alphabet.substring(alphabetPos, alphabetPos+1);
-		return letter;
-	}
-	function DAWG_IsEndOfWord(dataIndex)
-	{
-		var byteOffset = 4 * dataIndex + 4;
-		DAWGReader.movePointerTo(byteOffset);
-	
-		var val = (DAWGReader.readNumber(4) & END_OF_WORD_BIT_MASK);
-		return val == 0 ? false : true;
-	}
-	function DAWG_NextIndex(dataIndex)
-	{
-		var byteOffset = 4 * dataIndex + 4;
-		DAWGReader.movePointerTo(byteOffset);
-		
-		var val = (DAWGReader.readNumber(4) & END_OF_LIST_BIT_MASK);
-		return val == 0 ? (dataIndex + 1) : 0;
-	}
-	function DAWG_ChildIndex(dataIndex)
-	{
-		var byteOffset = 4 * dataIndex + 4;
-		DAWGReader.movePointerTo(byteOffset);
-		
-		var val = (DAWGReader.readNumber(4) & CHILD_INDEX_BIT_MASK);
-		return val;
-	}
-	alert("DAWG_Letter(0): " + DAWG_Letter(0));
-	
-	var iterations = 0;
-	var wordCount = 0;
-	var currentString = [];
-	for (var i = 0; i < 20; i++)
-	{
-		currentString.push(i + "");
-	}
-	alert(currentString);
-	
-	function DAWG_ParseRecursive(dawg_index, string_index)
-	{
-		iterations++;
-		if (iterations > 50)
-		{
-			alert("max iterations");
-			return;
-		}
-		
-		var letter = DAWG_Letter(dawg_index);
-		//alert("letter: " + letter);
-		
-		currentString[string_index] = letter;
-		
-		if (DAWG_IsEndOfWord(dawg_index))
-		{
-			wordCount++;
-			
-			var string = "";
-			for (var i = 0; i <= string_index; i++)
-			{
-				string += currentString[i];
-			}
-			
-			alert("Full word (" + wordCount + "): " + string);
-
-			if (wordCount > 10)
-			{
-				alert("max words");
-				return;
-			}
-		}
-		
-		var childIndex = DAWG_ChildIndex(dawg_index);
-		//alert("DAWG_ChildIndex: " + childIndex);
-		if (childIndex > 0)
-		{
-			DAWG_ParseRecursive(childIndex, string_index+1);
-		}
-		
-		var nextIndex = DAWG_NextIndex(dawg_index);
-		//alert("DAWG_NextIndex: " + nextIndex);
-		if (nextIndex > 0)
-		{
-			DAWG_ParseRecursive(nextIndex, string_index);
-		}
-	}
-	
-	DAWG_ParseRecursive(0, 0);
-
 	var game = 0;
 	var board = 0;
 	var rack = 0;
@@ -332,6 +311,11 @@ lang="en">
 		//rack.GenerateRandomTiles();
 		
 		$(document).ready(function(){
+			
+			//DAWG_ParseRecursive(1, 0);
+			//alert(DAWG_CheckDictionary("abAndonS"));
+
+
 		/*
 				$('.drag')
 					.drag("start",function( ev, dd ){
@@ -428,6 +412,8 @@ lang="en">
 <div id="title">
 <span>ELBBARCS</span>
 </div>
+
+<div id="words"></div>
 
 <p>
 	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
