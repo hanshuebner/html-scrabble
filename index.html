@@ -186,6 +186,82 @@ lang="en">
 		$("#text_field").val("");
 	}
 	
+	function findAnagrams()
+	{
+		var text = $("#text_field").val();
+		var anagrams = game.Dictionary.FindAnagrams(text);
+		if (anagrams.length == 1)
+		{
+			alert("Error: the characters [" + anagrams[0] + "] do not return any anagrams from the \"" + game.Language + "\" dictionary.");
+		}
+		else
+		{
+			//alert("Success: the characters [" + anagrams[0] + "] return " + (anagrams.length-1) + " anagrams from the \"" + game.Language + "\" dictionary.");
+			
+			$('#anagrams').html('<p><input type="button" value="Clear Anagrams" onclick="$(\'#anagrams\').html(\'\');"></input></p>');
+			
+			/*
+			for (var i = 1; i < anagrams.length; i++)
+			{
+				$('#anagrams').append('<p>' + anagrams[i] + '</p>');
+			}
+			*/
+			
+			var wordsByLength = [];
+			for (var i = 0; i < game.Dictionary.MaxWordLength; i++)
+			{
+				wordsByLength.push([]);
+			}
+			
+			for (var i = 1; i < anagrams.length; i++)
+			{
+				var word = anagrams[i];
+				wordsByLength[word.length].push(word);
+			}
+			
+			var charInput = anagrams[0];
+			
+			var table = "<table>";
+			
+			for (var i = game.Dictionary.MaxWordLength - 1; i >= 2 ; i--)
+			{
+				var words = wordsByLength[i];
+				
+				if (words.length <= 0) continue;
+				
+				table += "<tr>";
+				
+				if (charInput.length == i)
+				{
+					table += "<th>[" + i + "]</th>";
+				}
+				else
+				{
+					table += "<th>" + i + "</th>";
+				}
+				
+				table += "<td>";
+				
+				for (var j = 0; j < words.length; j++)
+				{
+					var word = words[j];
+					table += word;
+					if (j < (words.length - 1))
+					{
+						table += " - ";
+					}
+				}
+				
+				table += "</td>";
+				table += "<tr>";
+			}
+			
+			table += "</table>";
+			
+			$('#anagrams').append(table);
+		}
+	}
+	
 	function checkWord()
 	{
 		var text = $("#text_field").val();
@@ -277,23 +353,15 @@ lang="en">
 		board.GenerateRandomTiles();
 	}
 	
-	function placeTiles_French()
+	function setLanguage(lang)
 	{
-		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
-		//boardUI.CurrentlySelectedSquare = 0;
-		
-		game.SetLanguage("French");
-		
-		board.GenerateTilesLetterDistribution();
-		//rack.GenerateRandomTiles();
+		game.SetLanguage(lang);
 	}
-
-	function placeTiles_English()
+	
+	function placeTileSet()
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
-		
-		game.SetLanguage("English");
 		
 		board.GenerateTilesLetterDistribution();
 		//rack.GenerateRandomTiles();
@@ -470,36 +538,47 @@ lang="en">
 <span>ELBBARCS</span>
 </div>
 
+<div style="background-color: black; padding: 1em;">
 
 <p>
 Language:&nbsp;
 <span id="language">
 </span>&nbsp;
-	<input type="submit" onclick="placeTiles_French();" value="Set to French"></input>
-	<input type="submit" onclick="placeTiles_English();" value="Set to English"></input>
-	<input type="submit" onclick="verifyBoard();" value="Verify placed words"></input>
-</p>
-<p>
-	<input id="text_field" type="text" onmousedown="resetTextField();" value="[type word here]" size="15" style="width: 30em"></input>
-	<input type="submit" onclick="checkWord();" value="Check dictionary"></input>
+	<input type="submit" onclick="setLanguage('French');" value="French"></input>
+	<input type="submit" onclick="setLanguage('English');" value="English"></input>
 </p>
 
 <p>
+	<input id="text_field" type="text" onmousedown="resetTextField();" value="[type word here]" size="15" style="width: 25em"></input>
+	<input type="submit" onclick="checkWord();" value="Check dictionary"></input>
+	<input type="submit" onclick="findAnagrams();" value="Find anagrams"></input>
+</p>
+	<div id="anagrams" class="tableDivWrap"></div>
+</div>
+
+<p>
 	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
+</p>
+<p>
 	<input type="submit" onclick="replenishRack();" value="Replenish rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Rack();" value="Randomize rack"></input>
+</p>
+<p>
 	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
+	<input type="submit" onclick="placeTileSet();" value="Display entire tile set"></input>
 </p>
 
 <div id="rack" class="tableDivWrap bottomShade"></div>
 
-<p>
+<!-- p>
 	<input type="submit" onclick="playAction_resetTilesOnRack();" value="Take tiles back"></input>
-	<!-- input type="submit" onclick="playAction_submitWords();" value="Submit word(s)"></input>
+	<input type="submit" onclick="playAction_submitWords();" value="Submit word(s)"></input>
 	<input type="submit" onclick="playAction_drawNewTiles();" value="Draw new tiles (pass turn)"></input>
-	<input type="submit" onclick="playAction_passTurn();" value="Pass turn"></input -->
+	<input type="submit" onclick="playAction_passTurn();" value="Pass turn"></input>
+</p -->
+<p>
+	<input type="submit" onclick="verifyBoard();" value="Verify board"></input>
 </p>
-
 <div id="board" class="tableDivWrap surroundShade"></div>
 
 <div id="letters" class="tableDivWrap" style="display:none;"></div>

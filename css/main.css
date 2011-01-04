@@ -111,7 +111,7 @@ padding: 0;
 border: none;
 }
 
-div.tableDivWrap td
+div.tableDivWrap td, div.tableDivWrap th
 {
 margin: 0;
 padding: 0; /* table 'cellpadding' */
@@ -471,6 +471,22 @@ div.tableDivWrap td.ValidButWrongPlacement
 border-style: solid;
 border-color: orange;
 background-color: orange;
+}
+
+div#anagrams table
+{
+width: 80%;
+}
+
+div#anagrams td, div#anagrams th
+{
+margin: 0;
+padding: 1em; /* table 'cellpadding' */
+}
+
+div#anagrams th
+{
+border: none;
 }
 
 /*
