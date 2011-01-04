@@ -1622,10 +1622,7 @@ var _Game = function(board, rack)
 	initLetterDistributions_French.apply(this);
 	initLetterDistributions_English.apply(this);
 	
-	this.Dictionary = new Dictionary("DAWG_ODS5_French.dat", this.Board.Dimension, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	
-	this.Language = "French";
-	EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
+	this.SetLanguage("French");
 }
 
 _Game.prototype.Dictionary = 0;
@@ -1642,6 +1639,29 @@ _Game.prototype.SquareBlankLetterInWaitingBoard = 0;
 _Game.prototype.SquareBlankLetterInWaitingRack = 0;
 
 _Game.prototype.Language = "";
+
+
+_Game.prototype.SetLanguage = function(language)
+{
+	if (language == "French")
+	{
+		this.Language = language;
+		EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
+		
+		this.Dictionary = new Dictionary("DAWG_ODS5_French.dat", this.Board.Dimension, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	}
+	else if (language == "English")
+	{
+		this.Language = language;
+		EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
+		
+		this.Dictionary = new Dictionary("DAWG_SOWPODS_English.dat", this.Board.Dimension, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	}
+	else
+	{
+		throw new Error("Unsupported language: " + language);
+	}
+}
 
 _Game.prototype.MoveTile = function(tileXY, squareXY)
 {
@@ -2722,6 +2742,8 @@ var _Html = function()
 		{
 			thiz.Game = eventPayload.Game;
 			DrawHtmlTable_LetterTiles(thiz, eventPayload.Game);
+			
+			$('#language').html(thiz.Game.Language.toUpperCase());
 		};
 
 	EventsManager.AddEventListener(Game.prototype.Event_ScrabbleLetterTilesReady, callback_ScrabbleLetterTilesReady);

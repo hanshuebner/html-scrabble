@@ -262,8 +262,8 @@ lang="en">
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
-		game.Language = "French";
-		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
+		
+		game.SetLanguage("French");
 		
 		board.GenerateTilesLetterDistribution();
 		//rack.GenerateRandomTiles();
@@ -273,8 +273,8 @@ lang="en">
 	{
 		boardUI.SetCurrentlySelectedSquareUpdateTargets(0);
 		//boardUI.CurrentlySelectedSquare = 0;
-		game.Language = "English";
-		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
+		
+		game.SetLanguage("English");
 		
 		board.GenerateTilesLetterDistribution();
 		//rack.GenerateRandomTiles();
@@ -294,8 +294,6 @@ lang="en">
 		rack = new window.Scrabble.Core.Rack();
 
 		game = new window.Scrabble.Core.Game(board, rack);
-		game.Language = "French";
-		EventsManager.DispatchEvent(Scrabble.Core.Game.prototype.Event_ScrabbleLetterTilesReady, { 'Game': game });
 		
 		/*
 		if (false)
@@ -413,25 +411,30 @@ lang="en">
 <span>ELBBARCS</span>
 </div>
 
-<div id="words"></div>
+
+<p>
+Language:&nbsp;
+<span id="language">
+</span>&nbsp;
+	<input type="submit" onclick="placeTiles_French();" value="Set to French"></input>
+	<input type="submit" onclick="placeTiles_English();" value="Set to English"></input>
+	<input type="submit" onclick="checkDictionary();" value="Check placed words"></input>
+</p>
 
 <p>
 	<input type="submit" onclick="emptyBoardAndRack();" value="Empty board and rack"></input>
 	<input type="submit" onclick="replenishRack();" value="Replenish rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Rack();" value="Randomize rack"></input>
 	<input type="submit" onclick="placeRandomTiles_Board();" value="Randomize board"></input>
-	<input type="submit" onclick="placeTiles_French();" value="Show French tile set"></input>
-	<input type="submit" onclick="placeTiles_English();" value="Show English tile set"></input>
 </p>
 
 <div id="rack" class="tableDivWrap bottomShade"></div>
 
 <p>
 	<input type="submit" onclick="playAction_resetTilesOnRack();" value="Take tiles back"></input>
-	<input type="submit" onclick="checkDictionary();" value="Check dictionary"></input>
-	<input type="submit" onclick="playAction_submitWords();" value="Submit word(s)"></input>
+	<!-- input type="submit" onclick="playAction_submitWords();" value="Submit word(s)"></input>
 	<input type="submit" onclick="playAction_drawNewTiles();" value="Draw new tiles (pass turn)"></input>
-	<input type="submit" onclick="playAction_passTurn();" value="Pass turn"></input>
+	<input type="submit" onclick="playAction_passTurn();" value="Pass turn"></input -->
 </p>
 
 <div id="board" class="tableDivWrap surroundShade"></div>
