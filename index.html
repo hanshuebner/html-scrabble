@@ -181,7 +181,26 @@ lang="en">
 		//TODO: pass
 	}
 	
-	function checkDictionary()
+	function resetTextField()
+	{
+		$("#text_field").val("");
+	}
+	
+	function checkWord()
+	{
+		var text = $("#text_field").val();
+		var ok = game.Dictionary.CheckWord(text);
+		if (ok)
+		{
+			alert("Success: [" + text + "] is in the \"" + game.Language + "\" dictionary.");
+		}
+		else
+		{
+			alert("Error: [" + text + "] is not in the \"" + game.Language + "\" dictionary.");
+		}
+	}
+	
+	function verifyBoard()
 	{
 		boardUI.CleanupErrorLayer();
 		
@@ -192,7 +211,7 @@ lang="en">
 			Scrabble.UI.Html.prototype.OnUnblockUIFunction = function() { boardUI.CleanupErrorLayer(); };
 			
 			$.blockUI({
-				message: "<p>Invalid words !</p><input type=\"submit\" value=\"Return\" onclick=\"boardUI.UnblockUIFunction();\"></input>",
+				message: "<p>Invalid words or tile placement !</p><input type=\"submit\" value=\"Return\" onclick=\"boardUI.UnblockUIFunction();\"></input>",
 				focusInput: true,
 				bindEvents: true,
 				constrainTabKey: true,
@@ -310,9 +329,49 @@ lang="en">
 		
 		$(document).ready(function(){
 			
-			//DAWG_ParseRecursive(1, 0);
-			//alert(DAWG_CheckDictionary("abAndonS"));
+							/*
+								$(this).animate({left: "+=200px", width:320 }, 1500, function() {
 
+										$(this).animate({left: "-=200px", width:280 }, 1500, function() {
+
+										});
+									});
+									*/
+			//$("#board").fadeOut();
+								//	table.fadeIn("fast");
+								//		table.animate({rotate: '+=45deg'});
+
+
+			var obj = $("#title");
+
+			//obj.effect("pulsate", { times:2 }, 500);
+
+			//obj.css({opacity: 0.5});
+			//obj.scale(0.5);
+
+			//obj.animate({opacity: 1}, 500);
+
+		//obj.show("clip", {}, 500);
+
+		//obj.effect("transfer", { to: $("#title") }, 1000);
+
+		//obj.effect("bounce", { times: 3, direction: "right" }, 500);
+
+			obj.rotate3Di(360, 1000,
+			        {
+			            sideChange: function(front) {
+						    if (front) {
+						        //
+						    } else {
+			//			        obj.animate({scale: 1}, 500);
+						    }
+						}
+						,
+			            complete: function() {
+						    //
+						}
+			        }
+			    );
 
 		/*
 				$('.drag')
@@ -418,7 +477,11 @@ Language:&nbsp;
 </span>&nbsp;
 	<input type="submit" onclick="placeTiles_French();" value="Set to French"></input>
 	<input type="submit" onclick="placeTiles_English();" value="Set to English"></input>
-	<input type="submit" onclick="checkDictionary();" value="Check placed words"></input>
+	<input type="submit" onclick="verifyBoard();" value="Verify placed words"></input>
+</p>
+<p>
+	<input id="text_field" type="text" onmousedown="resetTextField();" value="[type word here]" size="15" style="width: 30em"></input>
+	<input type="submit" onclick="checkWord();" value="Check dictionary"></input>
 </p>
 
 <p>

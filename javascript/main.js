@@ -1108,51 +1108,6 @@ _Board.prototype.GenerateRandomTiles = function()
 			}
 		}
 	}
-	
-					/*
-						$(this).animate({left: "+=200px", width:320 }, 1500, function() {
-
-								$(this).animate({left: "-=200px", width:280 }, 1500, function() {
-
-								});
-							});
-							*/
-	//$("#board").fadeOut();
-						//	table.fadeIn("fast");
-						//		table.animate({rotate: '+=45deg'});
-	
-	
-	var obj = $("#title");
-
-	//obj.effect("pulsate", { times:2 }, 500);
-
-	//obj.css({opacity: 0.5});
-	//obj.scale(0.5);
-
-	//obj.animate({opacity: 1}, 500);
-
-//obj.show("clip", {}, 500);
-
-//obj.effect("transfer", { to: $("#title") }, 1000);
-
-//obj.effect("bounce", { times: 3, direction: "right" }, 500);
-
-	obj.rotate3Di(360, 1000,
-	        {
-	            sideChange: function(front) {
-				    if (front) {
-				        //
-				    } else {
-	//			        obj.animate({scale: 1}, 500);
-				    }
-				}
-				,
-	            complete: function() {
-				    //
-				}
-	        }
-	    );
-
 }
 
 
@@ -2690,12 +2645,12 @@ var _Html = function()
 	
 	if (document.all)
 	{
-		document.attachEvent("onkeypress", handleKeypress);
+		//document.attachEvent("onkeypress", handleKeypress);
 		document.attachEvent("onkeyup", handleKeyup);
 	}
 	else
 	{
-		document.onkeypress = handleKeypress;
+		//document.onkeypress = handleKeypress;
 		document.onkeyup = handleKeyup;
 	}
 	
