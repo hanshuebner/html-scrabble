@@ -24,7 +24,7 @@ text-align: center;
 
 background: #333333;
 /* url('../images/Background.png') repeat left top; */
-background: url(images/wood.jpg);
+background: url('../images/wood.jpg');
 
 color: #FDFDF6;
 }
