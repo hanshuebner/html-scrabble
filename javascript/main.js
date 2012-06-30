@@ -1201,12 +1201,10 @@ function UI() {
 	    
 	    var doneOnce = false;
 	    
-	    $(div).draggable({ //"#rack .Tile"
+	    $(div).draggable({
 		revert: "invalid",
-		//cursor: "move",
 		opacity: 1,
 		helper: "clone",
-		//snap: ".Empty",
 		start: function(event, ui) {
 		    PlayAudio("audio3");
 		    
@@ -1231,8 +1229,6 @@ function UI() {
 			
 			doneOnce = true;
 		    }
-		    
-		    //$(ui.helper).css({"color": "#333333 !important"});
 		},
 		stop: function(event, ui) {
 		    $(this).css({ opacity: 1 });
