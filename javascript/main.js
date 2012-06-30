@@ -337,7 +337,10 @@ Square.prototype.toString = function() {
 }
 
 function Board() {
-    this.SquaresList = [];
+    this.Squares = new Array(this.Dimension);
+    for (var i = 0; i < this.Dimension; i++) {
+        this.Squares[i] = new Array(this.Dimension);
+    }
     this.Game = null;
 
     for (var y = 0; y < this.Dimension; y++) {
@@ -376,7 +379,7 @@ function Board() {
 
 	    square.X = x;
 	    square.Y = y;
-	    this.SquaresList.push(square);
+	    this.Squares[x][y] = square;
 	}
     }
     
@@ -390,7 +393,7 @@ Board.prototype.RemoveFreeTiles = function() {
     
     for (var y = 0; y < this.Dimension; y++) {
 	for (var x = 0; x < this.Dimension; x++) {
-	    var square = this.SquaresList[x + this.Dimension * y];
+	    var square = this.Squares[x][y];
 	    
 	    if (square.Tile && !square.Tile.Locked) {
 		tiles.push(square.Tile);
@@ -408,7 +411,7 @@ Board.prototype.RemoveFreeTiles = function() {
 Board.prototype.EmptyTiles = function() {
     for (var y = 0; y < this.Dimension; y++) {
 	for (var x = 0; x < this.Dimension; x++) {
-	    var square = this.SquaresList[x + this.Dimension * y];
+	    var square = this.Squares[x][y];
 	    
 	    square.PlaceTile(null, false);
 	    
@@ -426,8 +429,8 @@ Board.prototype.MoveTile = function(tileXY, squareXY) {
 	return;
     }
     
-    var square1 = this.SquaresList[tileXY.x + this.Dimension * tileXY.y];
-    var square2 = this.SquaresList[squareXY.x + this.Dimension * squareXY.y];
+    var square1 = this.Squares[tileXY.x][tileXY.y];
+    var square2 = this.Squares[squareXY.x][squareXY.y];
 
     var tile = square1.Tile;
     square1.PlaceTile(null, false);
@@ -445,14 +448,14 @@ Board.prototype.toString = function() {
 
 function Rack () {
     this.Dimension = 8;
-    this.SquaresList = [];
+    this.Squares = [];
     this.Game = null;
 
     for (var x = 0; x < this.Dimension; x++) {
 	var square = new Square(SquareType.Normal);
 	square.X = x;
 	square.Y = -1;
-	this.SquaresList.push(square);
+	this.Squares[x] = square;
     }
     
     EventsManager.DispatchEvent('ScrabbleRackReady', { 'Rack': this });
@@ -461,7 +464,7 @@ function Rack () {
 Rack.prototype.TakeTilesBack = function() {
     var freeTilesCount = 0;
     for (var x = 0; x < this.Dimension; x++) {
-	var square = this.SquaresList[x];
+	var square = this.Squares[x];
 	if (!square.Tile) {
 	    freeTilesCount++;
 	}
@@ -479,7 +482,7 @@ Rack.prototype.TakeTilesBack = function() {
     
     for (var i = 0; i < count; i++) {
 	for (var x = 0; x < this.Dimension; x++) {
-	    var square = this.SquaresList[x];
+	    var square = this.Squares[x];
 	    if (!square.Tile) {
 		square.PlaceTile(tiles[i], false);
 
@@ -493,7 +496,7 @@ Rack.prototype.TakeTilesBack = function() {
 
 Rack.prototype.EmptyTiles = function() {
     for (var x = 0; x < this.Dimension; x++) {
-	var square = this.SquaresList[x];
+	var square = this.Squares[x];
 	
 	square.PlaceTile(null, false);
 
@@ -510,8 +513,8 @@ Rack.prototype.MoveTile = function(tileXY, squareXY) {
 	return;
     }
     
-    var square1 = this.SquaresList[tileXY.x];
-    var square2 = this.SquaresList[squareXY.x];
+    var square1 = this.Squares[tileXY.x];
+    var square2 = this.Squares[squareXY.x];
 
     var tile = square1.Tile;
     square1.PlaceTile(null, false);
@@ -526,7 +529,7 @@ Rack.prototype.MoveTile = function(tileXY, squareXY) {
 Rack.prototype.ReplenishRandomTiles = function() {
     var existingTiles = [];
     for (var x = 0; x < this.Dimension; x++) {
-	var square = this.SquaresList[x];
+	var square = this.Squares[x];
 	if (square.Tile) {
 	    existingTiles.push(square.Tile);
 	}
@@ -535,13 +538,13 @@ Rack.prototype.ReplenishRandomTiles = function() {
     this.EmptyTiles();
     
     for (var x = 0; x < existingTiles.length; x++) {
-	var square = this.SquaresList[x];
+	var square = this.Squares[x];
 	square.PlaceTile(existingTiles[x], false);
 	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
     
     for (var x = existingTiles.length; x < (this.Dimension-1); x++) {
-	var square = this.SquaresList[x];
+	var square = this.Squares[x];
 	
 	var tile = this.Game.LetterBag.GetRandomTile();
 	if (!tile) return;
@@ -556,7 +559,7 @@ Rack.prototype.GenerateRandomTiles = function() {
     rack.EmptyTiles();
 
     for (var x = 0; x < (this.Dimension - 1); x++) {
-	var square = this.SquaresList[x];
+	var square = this.Squares[x];
 	
 	var tile = this.Game.LetterBag.GetRandomTile();
 	if (!tile) return;
@@ -566,7 +569,7 @@ Rack.prototype.GenerateRandomTiles = function() {
 	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
     
-    var square = this.SquaresList[this.Dimension - 1];
+    var square = this.Squares[this.Dimension - 1];
     if (square.Tile) {
 	square.PlaceTile(null, false);
 	
@@ -661,8 +664,8 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 
     // RACK to BOARD
     if (tileXY.y == -1) {
-	var square1 = this.Rack.SquaresList[tileXY.x];
-	var square2 = this.Board.SquaresList[squareXY.x + this.Board.Dimension * squareXY.y];
+	var square1 = this.Rack.Squares[tileXY.x];
+	var square2 = this.Board.Squares[squareXY.x][squareXY.y];
 	
 	var tile = square1.Tile;
 	square1.PlaceTile(null, false);
@@ -678,8 +681,8 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 
     // BOARD to RACK
     if (squareXY.y == -1) {
-	var square1 = this.Board.SquaresList[tileXY.x + this.Board.Dimension * tileXY.y];
-	var square2 = this.Rack.SquaresList[squareXY.x];
+	var square1 = this.Board.Squares[tileXY.x][tileXY.y];
+	var square2 = this.Rack.Squares[squareXY.x];
 	
 	var tile = square1.Tile;
 	square1.PlaceTile(null, false);
@@ -770,7 +773,7 @@ function UI() {
 			
 			PlayAudio("audio3");
 			
-			html.SetCurrentlySelectedSquareUpdateTargets(board.SquaresList[x1 + board.Dimension * y1]);
+			html.SetCurrentlySelectedSquareUpdateTargets(board.Squares[x1][y1]);
 			//html.CurrentlySelectedSquare = ;
 			
 			$(this).addClass("Selected");
@@ -991,7 +994,7 @@ function UI() {
 	    table.appendChild(tr);
 	    
 	    for (var x = 0; x < board.Dimension; x++) {
-		var square = board.SquaresList[x + board.Dimension * y];
+		var square = board.Squares[x][y];
 
 		var centerStart = false;
 		
@@ -1077,7 +1080,7 @@ function UI() {
 		    
 		    PlayAudio("audio3");
 		    
-		    html.SetCurrentlySelectedSquareUpdateTargets(rack.SquaresList[x1]);
+		    html.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
 		    
 		    $(this).addClass("Selected");
 		    
@@ -1234,7 +1237,7 @@ function UI() {
 	table.appendChild(tr);
 
 	for (var x = 0; x < rack.Dimension; x++) {
-	    var square = rack.SquaresList[x];
+	    var square = rack.Squares[x];
 
 	    var td = document.createElement('td');
 	    tr.appendChild(td);
@@ -1384,7 +1387,7 @@ function UI() {
     this.CleanupErrorLayer = function() {
         for (var y = 0; y < this.Board.Dimension; y++) {
 	    for (var x = 0; x < this.Board.Dimension; x++) {
-	        var square = this.Board.SquaresList[x + this.Board.Dimension * y];
+	        var square = this.Board.Squares[x][y];
 	        var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
 	        var td = document.getElementById(id).parentNode;
 	        $(td).removeClass("Invalid");
@@ -1509,7 +1512,7 @@ UI.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square) {
     
     for (var y = 0; y < this.Board.Dimension; y++) {
 	for (var x = 0; x < this.Board.Dimension; x++) {
-	    var squareTarget = this.Board.SquaresList[x + this.Board.Dimension * y];
+	    var squareTarget = this.Board.Squares[x][y];
 	    if (!squareTarget.Tile) {
 		var idSelected = IDPrefix_Board_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
 		var divz = document.getElementById(idSelected);
@@ -1523,7 +1526,7 @@ UI.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square) {
     }
     
     for (var x = 0; x < this.Rack.Dimension; x++) {
-	var squareTarget = this.Rack.SquaresList[x];
+	var squareTarget = this.Rack.Squares[x];
 	if (!squareTarget.Tile) {
 	    var idSelected = IDPrefix_Rack_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
 	    var divz = document.getElementById(idSelected);
