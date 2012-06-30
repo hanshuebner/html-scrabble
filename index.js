@@ -12,4 +12,5 @@ $(document).ready(function() {
 
     game = new window.Scrabble.Core.Game(board, rack);
 
+    rack.GenerateRandomTiles();
 });
