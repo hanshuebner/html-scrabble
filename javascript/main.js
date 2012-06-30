@@ -878,20 +878,13 @@ function UI() {
 			}
 		    }
 		);
-		$(div).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
-		    function () {
-			//$(this).css({'border' : '0.35em outset #FFF8C6'});
-		    }
-		);
 		
 		var doneOnce = false;
 		
-		$(div).draggable({ //"#board .Tile"
+		$(div).draggable({
 		    revert: "invalid",
-		    //cursor: "move",
 		    opacity: 1,
 		    helper: "clone",
-		    //snap: ".Empty",
 		    start: function(event, ui) {
 			PlayAudio("audio3");
 			
@@ -1159,7 +1152,6 @@ function UI() {
 		    
 		    $(this).addClass("Selected");
 		    
-		    //Letter == Tile.prototype.BlankLetter
 		    if (square.Tile.IsBlank) {
 			board.Game.SquareBlankLetterInWaitingBoard = null;
 			board.Game.SquareBlankLetterInWaitingRack = square;
@@ -1193,12 +1185,7 @@ function UI() {
 		    }
 		}
 	    );
-	    $(div).mousedown( // hack needed to make the clone drag'n'drop work correctly. Damn, it breaks CSS hover !! :(
-		function () {
-		    //$(this).css({'border' : '0.35em outset #FFF8C6'});
-		}
-	    );
-	    
+
 	    var doneOnce = false;
 	    
 	    $(div).draggable({
@@ -1217,7 +1204,7 @@ function UI() {
 		    
 		    $(this).css({ opacity: 0.5 });
 		    
-		    $(ui.helper).animate({'font-size' : '120%'}, 300); //height : '+=10px', width : '+=10px', 
+		    $(ui.helper).animate({'font-size' : '120%'}, 300);
 		    
 		    $(ui.helper).addClass("dragBorder");
 		    
