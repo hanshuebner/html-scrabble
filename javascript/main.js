@@ -1411,7 +1411,6 @@ function UI() {
 
         // ESC key
         if (key == 27) {
-	    //document.getElementById('cancelBlockUi').click();
 	    UI.prototype.UnblockUIFunction();
             //TODO: move all temp tiles from board back to rack ?
         }
