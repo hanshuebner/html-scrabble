@@ -36,6 +36,113 @@
   http://code.google.com/p/scrabbly/source/browse/trunk/scrabble.js
 */
 
+var languages = {
+    'English':  [ { Letter: null, Score: 0, Count: 2},
+		  
+		  { Letter: "E", Score: 1, Count: 12},
+		  { Letter: "A", Score: 1, Count: 9},
+		  { Letter: "I", Score: 1, Count: 9},
+		  { Letter: "O", Score: 1, Count: 8},
+		  { Letter: "N", Score: 1, Count: 6},
+		  { Letter: "R", Score: 1, Count: 6},
+		  { Letter: "T", Score: 1, Count: 6},
+		  { Letter: "L", Score: 1, Count: 4},
+		  { Letter: "S", Score: 1, Count: 4},
+		  { Letter: "U", Score: 1, Count: 4},
+		  
+		  { Letter: "D", Score: 2, Count: 4},
+		  { Letter: "G", Score: 2, Count: 3},
+		  
+		  { Letter: "B", Score: 3, Count: 2},
+		  { Letter: "C", Score: 3, Count: 2},
+		  { Letter: "M", Score: 3, Count: 2},
+		  { Letter: "P", Score: 3, Count: 2},
+		  
+		  { Letter: "F", Score: 4, Count: 2},
+		  { Letter: "H", Score: 4, Count: 2},
+		  { Letter: "V", Score: 4, Count: 2},
+		  { Letter: "W", Score: 4, Count: 2},
+		  { Letter: "Y", Score: 4, Count: 2},
+		  
+		  { Letter: "K", Score: 5, Count: 1},
+		  
+		  { Letter: "J", Score: 8, Count: 1},
+		  { Letter: "X", Score: 8, Count: 1},
+		  
+		  { Letter: "Q", Score: 10, Count: 1},
+		  { Letter: "Z", Score: 10, Count: 1}],
+    'French': [ { Letter: null, Score: 0, Count: 2},
+		
+		{ Letter: "E", Score: 1, Count: 15},
+		{ Letter: "A", Score: 1, Count: 9},
+		{ Letter: "I", Score: 1, Count: 8},
+		{ Letter: "N", Score: 1, Count: 6},
+		{ Letter: "O", Score: 1, Count: 6},
+		{ Letter: "R", Score: 1, Count: 6},
+		{ Letter: "S", Score: 1, Count: 6},
+		{ Letter: "T", Score: 1, Count: 6},
+		{ Letter: "U", Score: 1, Count: 6},
+		{ Letter: "L", Score: 1, Count: 5},
+		
+		{ Letter: "D", Score: 2, Count: 3},
+		{ Letter: "G", Score: 2, Count: 2},
+		{ Letter: "M", Score: 3, Count: 3},
+		
+		{ Letter: "B", Score: 3, Count: 2},
+		{ Letter: "C", Score: 3, Count: 2},
+		{ Letter: "P", Score: 3, Count: 2},
+		
+		{ Letter: "F", Score: 4, Count: 2},
+		{ Letter: "H", Score: 4, Count: 2},
+		{ Letter: "V", Score: 4, Count: 2},
+		
+		{ Letter: "J", Score: 8, Count: 1},
+		{ Letter: "Q", Score: 8, Count: 1},
+
+		{ Letter: "K", Score: 10, Count: 1},
+		{ Letter: "W", Score: 10, Count: 1},
+		{ Letter: "X", Score: 10, Count: 1},
+		{ Letter: "Y", Score: 10, Count: 1},
+		{ Letter: "Z", Score: 10, Count: 1}
+	      ],
+    'German': [ { Letter: null, Score: 0, Count: 2},
+		
+		{ Letter: "E", Score: 1, Count: 15},
+		{ Letter: "N", Score: 1, Count: 9},
+		{ Letter: "S", Score: 1, Count: 7},
+		{ Letter: "I", Score: 1, Count: 6},
+		{ Letter: "R", Score: 1, Count: 6},
+		{ Letter: "T", Score: 1, Count: 6},
+		{ Letter: "U", Score: 1, Count: 6},
+		{ Letter: "A", Score: 1, Count: 5},
+		{ Letter: "D", Score: 1, Count: 4},
+		
+		{ Letter: "H", Score: 2, Count: 4},
+		{ Letter: "G", Score: 2, Count: 3},
+		{ Letter: "L", Score: 2, Count: 3},
+		{ Letter: "O", Score: 2, Count: 3},
+
+		{ Letter: "M", Score: 3, Count: 4},
+		{ Letter: "B", Score: 3, Count: 2},
+		{ Letter: "W", Score: 3, Count: 1},
+		{ Letter: "Z", Score: 3, Count: 1},
+		
+		{ Letter: "C", Score: 4, Count: 2},
+		{ Letter: "F", Score: 4, Count: 2},
+		{ Letter: "K", Score: 4, Count: 2},
+		{ Letter: "P", Score: 4, Count: 1},
+		
+		{ Letter: "Ä", Score: 6, Count: 1},
+		{ Letter: "J", Score: 6, Count: 1},
+		{ Letter: "Ü", Score: 6, Count: 1},
+		{ Letter: "V", Score: 6, Count: 1},
+
+		{ Letter: "Ö", Score: 8, Count: 1},
+		{ Letter: "X", Score: 8, Count: 1},
+
+		{ Letter: "Q", Score: 10, Count: 1},
+		{ Letter: "Y", Score: 10, Count: 1}]};
+
 function type_of(obj) {
     if (typeof(obj) == 'object')
 	if (typeof obj.length == "undefined" || !obj.length)
@@ -436,13 +543,7 @@ Scrabble.Core.Board = (function(){
 	    this.Game.Rack.EmptyTiles();
 	    this.EmptyTiles();
 	    
-	    var letterDistribution = 0;
-	    for (var i = 0; i < this.Game.LetterDistributions.length; ++i) {
-		var ld = this.Game.LetterDistributions[i];
-		if (ld.Language == this.Game.Language) {
-		    letterDistribution = ld;
-		}
-	    }
+	    var letterDistribution = this.Game.LetterDistributions[this.Game.Language];
 	    
 	    var i = -1;
 	    
@@ -491,13 +592,7 @@ Scrabble.Core.Board = (function(){
 		    var makeTile = Math.floor(Math.random()*2);
 		    if (makeTile) /* && y <= middle) */ {
 			
-			var letterDistribution = 0;
-		        for (var i = 0; i < this.Game.LetterDistributions.length; ++i) {
-			    var ld = this.Game.LetterDistributions[i];
-			    if (ld.Language == this.Game.Language) {
-			        letterDistribution = ld;
-			    }
-		        }
+			var letterDistribution = this.Game.LetterDistributions[this.Game.Language];
 
 		        var lastFreeTile = -1;
 		        for (var i = 0; i < letterDistribution.Tiles.length; ++i) {
@@ -678,13 +773,7 @@ Scrabble.Core.Rack = (function(){
         }
 
         _Rack.prototype.GetRandomFreeTile = function() {
-            var letterDistribution = 0;
-            for (var i = 0; i < this.Game.LetterDistributions.length; ++i) {
-	        var ld = this.Game.LetterDistributions[i];
-	        if (ld.Language == this.Game.Language) {
-	            letterDistribution = ld;
-	        }
-            }
+            var letterDistribution = this.Game.LetterDistributions[this.Game.Language];
             
             var lastFreeTile = -1;
             for (var i = 0; i < letterDistribution.Tiles.length; ++i) {
@@ -799,113 +888,32 @@ Scrabble.Core.Game = (function(){
 		for (var i = 0; i < data.length; ++i) {
 		    var item = data[i];
 		    
-		    var tile = new Tile(item.Letter, item.Score);
+		    var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
 		    letters.push(tile);
 		    
 		    for (var n = 0; n < item.Count; ++n) {
-			var tile = new Tile(item.Letter, item.Score);
+			var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
 			tiles.push(tile);
 		    }
 		}
 		
 		letters.sort(function(a,b){ 
-		    var a = a.Letter;
-		    var b = b.Letter;
+		    var a = a.Letter || Tile.prototype.BlankLetter;
+		    var b = b.Letter || Tile.prototype.BlankLetter;
 
 		    if (a < b) return -1;
 		    if (a > b) return 1;
 		    return 0;
 		});
 		
-		this.LetterDistributions.push({Language: language, Tiles: tiles, Letters: letters});
+		this.LetterDistributions[language] = { Language: language, Tiles: tiles, Letters: letters };
 	    }
-	    
-	    function initLetterDistributions_English() {
-		var data = [
-		    {Letter: Tile.prototype.BlankLetter, Score: 0, Count: 2},
-		    
-		    {Letter: "E", Score: 1, Count: 12},
-		    {Letter: "A", Score: 1, Count: 9},
-		    {Letter: "I", Score: 1, Count: 9},
-		    {Letter: "O", Score: 1, Count: 8},
-		    {Letter: "N", Score: 1, Count: 6},
-		    {Letter: "R", Score: 1, Count: 6},
-		    {Letter: "T", Score: 1, Count: 6},
-		    {Letter: "L", Score: 1, Count: 4},
-		    {Letter: "S", Score: 1, Count: 4},
-		    {Letter: "U", Score: 1, Count: 4},
-		    
-		    {Letter: "D", Score: 2, Count: 4},
-		    {Letter: "G", Score: 2, Count: 3},
-		    
-		    {Letter: "B", Score: 3, Count: 2},
-		    {Letter: "C", Score: 3, Count: 2},
-		    {Letter: "M", Score: 3, Count: 2},
-		    {Letter: "P", Score: 3, Count: 2},
-		    
-		    {Letter: "F", Score: 4, Count: 2},
-		    {Letter: "H", Score: 4, Count: 2},
-		    {Letter: "V", Score: 4, Count: 2},
-		    {Letter: "W", Score: 4, Count: 2},
-		    {Letter: "Y", Score: 4, Count: 2},
-		    
-		    {Letter: "K", Score: 5, Count: 1},
-		    
-		    {Letter: "J", Score: 8, Count: 1},
-		    {Letter: "X", Score: 8, Count: 1},
-		    
-		    {Letter: "Q", Score: 10, Count: 1},
-		    {Letter: "Z", Score: 10, Count: 1}
-		];
-		
-		initLetterDistributions_.apply(this, [data, "English"]);
-	    }
-	    
-	    function initLetterDistributions_French() {
-		var data = [
-		    {Letter: Tile.prototype.BlankLetter, Score: 0, Count: 2},
-		    
-		    {Letter: "E", Score: 1, Count: 15},
-		    {Letter: "A", Score: 1, Count: 9},
-		    {Letter: "I", Score: 1, Count: 8},
-		    {Letter: "N", Score: 1, Count: 6},
-		    {Letter: "O", Score: 1, Count: 6},
-		    {Letter: "R", Score: 1, Count: 6},
-		    {Letter: "S", Score: 1, Count: 6},
-		    {Letter: "T", Score: 1, Count: 6},
-		    {Letter: "U", Score: 1, Count: 6},
-		    {Letter: "L", Score: 1, Count: 5},
-		    
-		    {Letter: "D", Score: 2, Count: 3},
-		    {Letter: "G", Score: 2, Count: 2},
-		    {Letter: "M", Score: 3, Count: 3},
-		    
-		    {Letter: "B", Score: 3, Count: 2},
-		    {Letter: "C", Score: 3, Count: 2},
-		    {Letter: "P", Score: 3, Count: 2},
-		    
-		    {Letter: "F", Score: 4, Count: 2},
-		    {Letter: "H", Score: 4, Count: 2},
-		    {Letter: "V", Score: 4, Count: 2},
-		    
-		    {Letter: "J", Score: 8, Count: 1},
-		    {Letter: "Q", Score: 8, Count: 1},
 
-		    {Letter: "K", Score: 10, Count: 1},
-		    {Letter: "W", Score: 10, Count: 1},
-		    {Letter: "X", Score: 10, Count: 1},
-		    {Letter: "Y", Score: 10, Count: 1},
-		    {Letter: "Z", Score: 10, Count: 1}
-		];
-		
-		initLetterDistributions_.apply(this, [data, "French"]);
+	    for (var language in languages) {
+		initLetterDistributions_.apply(this, [languages[language], language]);
 	    }
 	    
-	    // TODO: parse data from JSON ?
-	    initLetterDistributions_French.apply(this);
-	    initLetterDistributions_English.apply(this);
-	    
-	    this.SetLanguage("French");
+	    this.SetLanguage("German");
         }
 
         _Game.prototype.Event_ScrabbleLetterTilesReady = "ScrabbleLetterTilesReady";
@@ -913,7 +921,7 @@ Scrabble.Core.Game = (function(){
         _Game.prototype.Board = 0;
         _Game.prototype.Rack = 0;
 
-        _Game.prototype.LetterDistributions = [];
+        _Game.prototype.LetterDistributions = {};
 
         _Game.prototype.SquareBlankLetterInWaitingBoard = 0;
         _Game.prototype.SquareBlankLetterInWaitingRack = 0;
@@ -922,10 +930,7 @@ Scrabble.Core.Game = (function(){
 
 
         _Game.prototype.SetLanguage = function(language) {
-	    if (language == "French") {
-		this.Language = language;
-		EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
-	    } else if (language == "English") {
+            if (languages[language]) {
 		this.Language = language;
 		EventsManager.DispatchEvent(this.Event_ScrabbleLetterTilesReady, { 'Game': this });
 	    } else {
@@ -1569,14 +1574,7 @@ Scrabble.UI.Html = (function(){
 
 
             function DrawHtmlTable_LetterTiles(html, game) {
-	        var letterDistribution = 0;
-	        for (var i = 0; i < game.LetterDistributions.length; ++i) {
-	            var ld = game.LetterDistributions[i];
-                    // TODO user should select language
-	            if (ld.Language == game.Language) {
-		        letterDistribution = ld;
-	            }
-                }
+	        var letterDistribution = game.LetterDistributions[game.Language];
                 
                 var rootDiv = document.getElementById('letters');
                 
@@ -1629,14 +1627,7 @@ Scrabble.UI.Html = (function(){
 		            var underscore1 = id1.indexOf("_");
 		            var index = parseInt(id1.substring(underscore1 + 1), 10);
 
-		            var letterDistribution = 0;
-		            for (var i = 0; i < game.LetterDistributions.length; ++i) {
-		                var ld = game.LetterDistributions[i];
-                                // TODO user should select language 
-		                if (ld.Language == game.Language) {
-			            letterDistribution = ld;
-		                }
-	                    }
+		            var letterDistribution = game.LetterDistributions[game.Language];
 	                    
 	                    if (game.SquareBlankLetterInWaitingBoard != 0) {
 		                if (html.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingBoard) {
