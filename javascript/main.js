@@ -1469,10 +1469,8 @@ function UI() {
     }
 
     if (document.all) {
-        //document.attachEvent("onkeypress", handleKeypress);
         document.attachEvent("onkeyup", handleKeyup);
     } else {
-        //document.onkeypress = handleKeypress;
         document.onkeyup = handleKeyup;
     }
 
