@@ -385,99 +385,54 @@ Scrabble.Core.Board = (function(){
     with (Scrabble.Core) {
 
         var _Board = function() {
-	    function CreateGrid() {
-		for (var y = 0; y < this.Dimension; y++) {
-		    for (var x = 0; x < this.Dimension; x++) {
-			var centerStart = false;
+	    for (var y = 0; y < this.Dimension; y++) {
+		for (var x = 0; x < this.Dimension; x++) {
+		    var centerStart = false;
 
-			//SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
-			var square = new Square(SquareType.Normal);
-			
-			var middle = Math.floor(this.Dimension / 2);
-			var halfMiddle = Math.ceil(middle / 2);
-			
-			if ((x == 0 || x == this.Dimension - 1 || x == middle)
-			    && (y == 0 || y == this.Dimension - 1 || y == middle && x != middle)) {
-			    square = new Square(SquareType.TripleWord);
-			} else if (x == middle && y == middle
-				   || x > 0 && x < middle - 2 && (y == x || y == this.Dimension - x - 1)
-				   || x > middle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)) {
-			    square = new Square(SquareType.DoubleWord);
-			    if (x == middle && y == middle) {
-				centerStart = true;
-			    }
-			} else if ((x == middle - 1 || x == middle + 1)
-				&& (y == middle - 1 || y == middle + 1)
-				   || (x == 0 || x == this.Dimension - 1 || x == middle) && (y == middle + halfMiddle || y == middle - halfMiddle)
-				   || (y == 0 || y == this.Dimension - 1 || y == middle) && (x == middle + halfMiddle || x == middle - halfMiddle)
-				   || (y == middle + 1 || y == middle - 1) && (x == middle + halfMiddle + 1 || x == middle - halfMiddle - 1)
-				   || (x == middle + 1 || x == middle - 1) && (y == middle + halfMiddle + 1 || y == middle - halfMiddle - 1)) {
-			    square = new Square(SquareType.DoubleLetter);
-			} else if ((x == middle - 2 || x == middle + 2)
-				   && (y == middle - 2 || y == middle + 2)
-				   || (y == middle + 2 || y == middle - 2) && (x == middle + halfMiddle + 2 || x == middle - halfMiddle - 2)
-				   || (x == middle + 2 || x == middle - 2) && (y == middle + halfMiddle + 2 || y == middle - halfMiddle - 2)) {
-			    square = new Square(SquareType.TripleLetter);
+		    //SquareType.Normal, SquareType.DoubleLetter, SquareType.DoubleWord, SquareType.TripleLetter, SquareType.TripleWord
+		    var square = new Square(SquareType.Normal);
+		    
+		    var middle = Math.floor(this.Dimension / 2);
+		    var halfMiddle = Math.ceil(middle / 2);
+		    
+		    if ((x == 0 || x == this.Dimension - 1 || x == middle)
+			&& (y == 0 || y == this.Dimension - 1 || y == middle && x != middle)) {
+			square = new Square(SquareType.TripleWord);
+		    } else if (x == middle && y == middle
+			       || x > 0 && x < middle - 2 && (y == x || y == this.Dimension - x - 1)
+			       || x > middle + 2 && x < this.Dimension - 1 && (x == y || x == this.Dimension - y - 1)) {
+			square = new Square(SquareType.DoubleWord);
+			if (x == middle && y == middle) {
+			    centerStart = true;
 			}
-
-			square.X = x;
-			square.Y = y;
-			this.SquaresList.push(square);
+		    } else if ((x == middle - 1 || x == middle + 1)
+			       && (y == middle - 1 || y == middle + 1)
+			       || (x == 0 || x == this.Dimension - 1 || x == middle) && (y == middle + halfMiddle || y == middle - halfMiddle)
+			       || (y == 0 || y == this.Dimension - 1 || y == middle) && (x == middle + halfMiddle || x == middle - halfMiddle)
+			       || (y == middle + 1 || y == middle - 1) && (x == middle + halfMiddle + 1 || x == middle - halfMiddle - 1)
+			       || (x == middle + 1 || x == middle - 1) && (y == middle + halfMiddle + 1 || y == middle - halfMiddle - 1)) {
+			square = new Square(SquareType.DoubleLetter);
+		    } else if ((x == middle - 2 || x == middle + 2)
+			       && (y == middle - 2 || y == middle + 2)
+			       || (y == middle + 2 || y == middle - 2) && (x == middle + halfMiddle + 2 || x == middle - halfMiddle - 2)
+			       || (x == middle + 2 || x == middle - 2) && (y == middle + halfMiddle + 2 || y == middle - halfMiddle - 2)) {
+			square = new Square(SquareType.TripleLetter);
 		    }
-		}
-		
-		EventsManager.DispatchEvent(this.Event_ScrabbleBoardReady, { 'Board': this });
-	    }
 
-	    function SetDimension(val) {
-		if (typeof val != 'number')
-		    throw new Error("Illegal argument Scrabble.Core.Board.SetDimension(), not a number: " + typeof val);
-		
-		if (val < 15)
-		    throw new Error("Illegal argument Scrabble.Core.Board.SetDimension(), number smaller than 15: " + val);
-		
-		this.Dimension = val;
-	    }
-
-	    //_Board.prototype.SetDimensions = function()
-	    function SetDimensions() {
-		if (this instanceof _Board) {
-		    if (arguments.length > 0) {
-			
-			switch (type_of(arguments[0])) {
-			case 'number':
-			    SetDimension.apply(this, [arguments[0]]);
-			    return;
-			case 'object':
-			    SetDimension.apply(this, [arguments[0]['Dimension']]);
-			    return;
-			case 'array':
-			default:
-			    var argumentsString = "";
-			    for (var i = 0; i < arguments.length; i++) {
-				argumentsString += arguments[0] + ", ";
-			    }
-			    throw new Error("Illegal arguments Scrabble.Core.Board.SetDimensions(): " + argumentsString);
-			    break;
-			}
-		    } else {
-			this.Dimension = 15;
-		    }
-		} else {
-		    throw new Error('Illegal method call Scrabble.Core.Board.SetDimensions() on :' + typeof this);
+		    square.X = x;
+		    square.Y = y;
+		    this.SquaresList.push(square);
 		}
 	    }
-	    
-	    SetDimensions.apply(this, arguments);
-	    
-	    CreateGrid.apply(this);
+		
+	    EventsManager.DispatchEvent(this.Event_ScrabbleBoardReady, { 'Board': this });
         }
 
         _Board.prototype.Event_ScrabbleBoardReady = "ScrabbleBoardReady";
         _Board.prototype.Event_ScrabbleBoardSquareTileChanged = "ScrabbleBoardSquareTileChanged";
         _Board.prototype.Event_ScrabbleBoardSquareStateChanged = "ScrabbleBoardSquareStateChanged";
 
-        _Board.prototype.Dimension = NaN;
+        _Board.prototype.Dimension = 15;
 
         _Board.prototype.SquaresList = [];
 
@@ -573,73 +528,6 @@ Scrabble.Core.Board = (function(){
 	    }
         }
 
-        _Board.prototype.GenerateRandomTiles = function() {
-	    PlayAudio('audio0');
-	    
-	    board.EmptyTiles();
-	    
-	    var totalPlaced = 0;
-	    
-	    for (var y = 0; y < this.Dimension; y++) {
-		for (var x = 0; x < this.Dimension; x++) {
-		    var centerStart = false;
-		    
-		    var square = this.SquaresList[x + this.Dimension * y];
-		    
-		    var middle = Math.floor(this.Dimension / 2);
-		    var halfMiddle = Math.ceil(middle / 2);
-		    
-		    var makeTile = Math.floor(Math.random()*2);
-		    if (makeTile) /* && y <= middle) */ {
-			
-			var letterDistribution = this.Game.LetterDistributions[this.Game.Language];
-
-		        var lastFreeTile = -1;
-		        for (var i = 0; i < letterDistribution.Tiles.length; ++i) {
-			    var tile = letterDistribution.Tiles[i];
-			    if (!tile.Placed) {
-			        lastFreeTile = i;
-			    }
-		        }
-
-		        if (lastFreeTile == -1) {
-			    alert("No free tiles ! TOTAL placed: " + totalPlaced);
-			    // TODO: end of game ! :)
-			    return;
-		        }
-
-		        var tile_index = 1000;
-		        while (tile_index > lastFreeTile) {
-			    tile_index = Math.floor(Math.random() * letterDistribution.Tiles.length);
-		        }
-
-		        var tile = 0;
-		        do {
-			    tile = letterDistribution.Tiles[tile_index++];
-		        }
-		        while (tile.Placed && tile_index < letterDistribution.Tiles.length);
-
-		        if (tile == 0 || tile.Placed) {
-			    alert("No free tiles ! (WTF ?)");
-			    return;
-		        }
-		        
-		        totalPlaced++;
-		        
-		        var locked = 0;
-		        square.PlaceTile(tile, locked == 1 ? true : false);
-		        
-		        EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
-		    } else if (square.Tile != 0) {
-		        square.PlaceTile(0, false);
-		        
-		        EventsManager.DispatchEvent(this.Event_ScrabbleBoardSquareTileChanged, { 'Board': this, 'Square': square });
-		    }
-	        }
-	    }
-        }
-
-
         _Board.prototype.toString = function() {
 	    return "Scrabble.Core.Board toString(): " + this.Dimension + " x " + this.Dimension;
         }
@@ -652,56 +540,20 @@ Scrabble.Core.Rack = (function(){
     with (Scrabble.Core) {
 
         var _Rack = function() {
-	    function CreateGrid() {
-		for (var x = 0; x < this.Dimension; x++) {
-		    var square = new Square(SquareType.Normal);
-		    square.X = x;
-		    square.Y = -1;
-		    this.SquaresList.push(square);
-		}
-		
-		EventsManager.DispatchEvent(this.Event_ScrabbleRackReady, { 'Rack': this });
-	    }
-
-	    function SetDimension() {
-		if (this instanceof _Rack) {
-		    if (arguments.length > 0) {
-			switch (type_of(arguments[0])) {
-			case 'number':
-			    var val = arguments[0];
-
-			    if (val < 7)
-				throw new Error("Illegal argument Scrabble.Core.Rack.SetDimension(), number smaller than 7: " + val);
-
-			    this.Dimension = val;
-			    return;
-			case 'object':
-			case 'array':
-			default:
-			    var argumentsString = "";
-			    for (var i = 0; i < arguments.length; i++) {
-				argumentsString += arguments[0] + ", ";
-			    }
-			    throw new Error("Illegal arguments Scrabble.Core.Rack.SetDimension(): " + argumentsString);
-			    break;
-			}
-		    } else {
-			this.Dimension = 8;
-		    }
-		} else {
-		    throw new Error('Illegal method call Scrabble.Core.Rack.SetDimensions() on :' + typeof this);
-		}
+	    for (var x = 0; x < this.Dimension; x++) {
+		var square = new Square(SquareType.Normal);
+		square.X = x;
+		square.Y = -1;
+		this.SquaresList.push(square);
 	    }
 	    
-	    SetDimension.apply(this, arguments);
-	    
-	    CreateGrid.apply(this);
+	    EventsManager.DispatchEvent(this.Event_ScrabbleRackReady, { 'Rack': this });
         }
 
         _Rack.prototype.Event_ScrabbleRackReady = "ScrabbleRackReady";
         _Rack.prototype.Event_ScrabbleRackSquareTileChanged = "ScrabbleRackSquareTileChanged";
 
-        _Rack.prototype.Dimension = NaN;
+        _Rack.prototype.Dimension = 8;
 
         _Rack.prototype.SquaresList = [];
 
@@ -1493,38 +1345,28 @@ Scrabble.UI.Html = (function(){
 			        var YY = html.CurrentlySelectedSquare.Y;
 			        
 			        html.SetCurrentlySelectedSquareUpdateTargets(0);
-			        //html.CurrentlySelectedSquare = 0;
 			        
 			        rack.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 		            }
 		        }
 	            );
 
-	            $(div).droppable({ //"#rack .Empty"
-		        //accept: ".Tile",
-		        //activeClass: "dropActive",
+	            $(div).droppable({
 		        hoverClass: "dropActive",
 		        drop: function( event, ui ) {
-		            //$( this ).addClass( "dropActive" );
 		            
 		            var id1 = $(ui.draggable).attr("id");
 		            var id2 = $(this).attr("id");
-		            
-		            //alert(id1 + "-->" + id2);
 		            
 		            var underscore1 = id1.indexOf("_");
 		            var cross1 = id1.indexOf("x");
 		            var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
 		            var y1 = parseInt(id1.substring(cross1 + 1), 10);
 		            
-		            //alert(x1 + "x" + y1);
-
 		            var underscore2 = id2.indexOf("_");
 		            var cross2 = id2.indexOf("x");
 		            var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
 		            var y2 = parseInt(id2.substring(cross2 + 1), 10);
-		            
-		            //alert(x1 + "x" + y1);
 		            
 		            rack.MoveTile({'x':x1, 'y':y1}, {'x':x2, 'y':y2});
 		        }
@@ -1592,7 +1434,7 @@ Scrabble.UI.Html = (function(){
                 var counter = 9;
                 for (var i = 0; i < letterDistribution.Letters.length; i++) {
 	            var tile = letterDistribution.Letters[i];
-	            if (tile.IsBlank) continue; //Letter == Tile.prototype.BlankLetter) continue;
+	            if (tile.IsBlank) continue;
 
 	            counter++;
 	            if (counter > 9) {
@@ -1615,7 +1457,6 @@ Scrabble.UI.Html = (function(){
 	            var a = document.createElement('a');
 	            div.appendChild(a);
 
-	            //td.setAttribute('class', td.getAttribute('class') + ' Tile');
 	            div.setAttribute('class', 'Tile Temp' + (tile.IsBlank ? " BlankLetter" : ""));
 	            
 	            $(div).click(
