@@ -36,7 +36,7 @@
   http://code.google.com/p/scrabbly/source/browse/trunk/scrabble.js
 */
 
-var languages = {
+var letterDistributions = {
     'English':  [ { Letter: null, Score: 0, Count: 2},
 		  
 		  { Letter: "E", Score: 1, Count: 12},
@@ -175,6 +175,7 @@ var EventsManager = (function(){
     // eventPayload ==> can be anything, but usually a simple associative array such as:
     // { 'key1': "value1", 'key2': "value2" }
     _EventsManager.DispatchEvent = function(eventName, eventPayload) {
+        console.log('dispatch event ' + eventName);
 	var callbacks = _EventListeners[eventName]; // simple indexed array of callback functions
 	if (typeof callbacks == "undefined" || !callbacks) {
 	    console.log("Event.Dispatch - no registered listeners for eventName: " + eventName);
@@ -190,7 +191,6 @@ var EventsManager = (function(){
         eventPayload.EventName = eventName; // append extra information for the listener to consume (passed via the callback function parameter)
         
         var propsString = "[";
-        //for (var i = 0; i < properties.length; i++)
         for (var key in eventPayload) {
 	    propsString += "{" + key + ":" + eventPayload[key] + "}, ";
         }
@@ -395,7 +395,7 @@ Board.prototype.RemoveFreeTiles = function() {
 	    if (square.Tile && !square.Tile.Locked) {
 		tiles.push(square.Tile);
 		
-		square.PlaceTile(0, false);
+		square.PlaceTile(null, false);
 		
 		EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square });
 	    }
@@ -410,7 +410,7 @@ Board.prototype.EmptyTiles = function() {
 	for (var x = 0; x < this.Dimension; x++) {
 	    var square = this.SquaresList[x + this.Dimension * y];
 	    
-	    square.PlaceTile(0, false);
+	    square.PlaceTile(null, false);
 	    
 	    EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square });
 	}
@@ -430,49 +430,13 @@ Board.prototype.MoveTile = function(tileXY, squareXY) {
     var square2 = this.SquaresList[squareXY.x + this.Dimension * squareXY.y];
 
     var tile = square1.Tile;
-    square1.PlaceTile(0, false);
+    square1.PlaceTile(null, false);
     square2.PlaceTile(tile, false);
 
     PlayAudio('audio4');
     
     EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square1 });
     EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square2 });
-}
-
-Board.prototype.GenerateTilesLetterDistribution = function() {
-    PlayAudio('audio0');
-    
-    this.Game.Rack.EmptyTiles();
-    this.EmptyTiles();
-    
-    var letterDistribution = this.Game.LetterDistributions[this.Game.Language];
-    
-    var i = -1;
-    
-    for (var y = 0; y < this.Dimension; y++) {
-	for (var x = 0; x < this.Dimension; x++) {
-	    i++;
-	    
-	    var centerStart = false;
-	    
-	    var square = this.SquaresList[x + this.Dimension * y];
-	    
-	    var middle = Math.floor(this.Dimension / 2);
-	    var halfMiddle = Math.ceil(middle / 2);
-
-	    if (i < letterDistribution.Tiles.length) {
-		var locked = 1; // Math.floor(Math.random() * 2);
-		var tile = letterDistribution.Tiles[i];
-		square.PlaceTile(tile, locked == 1 ? true : false);
-		
-		EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square });
-	    } else if (square.Tile) {
-		square.PlaceTile(0, false);
-		
-		EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square });
-	    }
-	}
-    }
 }
 
 Board.prototype.toString = function() {
@@ -498,7 +462,7 @@ Rack.prototype.TakeTilesBack = function() {
     var freeTilesCount = 0;
     for (var x = 0; x < this.Dimension; x++) {
 	var square = this.SquaresList[x];
-	if (square.Tile == 0) {
+	if (!square.Tile) {
 	    freeTilesCount++;
 	}
     }
@@ -516,7 +480,7 @@ Rack.prototype.TakeTilesBack = function() {
     for (var i = 0; i < count; i++) {
 	for (var x = 0; x < this.Dimension; x++) {
 	    var square = this.SquaresList[x];
-	    if (square.Tile == 0) {
+	    if (!square.Tile) {
 		square.PlaceTile(tiles[i], false);
 
 		EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
@@ -531,7 +495,7 @@ Rack.prototype.EmptyTiles = function() {
     for (var x = 0; x < this.Dimension; x++) {
 	var square = this.SquaresList[x];
 	
-	square.PlaceTile(0, false);
+	square.PlaceTile(null, false);
 
 	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
@@ -550,48 +514,13 @@ Rack.prototype.MoveTile = function(tileXY, squareXY) {
     var square2 = this.SquaresList[squareXY.x];
 
     var tile = square1.Tile;
-    square1.PlaceTile(0, false);
+    square1.PlaceTile(null, false);
     square2.PlaceTile(tile, false);
 
     PlayAudio('audio4');
     
     EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square1 });
     EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square2 });
-}
-
-Rack.prototype.GetRandomFreeTile = function() {
-    var letterDistribution = this.Game.LetterDistributions[this.Game.Language];
-    
-    var lastFreeTile = -1;
-    for (var i = 0; i < letterDistribution.Tiles.length; ++i) {
-	var tile = letterDistribution.Tiles[i];
-	if (!tile.Placed) {
-	    lastFreeTile = i;
-	}
-    }
-    
-    if (lastFreeTile == -1) {
-	alert("No free tiles !"); // TODO: end of game ! :)
-	return 0;
-    }
-    
-    var tile_index = 1000;
-    while (tile_index > lastFreeTile) {
-	tile_index = Math.floor(Math.random() * letterDistribution.Tiles.length);
-    }
-    
-    var tile = 0;
-    do {
-	tile = letterDistribution.Tiles[tile_index++];
-    }
-    while (tile.Placed && tile_index < letterDistribution.Tiles.length);
-    
-    if (tile == 0 || tile.Placed) {
-	alert("No free tiles ! (WTF ?)");
-	return 0;
-    }
-    
-    return tile;
 }
 
 Rack.prototype.ReplenishRandomTiles = function() {
@@ -614,8 +543,8 @@ Rack.prototype.ReplenishRandomTiles = function() {
     for (var x = existingTiles.length; x < (this.Dimension-1); x++) {
 	var square = this.SquaresList[x];
 	
-	var tile = this.GetRandomFreeTile();
-	if (tile == 0) return;
+	var tile = this.Game.LetterBag.GetRandomTile();
+	if (!tile) return;
 	
 	square.PlaceTile(tile, false);
 	
@@ -629,8 +558,8 @@ Rack.prototype.GenerateRandomTiles = function() {
     for (var x = 0; x < (this.Dimension - 1); x++) {
 	var square = this.SquaresList[x];
 	
-	var tile = this.GetRandomFreeTile();
-	if (tile == 0) return;
+	var tile = this.Game.LetterBag.GetRandomTile();
+	if (!tile) return;
 	
 	square.PlaceTile(tile, false);
 	
@@ -639,7 +568,7 @@ Rack.prototype.GenerateRandomTiles = function() {
     
     var square = this.SquaresList[this.Dimension - 1];
     if (square.Tile) {
-	square.PlaceTile(0, false);
+	square.PlaceTile(null, false);
 	
 	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
@@ -649,7 +578,62 @@ Rack.prototype.toString = function() {
     return "Rack toString(): " + this.Dimension;
 }
 
-function Game(board, rack) {
+function LetterBag(language)
+{
+    this.Tiles = [];
+    this.Letters = [];
+
+    var data = letterDistributions[language];
+    if (!data) {
+        alert('unsupported language: ' + language);
+    }
+    for (var i = 0; i < data.length; ++i) {
+	var item = data[i];
+	
+	var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
+	this.Letters.push(tile);
+	
+	for (var n = 0; n < item.Count; ++n) {
+	    var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
+	    this.Tiles.push(tile);
+	}
+    }
+    
+    this.Letters.sort(function(a,b) {
+	var a = a.Letter || Tile.prototype.BlankLetter;
+	var b = b.Letter || Tile.prototype.BlankLetter;
+
+	if (a < b) return -1;
+	if (a > b) return 1;
+	return 0;
+    });
+}
+
+LetterBag.prototype.Shake = function()
+{
+    var count = this.Tiles.length;
+    for (i = 0; i < count * 3; i++) {
+        var a = Math.floor(Math.random() * count);
+        var b = Math.floor(Math.random() * count);
+        var tmp = this.Tiles[b];
+        this.Tiles[b] = this.Tiles[a];
+        this.Tiles[a] = tmp;
+    }
+}
+
+LetterBag.prototype.GetRandomTile = function()
+{
+    this.Shake();
+    
+    for (var i = 0; i < this.Tiles.length; i++) {
+        if (!this.Tiles[i].Placed) {
+            return this.Tiles[i];
+        }
+    }
+    return null;
+}
+
+function Game(language, board, rack) {
     
     this.Board = board;
     board.Game = this;
@@ -657,55 +641,11 @@ function Game(board, rack) {
     this.Rack = rack;
     rack.Game = this;
 
-    this.LetterDistributions = {};
+    this.Language = language;
+    this.LetterBag = new LetterBag(language);
 
     this.SquareBlankLetterInWaitingBoard = null;
     this.SquareBlankLetterInWaitingRack = null;
-
-    this.Language = "";
-    
-    function initLetterDistributions(data, language) {
-	var tiles = [];
-	var letters = [];
-	
-	for (var i = 0; i < data.length; ++i) {
-	    var item = data[i];
-	    
-	    var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
-	    letters.push(tile);
-	    
-	    for (var n = 0; n < item.Count; ++n) {
-		var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
-		tiles.push(tile);
-	    }
-	}
-	
-	letters.sort(function(a,b){ 
-	    var a = a.Letter || Tile.prototype.BlankLetter;
-	    var b = b.Letter || Tile.prototype.BlankLetter;
-
-	    if (a < b) return -1;
-	    if (a > b) return 1;
-	    return 0;
-	});
-	
-	this.LetterDistributions[language] = { Language: language, Tiles: tiles, Letters: letters };
-    }
-
-    for (var language in languages) {
-	initLetterDistributions.apply(this, [languages[language], language]);
-    }
-    
-    this.SetLanguage("German");
-}
-
-Game.prototype.SetLanguage = function(language) {
-    if (languages[language]) {
-	this.Language = language;
-	EventsManager.DispatchEvent('ScrabbleLetterTilesReady', { 'Game': this });
-    } else {
-	throw new Error("Unsupported language: " + language);
-    }
 }
 
 Game.prototype.MoveTile = function(tileXY, squareXY) {
@@ -725,7 +665,7 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 	var square2 = this.Board.SquaresList[squareXY.x + this.Board.Dimension * squareXY.y];
 	
 	var tile = square1.Tile;
-	square1.PlaceTile(0, false);
+	square1.PlaceTile(null, false);
 	square2.PlaceTile(tile, false);
 
 	PlayAudio('audio4');
@@ -742,7 +682,7 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 	var square2 = this.Rack.SquaresList[squareXY.x];
 	
 	var tile = square1.Tile;
-	square1.PlaceTile(0, false);
+	square1.PlaceTile(null, false);
 	square2.PlaceTile(tile, false);
 
 	PlayAudio('audio4');
@@ -823,8 +763,7 @@ function UI() {
 			    if (x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y) {
 				PlayAudio("audio1");
 				
-				html.SetCurrentlySelectedSquareUpdateTargets(0);
-				//html.CurrentlySelectedSquare = 0;
+				html.SetCurrentlySelectedSquareUpdateTargets(null);
 				return;
 			    }
 			}
@@ -887,7 +826,7 @@ function UI() {
 			    var divz = document.getElementById(idSelected);
 			    $(divz).removeClass("Selected");
 			}
-			html.SetCurrentlySelectedSquareUpdateTargets(0);
+			html.SetCurrentlySelectedSquareUpdateTargets(null);
 			
 			$(this).css({ opacity: 0.5 });
 			
@@ -950,8 +889,7 @@ function UI() {
 			var XX = html.CurrentlySelectedSquare.X;
 			var YY = html.CurrentlySelectedSquare.Y;
 			
-			html.SetCurrentlySelectedSquareUpdateTargets(0);
-			//html.CurrentlySelectedSquare = 0;
+			html.SetCurrentlySelectedSquareUpdateTargets(null);
 			
 			board.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 		    }
@@ -1131,7 +1069,7 @@ function UI() {
 			    && x1 == html.CurrentlySelectedSquare.X) {
 			    PlayAudio("audio1");
 			    
-			    html.SetCurrentlySelectedSquareUpdateTargets(0);
+			    html.SetCurrentlySelectedSquareUpdateTargets(null);
 			    //html.CurrentlySelectedSquare = 0;
 			    return;
 			}
@@ -1191,7 +1129,7 @@ function UI() {
 			var divz = document.getElementById(idSelected);
 			$(divz).removeClass("Selected");
 		    }
-		    html.SetCurrentlySelectedSquareUpdateTargets(0);
+		    html.SetCurrentlySelectedSquareUpdateTargets(null);
 		    
 		    $(this).css({ opacity: 0.5 });
 		    
@@ -1246,7 +1184,7 @@ function UI() {
 			var XX = html.CurrentlySelectedSquare.X;
 			var YY = html.CurrentlySelectedSquare.Y;
 			
-			html.SetCurrentlySelectedSquareUpdateTargets(0);
+			html.SetCurrentlySelectedSquareUpdateTargets(null);
 			
 			rack.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 		    }
@@ -1318,8 +1256,6 @@ function UI() {
 
 
     function DrawHtmlTable_LetterTiles(html, game) {
-	var letterDistribution = game.LetterDistributions[game.Language];
-        
         var rootDiv = document.getElementById('letters');
         
         if (rootDiv.hasChildNodes()) {
@@ -1334,8 +1270,8 @@ function UI() {
         var tr = 0
 
         var counter = 9;
-        for (var i = 0; i < letterDistribution.Letters.length; i++) {
-	    var tile = letterDistribution.Letters[i];
+        for (var i = 0; i < game.LetterBag.Letters.length; i++) {
+	    var tile = game.LetterBag.Letters[i];
 	    if (tile.IsBlank) continue;
 
 	    counter++;
@@ -1370,14 +1306,12 @@ function UI() {
 		    var underscore1 = id1.indexOf("_");
 		    var index = parseInt(id1.substring(underscore1 + 1), 10);
 
-		    var letterDistribution = game.LetterDistributions[game.Language];
-	            
 	            if (game.SquareBlankLetterInWaitingBoard) {
 		        if (html.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingBoard) {
 		            alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingBoard");
 		        }
 		        
-		        game.SquareBlankLetterInWaitingBoard.Tile.Letter = letterDistribution.Letters[index].Letter;
+		        game.SquareBlankLetterInWaitingBoard.Tile.Letter = game.LetterBag.Letters[index].Letter;
 
 		        var square = game.SquareBlankLetterInWaitingBoard;
 		        game.SquareBlankLetterInWaitingBoard = null;
@@ -1390,7 +1324,7 @@ function UI() {
 		            alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingRack");
 		        }
 		        
-		        game.SquareBlankLetterInWaitingRack.Tile.Letter = letterDistribution.Letters[index].Letter;
+		        game.SquareBlankLetterInWaitingRack.Tile.Letter = game.LetterBag.Letters[index].Letter;
 
 		        var square = game.SquareBlankLetterInWaitingRack;
 		        game.SquareBlankLetterInWaiting = null;
@@ -1498,7 +1432,7 @@ function UI() {
 	    key = event.keyCode;
         }
         
-        if (event.charCode == null || event.charCode == 0) {
+        if (!event.charCode) {
 	    if (nKeyCode >= 112 && nKeyCode <= 123) {
 	        return true;
 	    }
@@ -1566,8 +1500,6 @@ function UI() {
     EventsManager.AddEventListener('ScrabbleLetterTilesReady', function(eventPayload) {
         thiz.Game = eventPayload.Game;
         DrawHtmlTable_LetterTiles(thiz, eventPayload.Game);
-        
-        $('#language').html(thiz.Game.Language.toUpperCase());
     });
 }
 
@@ -1578,10 +1510,10 @@ UI.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square) {
     for (var y = 0; y < this.Board.Dimension; y++) {
 	for (var x = 0; x < this.Board.Dimension; x++) {
 	    var squareTarget = this.Board.SquaresList[x + this.Board.Dimension * y];
-	    if (squareTarget.Tile == 0) {
+	    if (!squareTarget.Tile) {
 		var idSelected = IDPrefix_Board_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
 		var divz = document.getElementById(idSelected);
-		if (this.CurrentlySelectedSquare == 0) {
+		if (!this.CurrentlySelectedSquare) {
 		    $(divz).removeClass("Targeted");
 		} else {
 		    $(divz).addClass("Targeted");
@@ -1592,10 +1524,10 @@ UI.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square) {
     
     for (var x = 0; x < this.Rack.Dimension; x++) {
 	var squareTarget = this.Rack.SquaresList[x];
-	if (squareTarget.Tile == 0) {
+	if (!squareTarget.Tile) {
 	    var idSelected = IDPrefix_Rack_SquareOrTile + squareTarget.X + "x" + squareTarget.Y;
 	    var divz = document.getElementById(idSelected);
-	    if (this.CurrentlySelectedSquare == 0) {
+	    if (!this.CurrentlySelectedSquare) {
 		$(divz).removeClass("Targeted");
 	    } else {
 		$(divz).addClass("Targeted");
