@@ -153,94 +153,6 @@ function type_of(obj) {
 	return typeof(obj);
 }
 
-var EventsManager = (function() {
-    var _EventsManager = {}; // 'this' object (to be returned at the bottom of the containing auto-evaluated "EventsManager" function)
-
-    var _EventListeners = {}; // private associative array (event name -> array of callback functions)
-
-    // eventName ==> string
-    // eventPayload ==> can be anything, but usually a simple associative array such as:
-    // { 'key1': "value1", 'key2': "value2" }
-    _EventsManager.DispatchEvent = function(eventName, eventPayload) {
-        console.log('dispatch event ' + eventName);
-	var callbacks = _EventListeners[eventName]; // simple indexed array of callback functions
-	if (typeof callbacks == "undefined" || !callbacks) {
-	    console.log("Event.Dispatch - no registered listeners for eventName: " + eventName);
-	    return;
-	}
-
-        // early check (fail-fast) 
-	if (callbacks.length == 0) {
-	    console.log("Event.Dispatch - empty registered listeners for eventName: " + eventName);
-	    return;
-        }
-        
-        eventPayload.EventName = eventName; // append extra information for the listener to consume (passed via the callback function parameter)
-        
-        var propsString = "[";
-        for (var key in eventPayload) {
-	    propsString += "{" + key + ":" + eventPayload[key] + "}, ";
-        }
-        propsString += "]";
-
-        for (var i = 0; i < callbacks.length; i++) {
-	    //console.log("Event.Dispatch - notifying: " + eventName + ", " + propsString);
-	    callbacks[i](eventPayload);
-        }
-    };
-
-    _EventsManager.AddEventListener = function(eventName, callback) {
-	var callbacks = _EventListeners[eventName]; // simple indexed array of callback functions
-	if (typeof callbacks == "undefined" || !callbacks) {
-	    //console.log("Event.AddEventListener - init empty callbacks for eventName: " + eventName);
-	    _EventListeners[eventName] = [];
-	    callbacks = _EventListeners[eventName];
-	}
-	
-	for (var i = 0; i < callbacks.length; i++) {
-	    if (callbacks[i] == callback) {
-		console.log("Event.AddEventListener - callback already registered (duplicate ignored): " + eventName + ", " + callback);
-		return;
-	    }
-	}
-	
-	// console.log("Event.AddEventListener - registered: " + eventName + ", " + callback);
-	callbacks.push(callback);
-    };
-
-    _EventsManager.RemoveEventListener = function(eventName, callback) {
-	var callbacks = _EventListeners[eventName]; // simple indexed array of callback functions
-	if (typeof callbacks == "undefined" || !callbacks) {
-	    console.log("Event.RemoveEventListener - no registered listeners for eventName: " + eventName);
-	    return;
-	}
-
-        // early check (fail-fast)
-	if (callbacks.length == 0) {
-	    console.log("Event.RemoveEventListener - empty registered listeners for eventName: " + eventName);
-	    return;
-	}
-	
-	var atLeastOneRemoved = false;
-	for (var i = 0; i < callbacks.length; i++) {
-	    if (callbacks[i] == callback) {
-		atLeastOneRemoved = true;
-		callbacks.splice(i--, 1);
-	    }
-	}
-	
-	if (callbacks.length == 0) {
-	    delete _EventListeners[eventName];
-	}
-
-	if (!atLeastOneRemoved) {
-	    console.log("Event.RemoveEventListener - callback for eventName not found: " + eventName + ", " + callback);
-	}
-    };
-
-    return _EventsManager;
-})();
-
 var IDPrefix_Board_SquareOrTile = "BoardSquareOrTile_";
 var IDPrefix_Rack_SquareOrTile = "RackSquareOrTile_";
 var IDPrefix_Letters_SquareOrTile = "LettersSquareOrTile_";
@@ -365,8 +277,8 @@ function Board() {
 	    this.Squares[x][y] = square;
 	}
     }
-    
-    EventsManager.DispatchEvent('BoardReady', { 'Board': this });
+
+    $(document).trigger('BoardReady', [ this ]);
 }
 
 Board.prototype.Dimension = 15;
@@ -383,7 +295,7 @@ Board.prototype.RemoveFreeTiles = function() {
 		
 		square.PlaceTile(null, false);
 		
-		EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square });
+		$(document).trigger('BoardSquareTileChanged', [ this, square ]);
 	    }
 	}
     }
@@ -398,7 +310,7 @@ Board.prototype.EmptyTiles = function() {
 	    
 	    square.PlaceTile(null, false);
 	    
-	    EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square });
+	    $(document).trigger('BoardSquareTileChanged', [ this, square ]);
 	}
     }
 }
@@ -421,12 +333,8 @@ Board.prototype.MoveTile = function(tileXY, squareXY) {
 
     PlayAudio('audio4');
     
-    EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square1 });
-    EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square2 });
-}
-
-Board.prototype.Validate = function () {
-    console.log('validate');
+    $(document).trigger('BoardSquareTileChanged', [ this, square1 ]);
+    $(document).trigger('BoardSquareTileChanged', [ this, square2 ]);
 }
 
 Board.prototype.toString = function() {
@@ -444,8 +352,8 @@ function Rack () {
 	square.Y = -1;
 	this.Squares[x] = square;
     }
-    
-    EventsManager.DispatchEvent('RackReady', { 'Rack': this });
+
+    $(document).trigger('RackReady', [ this ]);
 }
 
 Rack.prototype.TakeTilesBack = function() {
@@ -473,7 +381,7 @@ Rack.prototype.TakeTilesBack = function() {
 	    if (!square.Tile) {
 		square.PlaceTile(tiles[i], false);
 
-		EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
+		$(document).trigger('RackSquareTileChanged', [ this, square ]);
 		
 		break;
 	    }
@@ -487,7 +395,7 @@ Rack.prototype.EmptyTiles = function() {
 	
 	square.PlaceTile(null, false);
 
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
+	$(document).trigger('RackSquareTileChanged', [ this, square ]);
     }
 }
 
@@ -509,8 +417,8 @@ Rack.prototype.MoveTile = function(tileXY, squareXY) {
 
     PlayAudio('audio4');
     
-    EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square1 });
-    EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square2 });
+    $(document).trigger('RackSquareTileChanged', [ this, square1 ]);
+    $(document).trigger('RackSquareTileChanged', [ this, square2 ]);
 }
 
 Rack.prototype.ReplenishRandomTiles = function() {
@@ -527,7 +435,7 @@ Rack.prototype.ReplenishRandomTiles = function() {
     for (var x = 0; x < existingTiles.length; x++) {
 	var square = this.Squares[x];
 	square.PlaceTile(existingTiles[x], false);
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
+	$(document).trigger('RackSquareTileChanged', [ this, square ]);
     }
     
     for (var x = existingTiles.length; x < (this.Dimension-1); x++) {
@@ -538,7 +446,7 @@ Rack.prototype.ReplenishRandomTiles = function() {
 	
 	square.PlaceTile(tile, false);
 	
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
+	$(document).trigger('RackSquareTileChanged', [ this, square ]);
     }
 }
 
@@ -553,14 +461,14 @@ Rack.prototype.GenerateRandomTiles = function() {
 	
 	square.PlaceTile(tile, false);
 	
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
+	$(document).trigger('RackSquareTileChanged', [ this, square ]);
     }
     
     var square = this.Squares[this.Dimension - 1];
     if (square.Tile) {
 	square.PlaceTile(null, false);
 	
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
+	$(document).trigger('RackSquareTileChanged', [ this, square ]);
     }
 }
 
@@ -657,8 +565,8 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 
 	PlayAudio('audio4');
 	
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this.Rack, 'Square': square1 });
-	EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this.Board, 'Square': square2 });
+	$(document).trigger('RackSquareTileChanged', [ this.Rack, square1 ]);
+	$(document).trigger('BoardSquareTileChanged', [ this.Board, square2 ]);
 	
 	return;
     }
@@ -674,8 +582,8 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 
 	PlayAudio('audio4');
 	
-	EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this.Board, 'Square': square1 });
-	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this.Rack, 'Square': square2 });
+	$(document).trigger('BoardSquareTileChanged', [ this.Board, square1 ]);
+	$(document).trigger('RackSquareTileChanged', [ this.Rack, square2 ]);
 	
 	return;
     }
@@ -691,8 +599,8 @@ Game.prototype.CommitMove = function() {
         return;
     }
 
-    EventsManager.DispatchEvent('LockRack', { 'Rack': this.Rack });
-    EventsManager.DispatchEvent('CommitMove', { 'Board': this.Board });
+    $(document).trigger('LockRack', [ this.Rack ]);
+    $(document).trigger('CommitMove', [ this.Board ]);
 }
     
 
@@ -708,136 +616,63 @@ function UI() {
     this.Rack = 0;
     this.Game = 0;
 
-    function UpdateCellState(ui, board, square, state) {
-	var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
-	var td = document.getElementById(id).parentNode;
-	$(td).removeClass("Invalid");
-	$(td).removeClass("Valid");
-	$(td).removeClass("ValidButWrongPlacement");
-	
-	if (state == 0) {
-	    $(td).addClass("Valid");
-	} else if (state == 1) {
-	    $(td).addClass("Invalid");
-	} else if (state == 2) {
-	    $(td).addClass("ValidButWrongPlacement");
+    var ui = this;
+    function uiCall(f) {
+        return function() {
+            var args = Array.prototype.slice.call(arguments);
+            args.shift();                                   // remove event
+            f.apply(ui, args);
+        }
+    }
+
+    $(document)
+        .bind('BoardReady', uiCall(ui.DrawBoard))
+        .bind('BoardSquareTileChanged', uiCall(ui.UpdateBoardCell))
+        .bind('BoardSquareStateChanged', uiCall(ui.UpdateCellState))
+        .bind('RackReady', uiCall(ui.DrawRack))
+        .bind('RackSquareTileChanged', uiCall(ui.UpdateRackCell))
+        .bind('LetterTilesReady', uiCall(ui.DrawLetterTiles));
+}
+
+UI.prototype.UpdateCellState = function(board, square, state) {
+    var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+    var td = document.getElementById(id).parentNode;
+    $(td).removeClass("Invalid");
+    $(td).removeClass("Valid");
+    $(td).removeClass("ValidButWrongPlacement");
+    
+    if (state == 0) {
+	$(td).addClass("Valid");
+    } else if (state == 1) {
+	$(td).addClass("Invalid");
+    } else if (state == 2) {
+	$(td).addClass("ValidButWrongPlacement");
+    }
+}
+    
+UI.prototype.UpdateBoardCell = function(board, square) {
+    var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+    var td = document.getElementById(id).parentNode;
+    if (td.hasChildNodes()) {
+	while (td.childNodes.length >= 1) {
+	    td.removeChild(td.firstChild);
 	}
     }
     
-    function UpdateBoardCell(ui, board, square) {
-	var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
-	var td = document.getElementById(id).parentNode;
-	if (td.hasChildNodes()) {
-	    while (td.childNodes.length >= 1) {
-		td.removeChild(td.firstChild);
-	    }
-	}
+    var div = document.createElement('div');
+    td.appendChild(div);
+    div.setAttribute('id', id);
+    
+    var a = document.createElement('a');
+    div.appendChild(a);
+
+    var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
+
+    if (square.Tile) {
+	div.setAttribute('class', (square.TileLocked ? 'Tile Locked' : 'Tile Temp')
+			 + (square.Tile.IsBlank ? " BlankLetter" : ""));
 	
-	var div = document.createElement('div');
-	td.appendChild(div);
-	div.setAttribute('id', id);
-	
-	var a = document.createElement('a');
-	div.appendChild(a);
-
-	if (square.Tile) {
-	    div.setAttribute('class', (square.TileLocked ? 'Tile Locked' : 'Tile Temp')
-			     + (square.Tile.IsBlank ? " BlankLetter" : ""));
-	    
-	    if (!square.TileLocked) {
-		$(div).click(
-		    function () {
-			var id1 = $(this).attr("id");
-			var underscore1 = id1.indexOf("_");
-			var cross1 = id1.indexOf("x");
-			var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
-			var y1 = parseInt(id1.substring(cross1 + 1), 10);
-			
-			if (ui.CurrentlySelectedSquare) {
-			    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
-			    
-			    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-
-			    var divz = document.getElementById(idSelected);
-
-			    $(divz).removeClass("Selected");
-			    
-			    if (x1 == ui.CurrentlySelectedSquare.X && y1 == ui.CurrentlySelectedSquare.Y) {
-				PlayAudio("audio1");
-				
-				ui.SetCurrentlySelectedSquareUpdateTargets(null);
-				return;
-			    }
-			}
-			
-			PlayAudio("audio3");
-			
-			ui.SetCurrentlySelectedSquareUpdateTargets(board.Squares[x1][y1]);
-			
-			$(this).addClass("Selected");
-		    }
-		);
-		
-		var doneOnce = false;
-		
-		$(div).draggable({
-		    revert: "invalid",
-		    opacity: 1,
-		    helper: "clone",
-		    start: function(event, jui) {
-			PlayAudio("audio3");
-			
-			if (ui.CurrentlySelectedSquare) {
-			    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
-			    
-			    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-
-			    var divz = document.getElementById(idSelected);
-			    $(divz).removeClass("Selected");
-			}
-			ui.SetCurrentlySelectedSquareUpdateTargets(null);
-			
-			$(this).css({ opacity: 0.5 });
-			
-			$(jui.helper).animate({'font-size' : '120%'}, 300);
-			
-			$(jui.helper).addClass("dragBorder");
-		    },
-		    
-		    drag: function(event, jui) {
-			if (!doneOnce) {
-			    $(jui.helper).addClass("dragBorder");
-			    
-			    doneOnce = true;
-			}
-		    },
-		    stop: function(event, jui) {
-			$(this).css({ opacity: 1 });
-
-			PlayAudio('audio5');
-		    }
-		});
-	    }
-	    
-	    var txt1 = document.createTextNode(square.Tile.Letter);
-	    var span1 = document.createElement('span');
-	    span1.setAttribute('class', 'Letter');
-	    span1.appendChild(txt1);
-	    a.appendChild(span1);
-
-	    var txt2 = document.createTextNode(square.Tile.Score);
-	    var span2 = document.createElement('span');
-	    span2.setAttribute('class', 'Score');
-	    span2.appendChild(txt2);
-	    a.appendChild(span2);
-	} else {
-	    var middle = Math.floor(board.Dimension / 2);
-	    if (square.X == middle && square.Y == middle) {
-		div.setAttribute('class', "CenterStart");
-	    } else {
-		div.setAttribute('class', 'Empty');
-	    }
-	    
+	if (!square.TileLocked) {
 	    $(div).click(
 		function () {
 		    var id1 = $(this).attr("id");
@@ -850,208 +685,27 @@ function UI() {
 			var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
 			
 			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-			
+
 			var divz = document.getElementById(idSelected);
 
 			$(divz).removeClass("Selected");
 			
-			var XX = ui.CurrentlySelectedSquare.X;
-			var YY = ui.CurrentlySelectedSquare.Y;
-			
-			ui.SetCurrentlySelectedSquareUpdateTargets(null);
-			
-			board.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
-		    }
-		}
-	    );
-
-	    $(div).droppable({
-		hoverClass: "dropActive",
-		drop: function(event, jui) {
-		    var id1 = $(jui.draggable).attr("id");
-		    var id2 = $(this).attr("id");
-		    
-		    var underscore1 = id1.indexOf("_");
-		    var cross1 = id1.indexOf("x");
-		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
-		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
-		    
-		    var underscore2 = id2.indexOf("_");
-		    var cross2 = id2.indexOf("x");
-		    var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
-		    var y2 = parseInt(id2.substring(cross2 + 1), 10);
-		    
-		    board.MoveTile({'x':x1, 'y':y1}, {'x':x2, 'y':y2});
-		}
-	    });
-	    
-	    switch (square.Type) {
-	    case SquareType.Normal:
-		var span1 = document.createElement('span');
-		var txt1 = document.createTextNode(" ");
-		span1.appendChild(txt1);
-		a.appendChild(span1);
-		
-		break;
-	    case SquareType.DoubleWord:
-		
-		var middle = Math.floor(board.Dimension / 2);
-		if (square.X == middle && square.Y == middle) {
-		    var txt1 = document.createTextNode('\u2605');
-		    var span1 = document.createElement('span');
-		    span1.appendChild(txt1);
-		    a.appendChild(span1);
-		} else {
-		    var txt1 = document.createTextNode("DOUBLE");
-		    var txt2 = document.createTextNode("WORD");
-		    var txt3 = document.createTextNode("SCORE");
-		    
-		    
-		    var span1 = document.createElement('span');
-		    span1.appendChild(txt1);
-		    
-		    var span2 = document.createElement('span');
-		    span2.appendChild(txt2);
-		    
-		    var span3 = document.createElement('span');
-		    span3.appendChild(txt3);
-
-		    a.appendChild(span1);
-		    a.appendChild(document.createElement('br'));
-		    a.appendChild(span2);
-		    a.appendChild(document.createElement('br'));
-		    a.appendChild(span3);
-		}
-		break;
-	    case SquareType.TripleWord:
-		var span = document.createElement('span');
-		var txt1 = document.createTextNode("TRIPLE WORD SCORE");
-		span.appendChild(txt1);
-
-		a.appendChild(span);
-		break;
-	    case SquareType.DoubleLetter:
-		var span = document.createElement('span');
-		var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
-		span.appendChild(txt1);
-
-		a.appendChild(span);
-		break;
-	    case SquareType.TripleLetter:
-		var span = document.createElement('span');
-		var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
-		span.appendChild(txt1);
-
-		a.appendChild(span);
-		break;
-	    default:
-		break;
-	    }
-	}
-    }
-    
-    function DrawBoard(ui, board) {
-	var rootDiv = document.getElementById('board');
-	var table = document.createElement('table');
-	rootDiv.appendChild(table);
-	
-	for (var y = 0; y < board.Dimension; y++) {
-	    var tr = document.createElement('tr');
-	    table.appendChild(tr);
-	    
-	    for (var x = 0; x < board.Dimension; x++) {
-		var square = board.Squares[x][y];
-
-		var centerStart = false;
-		
-		var td = document.createElement('td');
-		tr.appendChild(td);
-		
-		var middle = Math.floor(board.Dimension / 2);
-		var halfMiddle = Math.ceil(middle / 2);
-		
-		if (square.Type == SquareType.TripleWord) {
-		    td.setAttribute('class', 'TripleWord');
-		} else if (square.Type == SquareType.DoubleWord) {
-		    if (x == middle && y == middle) {
-			centerStart = true;
-		    }
-		    
-		    td.setAttribute('class', 'DoubleWord');
-		} else if (square.Type == SquareType.DoubleLetter) {
-		    td.setAttribute('class', 'DoubleLetter');
-		} else if (square.Type == SquareType.TripleLetter) {
-		    td.setAttribute('class', 'TripleLetter');
-		} else {
-		    td.setAttribute('class', 'Normal');
-		}
-		
-		var div = document.createElement('div');
-		td.appendChild(div);
-		
-		var id = IDPrefix_Board_SquareOrTile + x + "x" + y;
-		div.setAttribute('id', id);
-		
-		var a = document.createElement('a');
-		div.appendChild(a);
-		
-		UpdateBoardCell(ui, board, square);
-	    }
-	}
-    }
-
-    function UpdateRackCell(ui, rack, square) {
-	var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
-	var td = document.getElementById(id).parentNode;
-	if (td.hasChildNodes()) {
-	    while (td.childNodes.length >= 1) {
-		td.removeChild(td.firstChild);
-	    }
-	}
-	
-	var div = document.createElement('div');
-	td.appendChild(div);
-	div.setAttribute('id', id);
-	
-	var a = document.createElement('a');
-	div.appendChild(a);
-
-	if (square.Tile) {
-	    div.setAttribute('class', 'Tile Temp' + (square.Tile.IsBlank ? " BlankLetter" : "") + (rack.Locked ? " Locked" : ""));
-	    
-	    $(div).click(
-		function () {
-		    var id1 = $(this).attr("id");
-		    var underscore1 = id1.indexOf("_");
-		    var cross1 = id1.indexOf("x");
-		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
-		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
-		    
-		    if (ui.CurrentlySelectedSquare) {
-			var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
-			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-			var divz = document.getElementById(idSelected);
-
-			$(divz).removeClass("Selected");
-			
-			if (sourceInRack
-			    && x1 == ui.CurrentlySelectedSquare.X) {
+			if (x1 == ui.CurrentlySelectedSquare.X && y1 == ui.CurrentlySelectedSquare.Y) {
 			    PlayAudio("audio1");
 			    
 			    ui.SetCurrentlySelectedSquareUpdateTargets(null);
-			    //ui.CurrentlySelectedSquare = 0;
 			    return;
 			}
 		    }
 		    
 		    PlayAudio("audio3");
 		    
-		    ui.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
+		    ui.SetCurrentlySelectedSquareUpdateTargets(board.Squares[x1][y1]);
 		    
 		    $(this).addClass("Selected");
 		}
 	    );
-
+	    
 	    var doneOnce = false;
 	    
 	    $(div).draggable({
@@ -1062,7 +716,10 @@ function UI() {
 		    PlayAudio("audio3");
 		    
 		    if (ui.CurrentlySelectedSquare) {
-			var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+			var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
+			
+			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+
 			var divz = document.getElementById(idSelected);
 			$(divz).removeClass("Selected");
 		    }
@@ -1073,7 +730,6 @@ function UI() {
 		    $(jui.helper).animate({'font-size' : '120%'}, 300);
 		    
 		    $(jui.helper).addClass("dragBorder");
-		    
 		},
 		
 		drag: function(event, jui) {
@@ -1089,312 +745,480 @@ function UI() {
 		    PlayAudio('audio5');
 		}
 	    });
-	    
-	    var txt1 = document.createTextNode(square.Tile.Letter);
-	    var span1 = document.createElement('span');
-	    span1.setAttribute('class', 'Letter');
-	    span1.appendChild(txt1);
-	    a.appendChild(span1);
+	}
+	
+	var txt1 = document.createTextNode(square.Tile.Letter);
+	var span1 = document.createElement('span');
+	span1.setAttribute('class', 'Letter');
+	span1.appendChild(txt1);
+	a.appendChild(span1);
 
-	    var txt2 = document.createTextNode(square.Tile.Score);
-	    var span2 = document.createElement('span');
-	    span2.setAttribute('class', 'Score');
-	    span2.appendChild(txt2);
-	    a.appendChild(span2);
+	var txt2 = document.createTextNode(square.Tile.Score);
+	var span2 = document.createElement('span');
+	span2.setAttribute('class', 'Score');
+	span2.appendChild(txt2);
+	a.appendChild(span2);
+    } else {
+	var middle = Math.floor(board.Dimension / 2);
+	if (square.X == middle && square.Y == middle) {
+	    div.setAttribute('class', "CenterStart");
 	} else {
 	    div.setAttribute('class', 'Empty');
-	    
-	    $(div).click(
-		function () {
-		    var id1 = $(this).attr("id");
-		    var underscore1 = id1.indexOf("_");
-		    var cross1 = id1.indexOf("x");
-		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
-		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
+	}
+	
+	$(div).click(
+	    function () {
+		var id1 = $(this).attr("id");
+		var underscore1 = id1.indexOf("_");
+		var cross1 = id1.indexOf("x");
+		var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+		var y1 = parseInt(id1.substring(cross1 + 1), 10);
+		
+		if (ui.CurrentlySelectedSquare) {
+		    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
+		    
+		    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+		    
+		    var divz = document.getElementById(idSelected);
 
-		    if (ui.CurrentlySelectedSquare) {
-			var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-			var divz = document.getElementById(idSelected);
-
-			$(divz).removeClass("Selected");
-			
-			var XX = ui.CurrentlySelectedSquare.X;
-			var YY = ui.CurrentlySelectedSquare.Y;
-			
-			ui.SetCurrentlySelectedSquareUpdateTargets(null);
-			
-			rack.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
-		    }
+		    $(divz).removeClass("Selected");
+		    
+		    var XX = ui.CurrentlySelectedSquare.X;
+		    var YY = ui.CurrentlySelectedSquare.Y;
+		    
+		    ui.SetCurrentlySelectedSquareUpdateTargets(null);
+		    
+		    board.MoveTile({ x: XX, y: YY },
+                                   { x: x1, y: y1 });
 		}
-	    );
+	    }
+	);
 
-	    $(div).droppable({
-		hoverClass: "dropActive",
-		drop: function(event, ui) {
-		    
-		    var id1 = $(jui.draggable).attr("id");
-		    var id2 = $(this).attr("id");
-		    
-		    var underscore1 = id1.indexOf("_");
-		    var cross1 = id1.indexOf("x");
-		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
-		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
-		    
-		    var underscore2 = id2.indexOf("_");
-		    var cross2 = id2.indexOf("x");
-		    var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
-		    var y2 = parseInt(id2.substring(cross2 + 1), 10);
-		    
-		    rack.MoveTile({'x':x1, 'y':y1}, {'x':x2, 'y':y2});
-		}
-	    });
+	$(div).droppable({
+	    hoverClass: "dropActive",
+	    drop: function(event, jui) {
+		var id1 = $(jui.draggable).attr("id");
+		var id2 = $(this).attr("id");
+		
+		var underscore1 = id1.indexOf("_");
+		var cross1 = id1.indexOf("x");
+		var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+		var y1 = parseInt(id1.substring(cross1 + 1), 10);
+		
+		var underscore2 = id2.indexOf("_");
+		var cross2 = id2.indexOf("x");
+		var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
+		var y2 = parseInt(id2.substring(cross2 + 1), 10);
+		
+		board.MoveTile({ x: x1, y: y1 },
+                               { x: x2, y: y2 });
+	    }
+	});
+	
+	switch (square.Type) {
+	case SquareType.Normal:
+	    var span1 = document.createElement('span');
+	    var txt1 = document.createTextNode(" ");
+	    span1.appendChild(txt1);
+	    a.appendChild(span1);
 	    
-	    switch (square.Type) {
-	    case SquareType.Normal:
+	    break;
+	case SquareType.DoubleWord:
+	    
+	    var middle = Math.floor(board.Dimension / 2);
+	    if (square.X == middle && square.Y == middle) {
+		var txt1 = document.createTextNode('\u2605');
 		var span1 = document.createElement('span');
-		var txt1 = document.createTextNode(" ");
 		span1.appendChild(txt1);
 		a.appendChild(span1);
-		break;
-	    default:
-		break;
+	    } else {
+		var txt1 = document.createTextNode("DOUBLE");
+		var txt2 = document.createTextNode("WORD");
+		var txt3 = document.createTextNode("SCORE");
+		
+		
+		var span1 = document.createElement('span');
+		span1.appendChild(txt1);
+		
+		var span2 = document.createElement('span');
+		span2.appendChild(txt2);
+		
+		var span3 = document.createElement('span');
+		span3.appendChild(txt3);
+
+		a.appendChild(span1);
+		a.appendChild(document.createElement('br'));
+		a.appendChild(span2);
+		a.appendChild(document.createElement('br'));
+		a.appendChild(span3);
 	    }
+	    break;
+	case SquareType.TripleWord:
+	    var span = document.createElement('span');
+	    var txt1 = document.createTextNode("TRIPLE WORD SCORE");
+	    span.appendChild(txt1);
+
+	    a.appendChild(span);
+	    break;
+	case SquareType.DoubleLetter:
+	    var span = document.createElement('span');
+	    var txt1 = document.createTextNode("DOUBLE LETTER SCORE");
+	    span.appendChild(txt1);
+
+	    a.appendChild(span);
+	    break;
+	case SquareType.TripleLetter:
+	    var span = document.createElement('span');
+	    var txt1 = document.createTextNode("TRIPLE LETTER SCORE");
+	    span.appendChild(txt1);
+
+	    a.appendChild(span);
+	    break;
+	default:
+	    break;
 	}
     }
-
-    function DrawRack(ui, rack) {
-	var rootDiv = document.getElementById('rack');
-	var table = document.createElement('table');
-	rootDiv.appendChild(table);
-	
+}
+    
+UI.prototype.DrawBoard = function(board) {
+    var rootDiv = document.getElementById('board');
+    var table = document.createElement('table');
+    rootDiv.appendChild(table);
+    
+    for (var y = 0; y < board.Dimension; y++) {
 	var tr = document.createElement('tr');
 	table.appendChild(tr);
+	
+	for (var x = 0; x < board.Dimension; x++) {
+	    var square = board.Squares[x][y];
 
-	for (var x = 0; x < rack.Dimension; x++) {
-	    var square = rack.Squares[x];
-
+	    var centerStart = false;
+	    
 	    var td = document.createElement('td');
 	    tr.appendChild(td);
-
-	    td.setAttribute('class', 'Normal');
+	    
+	    var middle = Math.floor(board.Dimension / 2);
+	    var halfMiddle = Math.ceil(middle / 2);
+	    
+	    if (square.Type == SquareType.TripleWord) {
+		td.setAttribute('class', 'TripleWord');
+	    } else if (square.Type == SquareType.DoubleWord) {
+		if (x == middle && y == middle) {
+		    centerStart = true;
+		}
+		
+		td.setAttribute('class', 'DoubleWord');
+	    } else if (square.Type == SquareType.DoubleLetter) {
+		td.setAttribute('class', 'DoubleLetter');
+	    } else if (square.Type == SquareType.TripleLetter) {
+		td.setAttribute('class', 'TripleLetter');
+	    } else {
+		td.setAttribute('class', 'Normal');
+	    }
 	    
 	    var div = document.createElement('div');
 	    td.appendChild(div);
 	    
-	    var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
+	    var id = IDPrefix_Board_SquareOrTile + x + "x" + y;
 	    div.setAttribute('id', id);
 	    
 	    var a = document.createElement('a');
 	    div.appendChild(a);
 	    
-	    UpdateRackCell(ui, rack, square);
+	    this.UpdateBoardCell(board, square);
 	}
     }
-
-
-    function DrawLetterTiles(ui, game) {
-        var rootDiv = document.getElementById('letters');
-        
-        if (rootDiv.hasChildNodes()) {
-	    while (rootDiv.childNodes.length >= 1) {
-	        rootDiv.removeChild(rootDiv.firstChild);
-	    }
-        }
-        
-        var table = document.createElement('table');
-        rootDiv.appendChild(table);
-        
-        var tr = 0
-
-        var counter = 9;
-        for (var i = 0; i < game.LetterBag.Letters.length; i++) {
-	    var tile = game.LetterBag.Letters[i];
-	    if (tile.IsBlank) continue;
-
-	    counter++;
-	    if (counter > 9) {
-	        tr = document.createElement('tr');
-	        table.appendChild(tr);
-
-	        counter = 0;
-	    }
-	    
-	    var td = document.createElement('td');
-	    td.setAttribute('class', 'Normal');
-	    tr.appendChild(td);
-	    
-	    var div = document.createElement('div');
-	    td.appendChild(div);
-
-	    var id = IDPrefix_Letters_SquareOrTile + i;
-	    div.setAttribute('id', id);
-	    
-	    var a = document.createElement('a');
-	    div.appendChild(a);
-
-	    div.setAttribute('class', 'Tile Temp' + (tile.IsBlank ? " BlankLetter" : ""));
-	    
-	    $(div).click(
-	        function () {
-
-		    var id1 = $(this).attr("id");
-		    var underscore1 = id1.indexOf("_");
-		    var index = parseInt(id1.substring(underscore1 + 1), 10);
-
-	            if (ui.CurrentlySelectedSquare) {
-		        var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
-		        
-		        var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-
-		        var divz = document.getElementById(idSelected);
-
-		        $(divz).addClass("Selected");
-	            }
-	        }
-            );
-
-            var txt1 = document.createTextNode(tile.Letter);
-            var span1 = document.createElement('span');
-            span1.setAttribute('class', 'Letter');
-            span1.appendChild(txt1);
-            a.appendChild(span1);
-
-            var txt2 = document.createTextNode(tile.Score);
-            var span2 = document.createElement('span');
-            span2.setAttribute('class', 'Score');
-            span2.appendChild(txt2);
-            a.appendChild(span2);
-        }
-	
-	var input = document.createElement('input');
-	input.setAttribute('type', 'submit');
-	input.setAttribute('value', 'Cancel');
-	
-	var buttonDiv = document.createElement('div');
-	buttonDiv.setAttribute('style', 'background-color: #333333; width: auto; padding: 1em; padding-left: 2em; padding-right: 2em;');
-	buttonDiv.appendChild(input);
-	rootDiv.appendChild(buttonDiv);
-    }
-
-    this.CleanupErrorLayer = function() {
-        for (var y = 0; y < this.Board.Dimension; y++) {
-	    for (var x = 0; x < this.Board.Dimension; x++) {
-	        var square = this.Board.Squares[x][y];
-	        var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
-	        var td = document.getElementById(id).parentNode;
-	        $(td).removeClass("Invalid");
-	        $(td).removeClass("Valid");
-	        $(td).removeClass("ValidButWrongPlacement");
-	    }
-        }
-    }
-
-    function handleKeyup(event) {
-        // NN4 passes the event as a parameter.  For MSIE4 (and others)
-        // we need to get the event from the window.
-        if (document.all) {
-	    event = window.event;
-        }
-
-        var key = event.which;
-        if (!key) {
-	    key = event.keyCode;
-        }
-
-        // ESC key
-        if (key == 27) {
-            //TODO: move all temp tiles from board back to rack ?
-        }
-
-        return true;
-    }
-
-    function handleKeypress(event) {
-        // NN4 passes the event as a parameter.  For MSIE4 (and others)
-        // we need to get the event from the window.
-        if (document.all) {
-	    event = window.event;
-        }
-        
-        if (event.ctrlKey || event.altKey) {
-	    return true;
-        }
-
-        var key = event.which;
-        if (!key) {
-	    key = event.keyCode;
-        }
-        
-        if (!event.charCode) {
-	    if (nKeyCode >= 112 && nKeyCode <= 123) {
-	        return true;
-	    }
-        }
-        
-        if (key > 96) {
-	    key -= 32;
-        }
-
-        if (key != 13 && key != 32 && (key < 65 || key > 65 + 26)) {
-	    return true;
-        }
-
-        // ENTER/RETURN key
-        if (key == 13) {
-	    //TODO submit player turn
-	} else {
-            var keyChar = String.fromCharCode(key);
-            
-            //TODO
-        }
-        if (document.all) {
-            event.cancelBubble = true;
-            event.returnValue = false;
-        } else {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-
-        return false;
-    }
-
-    if (document.all) {
-        document.attachEvent("onkeyup", handleKeyup);
-    } else {
-        document.onkeyup = handleKeyup;
-    }
-
-    var thiz = this;
-
-    EventsManager.AddEventListener('BoardReady', function(eventPayload) {
-        thiz.Board = eventPayload.Board;
-        DrawBoard(thiz, eventPayload.Board);
-    });
-
-    EventsManager.AddEventListener('BoardSquareTileChanged', function(eventPayload) {
-        UpdateBoardCell(thiz, eventPayload.Board, eventPayload.Square);
-    });
-
-    EventsManager.AddEventListener('BoardSquareStateChanged', function(eventPayload) {
-        UpdateCellState(thiz, eventPayload.Board, eventPayload.Square, eventPayload.State);
-    });
-
-    EventsManager.AddEventListener('RackReady', function(eventPayload) {
-        thiz.Rack = eventPayload.Rack;
-        DrawRack(thiz, eventPayload.Rack);
-    });
-
-    EventsManager.AddEventListener('RackSquareTileChanged', function(eventPayload) {
-        UpdateRackCell(thiz, eventPayload.Rack, eventPayload.Square);
-    });
-
-    EventsManager.AddEventListener('LetterTilesReady', function(eventPayload) {
-        thiz.Game = eventPayload.Game;
-        DrawLetterTiles(thiz, eventPayload.Game);
-    });
 }
 
-//TODO: make class method !! (currently some sort of static function)
+UI.prototype.UpdateRackCell = function(rack, square) {
+    var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
+    var td = document.getElementById(id).parentNode;
+    if (td.hasChildNodes()) {
+	while (td.childNodes.length >= 1) {
+	    td.removeChild(td.firstChild);
+	}
+    }
+    
+    var div = document.createElement('div');
+    td.appendChild(div);
+    div.setAttribute('id', id);
+    
+    var a = document.createElement('a');
+    div.appendChild(a);
+
+    var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
+
+    if (square.Tile) {
+	div.setAttribute('class', 'Tile Temp' + (square.Tile.IsBlank ? " BlankLetter" : "") + (rack.Locked ? " Locked" : ""));
+	
+	$(div).click(
+	    function () {
+		var id1 = $(this).attr("id");
+		var underscore1 = id1.indexOf("_");
+		var cross1 = id1.indexOf("x");
+		var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+		var y1 = parseInt(id1.substring(cross1 + 1), 10);
+		
+		if (ui.CurrentlySelectedSquare) {
+		    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
+		    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+		    var divz = document.getElementById(idSelected);
+
+		    $(divz).removeClass("Selected");
+		    
+		    if (sourceInRack
+			&& x1 == ui.CurrentlySelectedSquare.X) {
+			PlayAudio("audio1");
+			
+			ui.SetCurrentlySelectedSquareUpdateTargets(null);
+			return;
+		    }
+		}
+		
+		PlayAudio("audio3");
+		
+		ui.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
+		
+		$(this).addClass("Selected");
+	    }
+	);
+
+	var doneOnce = false;
+	
+	$(div).draggable({
+	    revert: "invalid",
+	    opacity: 1,
+	    helper: "clone",
+	    start: function(event, jui) {
+		PlayAudio("audio3");
+		
+		if (ui.CurrentlySelectedSquare) {
+		    var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+		    var divz = document.getElementById(idSelected);
+		    $(divz).removeClass("Selected");
+		}
+		ui.SetCurrentlySelectedSquareUpdateTargets(null);
+		
+		$(this).css({ opacity: 0.5 });
+		
+		$(jui.helper).animate({'font-size' : '120%'}, 300);
+		
+		$(jui.helper).addClass("dragBorder");
+		
+	    },
+	    
+	    drag: function(event, jui) {
+		if (!doneOnce) {
+		    $(jui.helper).addClass("dragBorder");
+		    
+		    doneOnce = true;
+		}
+	    },
+	    stop: function(event, ui) {
+		$(this).css({ opacity: 1 });
+
+		PlayAudio('audio5');
+	    }
+	});
+	
+	var txt1 = document.createTextNode(square.Tile.Letter);
+	var span1 = document.createElement('span');
+	span1.setAttribute('class', 'Letter');
+	span1.appendChild(txt1);
+	a.appendChild(span1);
+
+	var txt2 = document.createTextNode(square.Tile.Score);
+	var span2 = document.createElement('span');
+	span2.setAttribute('class', 'Score');
+	span2.appendChild(txt2);
+	a.appendChild(span2);
+    } else {
+	div.setAttribute('class', 'Empty');
+	
+	$(div).click(
+	    function () {
+		var id1 = $(this).attr("id");
+		var underscore1 = id1.indexOf("_");
+		var cross1 = id1.indexOf("x");
+		var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+		var y1 = parseInt(id1.substring(cross1 + 1), 10);
+
+		if (ui.CurrentlySelectedSquare) {
+		    var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+		    var divz = document.getElementById(idSelected);
+
+		    $(divz).removeClass("Selected");
+		    
+		    var XX = ui.CurrentlySelectedSquare.X;
+		    var YY = ui.CurrentlySelectedSquare.Y;
+		    
+		    ui.SetCurrentlySelectedSquareUpdateTargets(null);
+		    
+		    rack.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
+		}
+	    }
+	);
+
+	$(div).droppable({
+	    hoverClass: "dropActive",
+	    drop: function(event, jui) {
+		
+		var id1 = $(jui.draggable).attr("id");
+		var id2 = $(this).attr("id");
+		
+		var underscore1 = id1.indexOf("_");
+		var cross1 = id1.indexOf("x");
+		var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+		var y1 = parseInt(id1.substring(cross1 + 1), 10);
+		
+		var underscore2 = id2.indexOf("_");
+		var cross2 = id2.indexOf("x");
+		var x2 = parseInt(id2.substring(underscore2 + 1, cross2), 10);
+		var y2 = parseInt(id2.substring(cross2 + 1), 10);
+		
+		rack.MoveTile({'x': x1, 'y': y1}, {'x': x2, 'y': y2});
+	    }
+	});
+	
+	switch (square.Type) {
+	case SquareType.Normal:
+	    var span1 = document.createElement('span');
+	    var txt1 = document.createTextNode(" ");
+	    span1.appendChild(txt1);
+	    a.appendChild(span1);
+	    break;
+	default:
+	    break;
+	}
+    }
+}
+
+UI.prototype.DrawRack = function(rack) {
+    var rootDiv = document.getElementById('rack');
+    var table = document.createElement('table');
+    rootDiv.appendChild(table);
+    
+    var tr = document.createElement('tr');
+    table.appendChild(tr);
+
+    for (var x = 0; x < rack.Dimension; x++) {
+	var square = rack.Squares[x];
+
+	var td = document.createElement('td');
+	tr.appendChild(td);
+
+	td.setAttribute('class', 'Normal');
+	
+	var div = document.createElement('div');
+	td.appendChild(div);
+	
+	var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
+	div.setAttribute('id', id);
+	
+	var a = document.createElement('a');
+	div.appendChild(a);
+	
+	this.UpdateRackCell(rack, square);
+    }
+}
+
+UI.prototype.DrawLetterTiles = function(game) {
+    var rootDiv = document.getElementById('letters');
+    
+    if (rootDiv.hasChildNodes()) {
+	while (rootDiv.childNodes.length >= 1) {
+	    rootDiv.removeChild(rootDiv.firstChild);
+	}
+    }
+    
+    var table = document.createElement('table');
+    rootDiv.appendChild(table);
+    
+    var tr = 0
+
+    var counter = 9;
+    for (var i = 0; i < game.LetterBag.Letters.length; i++) {
+	var tile = game.LetterBag.Letters[i];
+	if (tile.IsBlank) continue;
+
+	counter++;
+	if (counter > 9) {
+	    tr = document.createElement('tr');
+	    table.appendChild(tr);
+
+	    counter = 0;
+	}
+	
+	var td = document.createElement('td');
+	td.setAttribute('class', 'Normal');
+	tr.appendChild(td);
+	
+	var div = document.createElement('div');
+	td.appendChild(div);
+
+	var id = IDPrefix_Letters_SquareOrTile + i;
+	div.setAttribute('id', id);
+	
+	var a = document.createElement('a');
+	div.appendChild(a);
+
+	div.setAttribute('class', 'Tile Temp' + (tile.IsBlank ? " BlankLetter" : ""));
+	
+	$(div).click(
+	    function () {
+
+		var id1 = $(this).attr("id");
+		var underscore1 = id1.indexOf("_");
+		var index = parseInt(id1.substring(underscore1 + 1), 10);
+
+	        if (ui.CurrentlySelectedSquare) {
+		    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
+		    
+		    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+
+		    var divz = document.getElementById(idSelected);
+
+		    $(divz).addClass("Selected");
+	        }
+	    }
+        );
+
+        var txt1 = document.createTextNode(tile.Letter);
+        var span1 = document.createElement('span');
+        span1.setAttribute('class', 'Letter');
+        span1.appendChild(txt1);
+        a.appendChild(span1);
+
+        var txt2 = document.createTextNode(tile.Score);
+        var span2 = document.createElement('span');
+        span2.setAttribute('class', 'Score');
+        span2.appendChild(txt2);
+        a.appendChild(span2);
+    }
+    
+    var input = document.createElement('input');
+    input.setAttribute('type', 'submit');
+    input.setAttribute('value', 'Cancel');
+    
+    var buttonDiv = document.createElement('div');
+    buttonDiv.setAttribute('style', 'background-color: #333333; width: auto; padding: 1em; padding-left: 2em; padding-right: 2em;');
+    buttonDiv.appendChild(input);
+    rootDiv.appendChild(buttonDiv);
+}
+
+UI.prototype.CleanupErrorLayer = function() {
+    for (var y = 0; y < this.Board.Dimension; y++) {
+	for (var x = 0; x < this.Board.Dimension; x++) {
+	    var square = this.Board.Squares[x][y];
+	    var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
+	    var td = document.getElementById(id).parentNode;
+	    $(td).removeClass("Invalid");
+	    $(td).removeClass("Valid");
+	    $(td).removeClass("ValidButWrongPlacement");
+	}
+    }
+}
+
 UI.prototype.SetCurrentlySelectedSquareUpdateTargets = function(square) {
     this.CurrentlySelectedSquare = square;
     
