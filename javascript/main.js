@@ -371,7 +371,6 @@ function calculateBoard(squares)
             || (x < 14 && squares[x + 1][y].Tile && squares[x + 1][y].Tile.TileLocked)
             || (y > 0 && squares[x][y - 1].Tile && squares[x][y - 1].Tile.TileLocked)
             || (y < 14 && squares[x][y + 1].Tile && squares[x][y + 1].Tile.TileLocked);
-        console.log('touching old ' + x + '/' + y + ' => ' + retval);
         return retval;
     }
 
@@ -1283,7 +1282,6 @@ function UI() {
 			var divz = document.getElementById(idSelected);
 			$(divz).removeClass("Selected");
 		    }
-                    console.log('event', event, 'ui', ui);
 		    ui.SetCurrentlySelectedSquareUpdateTargets(null);
 		    
 		    $(this).css({ opacity: 0.5 });
