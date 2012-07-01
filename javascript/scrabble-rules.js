@@ -24,7 +24,7 @@ function calculateMove(squares)
     var tile;
     for (y = 0; !tile && y < 15; y++) {
         for (x = 0; !tile && x < 15; x++) {
-            if (squares[x][y].Tile && !squares[x][y].Tile.TileLocked) {
+            if (squares[x][y].Tile && !squares[x][y].TileLocked) {
                 tile = squares[x][y].Tile;
                 topLeftX = x;
                 topLeftY = y;
@@ -41,10 +41,10 @@ function calculateMove(squares)
 
     function touchingOld(x, y) {
         var retval = 
-        (x > 0 && squares[x - 1][y].Tile && squares[x - 1][y].Tile.TileLocked)
-            || (x < 14 && squares[x + 1][y].Tile && squares[x + 1][y].Tile.TileLocked)
-            || (y > 0 && squares[x][y - 1].Tile && squares[x][y - 1].Tile.TileLocked)
-            || (y < 14 && squares[x][y + 1].Tile && squares[x][y + 1].Tile.TileLocked);
+        (x > 0 && squares[x - 1][y].Tile && squares[x - 1][y].TileLocked)
+            || (x < 14 && squares[x + 1][y].Tile && squares[x + 1][y].TileLocked)
+            || (y > 0 && squares[x][y - 1].Tile && squares[x][y - 1].TileLocked)
+            || (y < 14 && squares[x][y + 1].Tile && squares[x][y + 1].TileLocked);
         return retval;
     }
 
@@ -53,7 +53,7 @@ function calculateMove(squares)
     for (var x = topLeftX + 1; x < 15; x++) {
         if (!squares[x][topLeftY].Tile) {
             break;
-        } else if (!squares[x][topLeftY].Tile.TileLocked) {
+        } else if (!squares[x][topLeftY].TileLocked) {
             legalPlacements[x][topLeftY] = true;
             horizontal = true;
             isTouchingOld = isTouchingOld || touchingOld(x, topLeftY);
@@ -64,7 +64,7 @@ function calculateMove(squares)
         for (var y = topLeftY + 1; y < 15; y++) {
             if (!squares[topLeftX][y].Tile) {
                 break;
-            } else if (!squares[topLeftX][y].Tile.TileLocked) {
+            } else if (!squares[topLeftX][y].TileLocked) {
                 legalPlacements[topLeftX][y] = true;
                 isTouchingOld = isTouchingOld || touchingOld(topLeftX, y);
             }
@@ -79,7 +79,7 @@ function calculateMove(squares)
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
-            if (square.Tile && !square.Tile.TileLocked && !legalPlacements[x][y]) {
+            if (square.Tile && !square.TileLocked && !legalPlacements[x][y]) {
                 return { error: 'unconnected placement' };
             }
         }
@@ -100,8 +100,8 @@ function calculateMove(squares)
                     for (; x < 15 && squares[x][y].Tile; x++) {
                         var square = squares[x][y];
                         var letterScore = square.Tile.Score;
-                        isNewWord = isNewWord || !square.Tile.TileLocked;
-                        if (!square.Tile.TileLocked) {
+                        isNewWord = isNewWord || !square.TileLocked;
+                        if (!square.TileLocked) {
                             switch (square.Type) {
                             case SquareType.DoubleLetter:
                                 letterScore *= 2;
@@ -147,7 +147,7 @@ function calculateMove(squares)
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
-            if (square.Tile && !square.Tile.TileLocked) {
+            if (square.Tile && !square.TileLocked) {
                 tilesPlaced.push({ Letter: square.Tile.Letter,
                                    X: x,
                                    Y: y });

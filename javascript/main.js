@@ -599,8 +599,24 @@ Game.prototype.CommitMove = function() {
         return;
     }
 
-    $(document).trigger('LockRack', [ this.Rack ]);
-    $(document).trigger('CommitMove', [ this.Board ]);
+    this.Rack.Locked = true;
+
+    for (var y = 0; y < this.Board.Dimension; y++) {
+	for (var x = 0; x < this.Board.Dimension; x++) {
+            var square = this.Board.Squares[x][y];
+            if (square.Tile) {
+                square.TileLocked = true;
+            }
+        }
+    }
+
+    $(document).trigger('RefreshRack', [ this.Rack ]);
+    $(document).trigger('RefreshBoard', [ this.Board ]);
+}
+
+Game.prototype.OpenForMove = function() {
+    this.Rack.Locked = false;
+    $(document).trigger('RefreshRack', [ this.Rack ]);
 }
     
 
@@ -631,7 +647,9 @@ function UI() {
         .bind('BoardSquareStateChanged', uiCall(ui.UpdateCellState))
         .bind('RackReady', uiCall(ui.DrawRack))
         .bind('RackSquareTileChanged', uiCall(ui.UpdateRackCell))
-        .bind('LetterTilesReady', uiCall(ui.DrawLetterTiles));
+        .bind('LetterTilesReady', uiCall(ui.DrawLetterTiles))
+        .bind('RefreshRack', uiCall(ui.RefreshRack))
+        .bind('RefreshBoard', uiCall(ui.RefreshBoard));
 }
 
 UI.prototype.UpdateCellState = function(board, square, state) {
@@ -949,77 +967,80 @@ UI.prototype.UpdateRackCell = function(rack, square) {
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
     if (square.Tile) {
-	div.setAttribute('class', 'Tile Temp' + (square.Tile.IsBlank ? " BlankLetter" : "") + (rack.Locked ? " Locked" : ""));
-	
-	$(div).click(
-	    function () {
-		var id1 = $(this).attr("id");
-		var underscore1 = id1.indexOf("_");
-		var cross1 = id1.indexOf("x");
-		var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
-		var y1 = parseInt(id1.substring(cross1 + 1), 10);
-		
-		if (ui.CurrentlySelectedSquare) {
-		    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
-		    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-		    var divz = document.getElementById(idSelected);
+	div.setAttribute('class', 'Tile' + (square.Tile.IsBlank ? " BlankLetter" : "") + (rack.Locked ? " Locked" : " Temp"));
 
-		    $(divz).removeClass("Selected");
-		    
-		    if (sourceInRack
-			&& x1 == ui.CurrentlySelectedSquare.X) {
-			PlayAudio("audio1");
-			
-			ui.SetCurrentlySelectedSquareUpdateTargets(null);
-			return;
-		    }
-		}
-		
-		PlayAudio("audio3");
-		
-		ui.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
-		
-		$(this).addClass("Selected");
-	    }
-	);
-
-	var doneOnce = false;
-	
-	$(div).draggable({
-	    revert: "invalid",
-	    opacity: 1,
-	    helper: "clone",
-	    start: function(event, jui) {
-		PlayAudio("audio3");
-		
-		if (ui.CurrentlySelectedSquare) {
-		    var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
-		    var divz = document.getElementById(idSelected);
-		    $(divz).removeClass("Selected");
-		}
-		ui.SetCurrentlySelectedSquareUpdateTargets(null);
-		
-		$(this).css({ opacity: 0.5 });
-		
-		$(jui.helper).animate({'font-size' : '120%'}, 300);
-		
-		$(jui.helper).addClass("dragBorder");
-		
-	    },
+        if (!rack.Locked) {
 	    
-	    drag: function(event, jui) {
-		if (!doneOnce) {
+	    $(div).click(
+	        function () {
+		    var id1 = $(this).attr("id");
+		    var underscore1 = id1.indexOf("_");
+		    var cross1 = id1.indexOf("x");
+		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
+		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
+		    
+		    if (ui.CurrentlySelectedSquare) {
+		        var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
+		        var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+		        var divz = document.getElementById(idSelected);
+
+		        $(divz).removeClass("Selected");
+		        
+		        if (sourceInRack
+			    && x1 == ui.CurrentlySelectedSquare.X) {
+			    PlayAudio("audio1");
+			    
+			    ui.SetCurrentlySelectedSquareUpdateTargets(null);
+			    return;
+		        }
+		    }
+		    
+		    PlayAudio("audio3");
+		    
+		    ui.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
+		    
+		    $(this).addClass("Selected");
+                }
+	    );
+
+	    var doneOnce = false;
+	    
+	    $(div).draggable({
+	        revert: "invalid",
+	        opacity: 1,
+	        helper: "clone",
+	        start: function(event, jui) {
+		    PlayAudio("audio3");
+		    
+		    if (ui.CurrentlySelectedSquare) {
+		        var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
+		        var divz = document.getElementById(idSelected);
+		        $(divz).removeClass("Selected");
+		    }
+		    ui.SetCurrentlySelectedSquareUpdateTargets(null);
+		    
+		    $(this).css({ opacity: 0.5 });
+		    
+		    $(jui.helper).animate({'font-size' : '120%'}, 300);
+		    
 		    $(jui.helper).addClass("dragBorder");
 		    
-		    doneOnce = true;
-		}
-	    },
-	    stop: function(event, ui) {
-		$(this).css({ opacity: 1 });
+	        },
+	        
+	        drag: function(event, jui) {
+		    if (!doneOnce) {
+		        $(jui.helper).addClass("dragBorder");
+		        
+		        doneOnce = true;
+		    }
+	        },
+	        stop: function(event, ui) {
+		    $(this).css({ opacity: 1 });
 
-		PlayAudio('audio5');
-	    }
-	});
+		    PlayAudio('audio5');
+	        }
+	    });
+        }
 	
 	var txt1 = document.createTextNode(square.Tile.Letter);
 	var span1 = document.createElement('span');
@@ -1204,6 +1225,22 @@ UI.prototype.DrawLetterTiles = function(game) {
     buttonDiv.setAttribute('style', 'background-color: #333333; width: auto; padding: 1em; padding-left: 2em; padding-right: 2em;');
     buttonDiv.appendChild(input);
     rootDiv.appendChild(buttonDiv);
+}
+
+UI.prototype.RefreshRack = function(rack) {
+    for (var x = 0; x < rack.Dimension; x++) {
+	var square = rack.Squares[x];
+
+	this.UpdateRackCell(rack, square);
+    }
+}
+
+UI.prototype.RefreshBoard = function(board) {
+    for (var y = 0; y < board.Dimension; y++) {
+	for (var x = 0; x < board.Dimension; x++) {
+            this.UpdateBoardCell(board, board.Squares[x][y]);
+	}
+    }
 }
 
 UI.prototype.CleanupErrorLayer = function() {
