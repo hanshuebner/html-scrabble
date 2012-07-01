@@ -1387,8 +1387,6 @@ function UI() {
 	    $(div).click(
 	        function () {
 
-		    $.unblockUI();
-		    
 		    var id1 = $(this).attr("id");
 		    var underscore1 = id1.indexOf("_");
 		    var index = parseInt(id1.substring(underscore1 + 1), 10);
@@ -1421,25 +1419,12 @@ function UI() {
 	var input = document.createElement('input');
 	input.setAttribute('type', 'submit');
 	input.setAttribute('value', 'Cancel');
-	input.setAttribute('onclick', '$.unblockUI();');
 	
 	var buttonDiv = document.createElement('div');
 	buttonDiv.setAttribute('style', 'background-color: #333333; width: auto; padding: 1em; padding-left: 2em; padding-right: 2em;');
 	buttonDiv.appendChild(input);
 	rootDiv.appendChild(buttonDiv);
     }
-
-
-    this.OnUnblockUIFunction = function() {};
-
-    this.UnblockUIFunction = function() {
-	$.unblockUI( {
-	    onUnblock: function() {
-		UI.OnUnblockUIFunction();
-		UI.OnUnblockUIFunction = function() {};
-	    }
-	});
-    };
 
     this.CleanupErrorLayer = function() {
         for (var y = 0; y < this.Board.Dimension; y++) {
@@ -1468,7 +1453,6 @@ function UI() {
 
         // ESC key
         if (key == 27) {
-	    UI.prototype.UnblockUIFunction();
             //TODO: move all temp tiles from board back to rack ?
         }
 
