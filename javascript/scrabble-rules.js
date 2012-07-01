@@ -58,7 +58,7 @@ function calculateBoard(squares)
         } else if (!squares[x][topLeftY].Tile.TileLocked) {
             legalPlacements[x][topLeftY] = true;
             horizontal = true;
-            isTouchingOld |= touchingOld(x, topLeftY);
+            isTouchingOld = isTouchingOld || touchingOld(x, topLeftY);
         }
     }
 
@@ -68,7 +68,7 @@ function calculateBoard(squares)
                 break;
             } else if (!squares[topLeftX][y].Tile.TileLocked) {
                 legalPlacements[topLeftX][y] = true;
-                isTouchingOld |= touchingOld(topLeftX, y);
+                isTouchingOld = isTouchingOld || touchingOld(topLeftX, y);
             }
         }
     }
