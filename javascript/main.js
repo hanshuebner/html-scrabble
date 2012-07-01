@@ -798,9 +798,6 @@ function Game(language, board, rack) {
 
     this.Language = language;
     this.LetterBag = new LetterBag(language);
-
-    this.SquareBlankLetterInWaitingBoard = null;
-    this.SquareBlankLetterInWaitingRack = null;
 }
 
 Game.prototype.MoveTile = function(tileXY, squareXY) {
@@ -928,37 +925,6 @@ function UI() {
 			ui.SetCurrentlySelectedSquareUpdateTargets(board.Squares[x1][y1]);
 			
 			$(this).addClass("Selected");
-
-			if (square.Tile.IsBlank) {
-			    board.Game.SquareBlankLetterInWaitingRack = null;
-			    board.Game.SquareBlankLetterInWaitingBoard = square;
-			    
-			    $.blockUI({
-				message: $('#letters'),
-				focusInput: true,
-				bindEvents: true,
-				constrainTabKey: true,
-				fadeIn: 0,
-				fadeOut: 0,
-				showOverlay: true,
-				centerY: true,
-				css: { position: "absolute", backgroundColor: "transparent", width: "100%", left: 0, top: $(this).offset().top, border: "none", textAlign: "center" },
-				overlayCSS: { backgroundColor: '#333333', opacity: 0.7 },
-				onBlock: function() {
-				    //console.log("modal activated");
-				}
-			    }); 
-			    
-			    $('.blockOverlay').attr('title','Click to cancel');
-			    $('.blockOverlay').click(
-				function() {
-				    $.unblockUI( {
-					onUnblock: function() {
-					}
-				    });
-				}
-			    );
-			}
 		    }
 		);
 		
@@ -1233,38 +1199,6 @@ function UI() {
 		    ui.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
 		    
 		    $(this).addClass("Selected");
-		    
-		    if (square.Tile.IsBlank) {
-			board.Game.SquareBlankLetterInWaitingBoard = null;
-			board.Game.SquareBlankLetterInWaitingRack = square;
-			
-			$.blockUI({
-			    message: $('#letters'),
-			    focusInput: true,
-			    bindEvents: true,
-			    constrainTabKey: true,
-			    fadeIn: 0,
-			    fadeOut: 0,
-			    showOverlay: true,
-			    centerY: true,
-			    css: { position: "absolute", backgroundColor: "transparent", width: "100%", left: 0, top: $(this).offset().top, border: "none", textAlign: "center" },
-			    overlayCSS: { backgroundColor: '#333333', opacity: 0.7 },
-			    onBlock: function() {
-				//console.log("modal activated");
-			    }
-			}); 
-			
-			$('.blockOverlay').attr('title','Click to cancel');
-			$('.blockOverlay').click(
-			    function(){
-				$.unblockUI( {
-				    onUnblock: function() {
-					//console.log("modal dismissed");
-				    }
-				});
-			    }
-			);
-		    }
 		}
 	    );
 
@@ -1459,33 +1393,6 @@ function UI() {
 		    var underscore1 = id1.indexOf("_");
 		    var index = parseInt(id1.substring(underscore1 + 1), 10);
 
-	            if (game.SquareBlankLetterInWaitingBoard) {
-		        if (ui.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingBoard) {
-		            alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingBoard");
-		        }
-		        
-		        game.SquareBlankLetterInWaitingBoard.Tile.Letter = game.LetterBag.Letters[index].Letter;
-
-		        var square = game.SquareBlankLetterInWaitingBoard;
-		        game.SquareBlankLetterInWaitingBoard = null;
-
-		        EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': game.Board, 'Square': square });
-	            }
-	            
-	            else if (game.SquareBlankLetterInWaitingRack) {
-		        if (ui.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingRack) {
-		            alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingRack");
-		        }
-		        
-		        game.SquareBlankLetterInWaitingRack.Tile.Letter = game.LetterBag.Letters[index].Letter;
-
-		        var square = game.SquareBlankLetterInWaitingRack;
-		        game.SquareBlankLetterInWaiting = null;
-		        
-		        EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': game.Rack, 'Square': square });
-	            }
-	            
-	            
 	            if (ui.CurrentlySelectedSquare) {
 		        var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
 		        
