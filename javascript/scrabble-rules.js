@@ -7,12 +7,11 @@ function MakeBoardArray()
     return retval;
 }
 
-function calculateBoard(squares)
+function calculateMove(squares)
 {
     // Check that the start field is occupied
     if (!squares[7][7].Tile) {
-        console.log("start field must be used");
-        return null;
+        return { error: "start field must be used" };
     }
     
     // Determine that the placement of the Tile(s) is legal
@@ -33,8 +32,7 @@ function calculateBoard(squares)
         }
     }
     if (!tile) {
-        console.log("no new tile found");
-        return null;
+        return { error: "no new tile found" };
     }
     
     // Remember which newly placed tile positions are legal
@@ -74,8 +72,7 @@ function calculateBoard(squares)
     }
 
     if (!isTouchingOld && !legalPlacements[7][7]) {
-        console.log('not touching old tile ' + topLeftX + '/' + topLeftY);
-        return null;
+        return { error: 'not touching old tile ' + topLeftX + '/' + topLeftY };
     }
 
     // Check whether there are any unconnected other placements 
@@ -83,19 +80,20 @@ function calculateBoard(squares)
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
             if (square.Tile && !square.Tile.TileLocked && !legalPlacements[x][y]) {
-                console.log('unconnected placement');
-                return false;
+                return { error: 'unconnected placement' };
             }
         }
     }
 
-    // The move was legal, calculate values
-    function horizontalWordValues(squares) {
-        var value = 0;
+    var move = { words: [] };
+
+    // The move was legal, calculate scores
+    function horizontalWordScores(squares) {
+        var score = 0;
         for (var y = 0; y < 15; y++) {
             for (var x = 0; x < 14; x++) {
                 if (squares[x][y].Tile && squares[x + 1][y].Tile) {
-                    var wordValue = 0;
+                    var wordScore = 0;
                     var letters = '';
                     var wordMultiplier = 1;
                     var isNewWord = false;
@@ -119,47 +117,51 @@ function calculateBoard(squares)
                                 break;
                             }
                         }
-                        wordValue += letterScore;
+                        wordScore += letterScore;
                         letters += square.Tile.Letter;
                     }
-                    wordValue *= wordMultiplier;
+                    wordScore *= wordMultiplier;
                     if (isNewWord) {
-                        console.log("word: [" + letters + "] value " + wordValue);
-                        value += wordValue;
+                        console.log("word: [" + letters + "] score " + wordScore);
+                        move.words.push({ word: letters, score: wordScore });
+                        score += wordScore;
                     }
                 }
             }
         }
-        return value;
+        return score;
     }
 
-    var moveValue = horizontalWordValues(squares);
-    // Create rotated version of the board to calculate vertical word values.
+    move.score = horizontalWordScores(squares);
+    // Create rotated version of the board to calculate vertical word scores.
     var rotatedSquares = MakeBoardArray();
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             rotatedSquares[x][y] = squares[y][x];
         }
     }
-    moveValue += horizontalWordValues(rotatedSquares);
+    move.score += horizontalWordScores(rotatedSquares);
 
-    // Count the number of letters placed.
-    var lettersPlaced = 0;
+    // Collect and count tiles placed.
+    var tilesPlaced = [];
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
             if (square.Tile && !square.Tile.TileLocked) {
-                lettersPlaced++;
+                tilesPlaced.push({ Letter: square.Tile.Letter,
+                                   X: x,
+                                   Y: y });
             }
         }
     }
-    if (lettersPlaced == 7) {
-        moveValue += 50;
+    if (tilesPlaced.length == 7) {
+        move.score += 50;
         console.log('all letters placed, 50 points bonus');
     }
+    move.tilesPlaced = tilesPlaced;
 
-    console.log('move value: ' + moveValue);
+    console.log('move score: ' + move.score);
 
-    return moveValue;
+    return move;
 }
 
