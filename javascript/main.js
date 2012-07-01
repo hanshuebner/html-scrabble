@@ -403,12 +403,11 @@ function calculateBoard(squares)
         return null;
     }
 
-    // Check whether there are any unconnected other placements
+    // Check whether there are any unconnected other placements 
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
-            if (squares[x][y].Tile
-                && !squares[x][y].Tile.TileLocked
-                && !legalPlacements[x][y]) {
+            var square = squares[x][y];
+            if (square.Tile && !square.Tile.TileLocked && !legalPlacements[x][y]) {
                 console.log('unconnected placement');
                 return false;
             }
@@ -468,6 +467,21 @@ function calculateBoard(squares)
         }
     }
     moveValue += horizontalWordValues(rotatedSquares);
+
+    // Count the number of letters placed.
+    var lettersPlaced = 0;
+    for (var x = 0; x < 15; x++) {
+        for (var y = 0; y < 15; y++) {
+            var square = squares[x][y];
+            if (square.Tile && !square.Tile.TileLocked) {
+                lettersPlaced++;
+            }
+        }
+    }
+    if (lettersPlaced == 7) {
+        moveValue += 50;
+        console.log('all letters placed, 50 points bonus');
+    }
 
     console.log('move value: ' + moveValue);
 
