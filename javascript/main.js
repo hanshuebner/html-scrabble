@@ -681,6 +681,21 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
     }
 }
 
+Game.prototype.CommitMove = function() {
+    var move = calculateMove(this.Board.Squares);
+
+    console.log('move committed', move);
+
+    if (move.error) {
+        console.log('error: ' + move.error);
+        return;
+    }
+
+    EventsManager.DispatchEvent('LockRack', { 'Rack': this.Rack });
+    EventsManager.DispatchEvent('CommitMove', { 'Board': this.Board });
+}
+    
+
 Game.prototype.toString = function() {
     return "Game toString(): TODO ... ";
 }
