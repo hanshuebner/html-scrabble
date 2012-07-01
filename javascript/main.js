@@ -415,7 +415,6 @@ function calculateBoard(squares)
     }
 
     // The move was legal, calculate values
-
     function horizontalWordValues(squares) {
         var value = 0;
         for (var y = 0; y < 15; y++) {
@@ -460,6 +459,7 @@ function calculateBoard(squares)
     }
 
     var moveValue = horizontalWordValues(squares);
+    // Create rotated version of the board to calculate vertical word values.
     var rotatedSquares = MakeBoardArray();
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
@@ -1202,7 +1202,7 @@ function UI() {
 	div.appendChild(a);
 
 	if (square.Tile) {
-	    div.setAttribute('class', 'Tile Temp' + (square.Tile.IsBlank ? " BlankLetter" : ""));
+	    div.setAttribute('class', 'Tile Temp' + (square.Tile.IsBlank ? " BlankLetter" : "") + (rack.Locked ? " Locked" : ""));
 	    
 	    $(div).click(
 		function () {
