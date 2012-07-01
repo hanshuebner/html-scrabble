@@ -204,7 +204,7 @@ var EventsManager = (function() {
 	    }
 	}
 	
-	console.log("Event.AddEventListener - registered: " + eventName + ", " + callback);
+	// console.log("Event.AddEventListener - registered: " + eventName + ", " + callback);
 	callbacks.push(callback);
     };
 
@@ -532,7 +532,7 @@ function Board() {
 	}
     }
     
-    EventsManager.DispatchEvent('ScrabbleBoardReady', { 'Board': this });
+    EventsManager.DispatchEvent('BoardReady', { 'Board': this });
 }
 
 Board.prototype.Dimension = 15;
@@ -549,7 +549,7 @@ Board.prototype.RemoveFreeTiles = function() {
 		
 		square.PlaceTile(null, false);
 		
-		EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square });
+		EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square });
 	    }
 	}
     }
@@ -564,7 +564,7 @@ Board.prototype.EmptyTiles = function() {
 	    
 	    square.PlaceTile(null, false);
 	    
-	    EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square });
+	    EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square });
 	}
     }
 }
@@ -587,8 +587,8 @@ Board.prototype.MoveTile = function(tileXY, squareXY) {
 
     PlayAudio('audio4');
     
-    EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square1 });
-    EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this, 'Square': square2 });
+    EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square1 });
+    EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this, 'Square': square2 });
 }
 
 Board.prototype.Validate = function () {
@@ -611,7 +611,7 @@ function Rack () {
 	this.Squares[x] = square;
     }
     
-    EventsManager.DispatchEvent('ScrabbleRackReady', { 'Rack': this });
+    EventsManager.DispatchEvent('RackReady', { 'Rack': this });
 }
 
 Rack.prototype.TakeTilesBack = function() {
@@ -639,7 +639,7 @@ Rack.prototype.TakeTilesBack = function() {
 	    if (!square.Tile) {
 		square.PlaceTile(tiles[i], false);
 
-		EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
+		EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
 		
 		break;
 	    }
@@ -653,7 +653,7 @@ Rack.prototype.EmptyTiles = function() {
 	
 	square.PlaceTile(null, false);
 
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
 }
 
@@ -675,8 +675,8 @@ Rack.prototype.MoveTile = function(tileXY, squareXY) {
 
     PlayAudio('audio4');
     
-    EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square1 });
-    EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square2 });
+    EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square1 });
+    EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square2 });
 }
 
 Rack.prototype.ReplenishRandomTiles = function() {
@@ -693,7 +693,7 @@ Rack.prototype.ReplenishRandomTiles = function() {
     for (var x = 0; x < existingTiles.length; x++) {
 	var square = this.Squares[x];
 	square.PlaceTile(existingTiles[x], false);
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
     
     for (var x = existingTiles.length; x < (this.Dimension-1); x++) {
@@ -704,7 +704,7 @@ Rack.prototype.ReplenishRandomTiles = function() {
 	
 	square.PlaceTile(tile, false);
 	
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
 }
 
@@ -719,14 +719,14 @@ Rack.prototype.GenerateRandomTiles = function() {
 	
 	square.PlaceTile(tile, false);
 	
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
     
     var square = this.Squares[this.Dimension - 1];
     if (square.Tile) {
 	square.PlaceTile(null, false);
 	
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this, 'Square': square });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this, 'Square': square });
     }
 }
 
@@ -826,8 +826,8 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 
 	PlayAudio('audio4');
 	
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this.Rack, 'Square': square1 });
-	EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this.Board, 'Square': square2 });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this.Rack, 'Square': square1 });
+	EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this.Board, 'Square': square2 });
 	
 	return;
     }
@@ -843,8 +843,8 @@ Game.prototype.MoveTile = function(tileXY, squareXY) {
 
 	PlayAudio('audio4');
 	
-	EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': this.Board, 'Square': square1 });
-	EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': this.Rack, 'Square': square2 });
+	EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': this.Board, 'Square': square1 });
+	EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': this.Rack, 'Square': square2 });
 	
 	return;
     }
@@ -862,7 +862,7 @@ function UI() {
     this.Rack = 0;
     this.Game = 0;
 
-    function UpdateHtmlTableCellState(html, board, square, state) {
+    function UpdateCellState(html, board, square, state) {
 	var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
 	var td = document.getElementById(id).parentNode;
 	$(td).removeClass("Invalid");
@@ -878,7 +878,7 @@ function UI() {
 	}
     }
     
-    function UpdateHtmlTableCell_Board(html, board, square) {
+    function UpdateBoardCell(html, board, square) {
 	var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
 	var td = document.getElementById(id).parentNode;
 	if (td.hasChildNodes()) {
@@ -1135,7 +1135,7 @@ function UI() {
 	}
     }
     
-    function DrawHtmlTable_Board(html, board) {
+    function DrawBoard(html, board) {
 	var rootDiv = document.getElementById('board');
 	var table = document.createElement('table');
 	rootDiv.appendChild(table);
@@ -1180,12 +1180,12 @@ function UI() {
 		var a = document.createElement('a');
 		div.appendChild(a);
 		
-		UpdateHtmlTableCell_Board(html, board, square);
+		UpdateBoardCell(html, board, square);
 	    }
 	}
     }
 
-    function UpdateHtmlTableCell_Rack(html, rack, square) {
+    function UpdateRackCell(html, rack, square) {
 	var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
 	var td = document.getElementById(id).parentNode;
 	if (td.hasChildNodes()) {
@@ -1379,7 +1379,7 @@ function UI() {
 	}
     }
 
-    function DrawHtmlTable_Rack(html, rack) {
+    function DrawRack(html, rack) {
 	var rootDiv = document.getElementById('rack');
 	var table = document.createElement('table');
 	rootDiv.appendChild(table);
@@ -1404,12 +1404,12 @@ function UI() {
 	    var a = document.createElement('a');
 	    div.appendChild(a);
 	    
-	    UpdateHtmlTableCell_Rack(html, rack, square);
+	    UpdateRackCell(html, rack, square);
 	}
     }
 
 
-    function DrawHtmlTable_LetterTiles(html, game) {
+    function DrawLetterTiles(html, game) {
         var rootDiv = document.getElementById('letters');
         
         if (rootDiv.hasChildNodes()) {
@@ -1470,7 +1470,7 @@ function UI() {
 		        var square = game.SquareBlankLetterInWaitingBoard;
 		        game.SquareBlankLetterInWaitingBoard = null;
 
-		        EventsManager.DispatchEvent('ScrabbleBoardSquareTileChanged', { 'Board': game.Board, 'Square': square });
+		        EventsManager.DispatchEvent('BoardSquareTileChanged', { 'Board': game.Board, 'Square': square });
 	            }
 	            
 	            else if (game.SquareBlankLetterInWaitingRack) {
@@ -1483,7 +1483,7 @@ function UI() {
 		        var square = game.SquareBlankLetterInWaitingRack;
 		        game.SquareBlankLetterInWaiting = null;
 		        
-		        EventsManager.DispatchEvent('ScrabbleRackSquareTileChanged', { 'Rack': game.Rack, 'Square': square });
+		        EventsManager.DispatchEvent('RackSquareTileChanged', { 'Rack': game.Rack, 'Square': square });
 	            }
 	            
 	            
@@ -1626,31 +1626,31 @@ function UI() {
 
     var thiz = this;
 
-    EventsManager.AddEventListener('ScrabbleBoardReady', function(eventPayload) {
+    EventsManager.AddEventListener('BoardReady', function(eventPayload) {
         thiz.Board = eventPayload.Board;
-        DrawHtmlTable_Board(thiz, eventPayload.Board);
+        DrawBoard(thiz, eventPayload.Board);
     });
 
-    EventsManager.AddEventListener('ScrabbleBoardSquareTileChanged', function(eventPayload) {
-        UpdateHtmlTableCell_Board(thiz, eventPayload.Board, eventPayload.Square);
+    EventsManager.AddEventListener('BoardSquareTileChanged', function(eventPayload) {
+        UpdateBoardCell(thiz, eventPayload.Board, eventPayload.Square);
     });
 
-    EventsManager.AddEventListener('ScrabbleBoardSquareStateChanged', function(eventPayload) {
-        UpdateHtmlTableCellState(thiz, eventPayload.Board, eventPayload.Square, eventPayload.State);
+    EventsManager.AddEventListener('BoardSquareStateChanged', function(eventPayload) {
+        UpdateCellState(thiz, eventPayload.Board, eventPayload.Square, eventPayload.State);
     });
 
-    EventsManager.AddEventListener('ScrabbleRackReady', function(eventPayload) {
+    EventsManager.AddEventListener('RackReady', function(eventPayload) {
         thiz.Rack = eventPayload.Rack;
-        DrawHtmlTable_Rack(thiz, eventPayload.Rack);
+        DrawRack(thiz, eventPayload.Rack);
     });
 
-    EventsManager.AddEventListener('ScrabbleRackSquareTileChanged', function(eventPayload) {
-        UpdateHtmlTableCell_Rack(thiz, eventPayload.Rack, eventPayload.Square);
+    EventsManager.AddEventListener('RackSquareTileChanged', function(eventPayload) {
+        UpdateRackCell(thiz, eventPayload.Rack, eventPayload.Square);
     });
 
-    EventsManager.AddEventListener('ScrabbleLetterTilesReady', function(eventPayload) {
+    EventsManager.AddEventListener('LetterTilesReady', function(eventPayload) {
         thiz.Game = eventPayload.Game;
-        DrawHtmlTable_LetterTiles(thiz, eventPayload.Game);
+        DrawLetterTiles(thiz, eventPayload.Game);
     });
 }
 
