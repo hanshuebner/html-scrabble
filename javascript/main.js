@@ -862,7 +862,7 @@ function UI() {
     this.Rack = 0;
     this.Game = 0;
 
-    function UpdateCellState(html, board, square, state) {
+    function UpdateCellState(ui, board, square, state) {
 	var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
 	var td = document.getElementById(id).parentNode;
 	$(td).removeClass("Invalid");
@@ -878,7 +878,7 @@ function UI() {
 	}
     }
     
-    function UpdateBoardCell(html, board, square) {
+    function UpdateBoardCell(ui, board, square) {
 	var id = IDPrefix_Board_SquareOrTile + square.X + "x" + square.Y;
 	var td = document.getElementById(id).parentNode;
 	if (td.hasChildNodes()) {
@@ -907,26 +907,26 @@ function UI() {
 			var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
 			var y1 = parseInt(id1.substring(cross1 + 1), 10);
 			
-			if (html.CurrentlySelectedSquare) {
-			    var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+			if (ui.CurrentlySelectedSquare) {
+			    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
 			    
-			    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+			    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 
 			    var divz = document.getElementById(idSelected);
 
 			    $(divz).removeClass("Selected");
 			    
-			    if (x1 == html.CurrentlySelectedSquare.X && y1 == html.CurrentlySelectedSquare.Y) {
+			    if (x1 == ui.CurrentlySelectedSquare.X && y1 == ui.CurrentlySelectedSquare.Y) {
 				PlayAudio("audio1");
 				
-				html.SetCurrentlySelectedSquareUpdateTargets(null);
+				ui.SetCurrentlySelectedSquareUpdateTargets(null);
 				return;
 			    }
 			}
 			
 			PlayAudio("audio3");
 			
-			html.SetCurrentlySelectedSquareUpdateTargets(board.Squares[x1][y1]);
+			ui.SetCurrentlySelectedSquareUpdateTargets(board.Squares[x1][y1]);
 			
 			$(this).addClass("Selected");
 
@@ -969,34 +969,34 @@ function UI() {
 		    revert: "invalid",
 		    opacity: 1,
 		    helper: "clone",
-		    start: function(event, ui) {
+		    start: function(event, jui) {
 			PlayAudio("audio3");
 			
-			if (html.CurrentlySelectedSquare) {
-			    var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+			if (ui.CurrentlySelectedSquare) {
+			    var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
 			    
-			    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+			    var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 
 			    var divz = document.getElementById(idSelected);
 			    $(divz).removeClass("Selected");
 			}
-			html.SetCurrentlySelectedSquareUpdateTargets(null);
+			ui.SetCurrentlySelectedSquareUpdateTargets(null);
 			
 			$(this).css({ opacity: 0.5 });
 			
-			$(ui.helper).animate({'font-size' : '120%'}, 300);
+			$(jui.helper).animate({'font-size' : '120%'}, 300);
 			
-			$(ui.helper).addClass("dragBorder");
+			$(jui.helper).addClass("dragBorder");
 		    },
 		    
-		    drag: function(event, ui) {
+		    drag: function(event, jui) {
 			if (!doneOnce) {
-			    $(ui.helper).addClass("dragBorder");
+			    $(jui.helper).addClass("dragBorder");
 			    
 			    doneOnce = true;
 			}
 		    },
-		    stop: function(event, ui) {
+		    stop: function(event, jui) {
 			$(this).css({ opacity: 1 });
 
 			PlayAudio('audio5');
@@ -1031,19 +1031,19 @@ function UI() {
 		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
 		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
 		    
-		    if (html.CurrentlySelectedSquare) {
-			var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+		    if (ui.CurrentlySelectedSquare) {
+			var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
 			
-			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 			
 			var divz = document.getElementById(idSelected);
 
 			$(divz).removeClass("Selected");
 			
-			var XX = html.CurrentlySelectedSquare.X;
-			var YY = html.CurrentlySelectedSquare.Y;
+			var XX = ui.CurrentlySelectedSquare.X;
+			var YY = ui.CurrentlySelectedSquare.Y;
 			
-			html.SetCurrentlySelectedSquareUpdateTargets(null);
+			ui.SetCurrentlySelectedSquareUpdateTargets(null);
 			
 			board.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 		    }
@@ -1052,8 +1052,8 @@ function UI() {
 
 	    $(div).droppable({
 		hoverClass: "dropActive",
-		drop: function( event, ui ) {
-		    var id1 = $(ui.draggable).attr("id");
+		drop: function(event, jui) {
+		    var id1 = $(jui.draggable).attr("id");
 		    var id2 = $(this).attr("id");
 		    
 		    var underscore1 = id1.indexOf("_");
@@ -1135,7 +1135,7 @@ function UI() {
 	}
     }
     
-    function DrawBoard(html, board) {
+    function DrawBoard(ui, board) {
 	var rootDiv = document.getElementById('board');
 	var table = document.createElement('table');
 	rootDiv.appendChild(table);
@@ -1180,12 +1180,12 @@ function UI() {
 		var a = document.createElement('a');
 		div.appendChild(a);
 		
-		UpdateBoardCell(html, board, square);
+		UpdateBoardCell(ui, board, square);
 	    }
 	}
     }
 
-    function UpdateRackCell(html, rack, square) {
+    function UpdateRackCell(ui, rack, square) {
 	var id = IDPrefix_Rack_SquareOrTile + square.X + "x" + square.Y;
 	var td = document.getElementById(id).parentNode;
 	if (td.hasChildNodes()) {
@@ -1212,26 +1212,26 @@ function UI() {
 		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
 		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
 		    
-		    if (html.CurrentlySelectedSquare) {
-			var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
-			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+		    if (ui.CurrentlySelectedSquare) {
+			var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
+			var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 			var divz = document.getElementById(idSelected);
 
 			$(divz).removeClass("Selected");
 			
 			if (sourceInRack
-			    && x1 == html.CurrentlySelectedSquare.X) {
+			    && x1 == ui.CurrentlySelectedSquare.X) {
 			    PlayAudio("audio1");
 			    
-			    html.SetCurrentlySelectedSquareUpdateTargets(null);
-			    //html.CurrentlySelectedSquare = 0;
+			    ui.SetCurrentlySelectedSquareUpdateTargets(null);
+			    //ui.CurrentlySelectedSquare = 0;
 			    return;
 			}
 		    }
 		    
 		    PlayAudio("audio3");
 		    
-		    html.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
+		    ui.SetCurrentlySelectedSquareUpdateTargets(rack.Squares[x1]);
 		    
 		    $(this).addClass("Selected");
 		    
@@ -1275,32 +1275,33 @@ function UI() {
 		revert: "invalid",
 		opacity: 1,
 		helper: "clone",
-		start: function(event, ui) {
+		start: function(event, jui) {
 		    PlayAudio("audio3");
 		    
-		    if (html.CurrentlySelectedSquare) {
-			var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+		    if (ui.CurrentlySelectedSquare) {
+			var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 			var divz = document.getElementById(idSelected);
 			$(divz).removeClass("Selected");
 		    }
-		    html.SetCurrentlySelectedSquareUpdateTargets(null);
+                    console.log('event', event, 'ui', ui);
+		    ui.SetCurrentlySelectedSquareUpdateTargets(null);
 		    
 		    $(this).css({ opacity: 0.5 });
 		    
-		    $(ui.helper).animate({'font-size' : '120%'}, 300);
+		    $(jui.helper).animate({'font-size' : '120%'}, 300);
 		    
-		    $(ui.helper).addClass("dragBorder");
+		    $(jui.helper).addClass("dragBorder");
 		    
 		},
 		
-		drag: function(event, ui) {
+		drag: function(event, jui) {
 		    if (!doneOnce) {
-			$(ui.helper).addClass("dragBorder");
+			$(jui.helper).addClass("dragBorder");
 			
 			doneOnce = true;
 		    }
 		},
-		stop: function(event, ui) {
+		stop: function(event, jui) {
 		    $(this).css({ opacity: 1 });
 
 		    PlayAudio('audio5');
@@ -1329,16 +1330,16 @@ function UI() {
 		    var x1 = parseInt(id1.substring(underscore1 + 1, cross1), 10);
 		    var y1 = parseInt(id1.substring(cross1 + 1), 10);
 
-		    if (html.CurrentlySelectedSquare) {
-			var idSelected = IDPrefix_Rack_SquareOrTile + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+		    if (ui.CurrentlySelectedSquare) {
+			var idSelected = IDPrefix_Rack_SquareOrTile + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 			var divz = document.getElementById(idSelected);
 
 			$(divz).removeClass("Selected");
 			
-			var XX = html.CurrentlySelectedSquare.X;
-			var YY = html.CurrentlySelectedSquare.Y;
+			var XX = ui.CurrentlySelectedSquare.X;
+			var YY = ui.CurrentlySelectedSquare.Y;
 			
-			html.SetCurrentlySelectedSquareUpdateTargets(null);
+			ui.SetCurrentlySelectedSquareUpdateTargets(null);
 			
 			rack.MoveTile({'x':XX, 'y':YY}, {'x':x1, 'y':y1});
 		    }
@@ -1347,9 +1348,9 @@ function UI() {
 
 	    $(div).droppable({
 		hoverClass: "dropActive",
-		drop: function( event, ui ) {
+		drop: function(event, ui) {
 		    
-		    var id1 = $(ui.draggable).attr("id");
+		    var id1 = $(jui.draggable).attr("id");
 		    var id2 = $(this).attr("id");
 		    
 		    var underscore1 = id1.indexOf("_");
@@ -1379,7 +1380,7 @@ function UI() {
 	}
     }
 
-    function DrawRack(html, rack) {
+    function DrawRack(ui, rack) {
 	var rootDiv = document.getElementById('rack');
 	var table = document.createElement('table');
 	rootDiv.appendChild(table);
@@ -1404,12 +1405,12 @@ function UI() {
 	    var a = document.createElement('a');
 	    div.appendChild(a);
 	    
-	    UpdateRackCell(html, rack, square);
+	    UpdateRackCell(ui, rack, square);
 	}
     }
 
 
-    function DrawLetterTiles(html, game) {
+    function DrawLetterTiles(ui, game) {
         var rootDiv = document.getElementById('letters');
         
         if (rootDiv.hasChildNodes()) {
@@ -1461,7 +1462,7 @@ function UI() {
 		    var index = parseInt(id1.substring(underscore1 + 1), 10);
 
 	            if (game.SquareBlankLetterInWaitingBoard) {
-		        if (html.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingBoard) {
+		        if (ui.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingBoard) {
 		            alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingBoard");
 		        }
 		        
@@ -1474,7 +1475,7 @@ function UI() {
 	            }
 	            
 	            else if (game.SquareBlankLetterInWaitingRack) {
-		        if (html.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingRack) {
+		        if (ui.CurrentlySelectedSquare != game.SquareBlankLetterInWaitingRack) {
 		            alert("CurrentlySelectedSquare != SquareBlankLetterInWaitingRack");
 		        }
 		        
@@ -1487,10 +1488,10 @@ function UI() {
 	            }
 	            
 	            
-	            if (html.CurrentlySelectedSquare) {
-		        var sourceInRack = html.CurrentlySelectedSquare.Y == -1;
+	            if (ui.CurrentlySelectedSquare) {
+		        var sourceInRack = ui.CurrentlySelectedSquare.Y == -1;
 		        
-		        var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + html.CurrentlySelectedSquare.X + "x" + html.CurrentlySelectedSquare.Y;
+		        var idSelected = (sourceInRack ? IDPrefix_Rack_SquareOrTile : IDPrefix_Board_SquareOrTile) + ui.CurrentlySelectedSquare.X + "x" + ui.CurrentlySelectedSquare.Y;
 
 		        var divz = document.getElementById(idSelected);
 
