@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+
+    <title>Create new game</title>
+
+    <!-- link rel="stylesheet" href="css/page.css" media="all" / -->
+    <style type="text/css" media="all">
+      @import "css/page.css";
+    </style>
+
+    <script type="text/javascript" src="/javascript/MochiKit/MochiKit.js"></script>
+    <script type="text/javascript" src="javascript/jquery-1.7.2.js"></script>
+  </head>
+  <body id="body">
+    <form id="create-game" action="create-game" method="POST">
+      <fieldset>
+        <legend>Player 1</legend>
+        <label for="name1">Name</label><input name="name1"/> <label for="email1">Email</label><input name="email1"/>
+      </fieldset>
+      <fieldset>
+        <legend>Player 2</legend>
+        <label for="name2">Name</label><input name="name2"/> <label for="email2">Email</label><input name="email2"/>
+      </fieldset>
+      <fieldset>
+        <legend>Player 3</legend>
+        <label for="name3">Name</label><input name="name3"/> <label for="email3">Email</label><input name="email3"/>
+      </fieldset>
+      <fieldset>
+        <legend>Player 4</legend>
+        <label for="name4">Name</label><input name="name4"/> <label for="email4">Email</label><input name="email4"/>
+      </fieldset>
+      <button name="create" type="submit">Create new game</button>
+    </form>
+  </body>
+</html>

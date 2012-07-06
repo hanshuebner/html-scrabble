@@ -6,3 +6,4 @@ Uses node.js as server, depends on socket.io and express:
 
 $ npm install socket.io
 $ npm install express
+$ npm install dirty

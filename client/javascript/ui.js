@@ -1,13 +1,13 @@
 function triggerEvent(event, args) {
-    console.log('triggerEvent ' + event + ' ' + args[0], '=>', args);
+    console.log('triggerEvent', event, args);
     $(document).trigger(event, args);
 }
 
-function UI(board, rack) {
+function UI(game) {
     // constructor
 
-    this.Board = board;
-    this.Rack = rack;
+    this.Board = new Board();
+    this.Rack = new Rack();
 
     this.DrawBoard();
     this.DrawRack();
@@ -23,11 +23,16 @@ function UI(board, rack) {
     }
 
     $(document)
-        .bind('BoardSquareChanged', uiCall(ui.UpdateBoardCell))
-        .bind('BoardSquareStateChanged', uiCall(ui.UpdateCellState))
-        .bind('RackSquareChanged', uiCall(ui.UpdateRackCell))
+        .bind('SquareChanged', uiCall(ui.UpdateSquare))
+        .bind('Refresh', uiCall(ui.Refresh))
         .bind('RefreshRack', uiCall(ui.RefreshRack))
         .bind('RefreshBoard', uiCall(ui.RefreshBoard));
+
+    ['CommitMove', 'OpenForMove', 'ReplenishRandomTiles'].forEach(function (action) {
+        var button = BUTTON(null, action)
+        $(button).bind('click', uiCall(ui[action]));
+        $('#buttons').append(button);
+    });
 }
 
 UI.prototype.idToSquare = function(id) {
@@ -43,7 +48,7 @@ UI.prototype.idToSquare = function(id) {
     }
 }
 
-UI.prototype.UpdateCellState = function(board, square, state) {
+UI.prototype.UpdateSquareState = function(board, square, state) {
     var id = 'Board_' + square.X + "x" + square.Y;
     var td = document.getElementById(id).parentNode;
     $(td).removeClass("Invalid Valid ValidButWrongPlacement");
@@ -60,8 +65,18 @@ UI.prototype.UpdateCellState = function(board, square, state) {
         break;
     }
 }
-    
-UI.prototype.UpdateBoardCell = function(square) {
+
+UI.prototype.UpdateSquare = function(square) {
+    if (square.Owner == this.Rack) {
+        this.UpdateRackSquare(square);
+    } else if (square.Owner == this.Board) {
+        this.UpdateBoardSquare(square);
+    } else {
+        console.log('could not identify owner of square', square);
+    }
+}
+
+UI.prototype.UpdateBoardSquare = function(square) {
     var div = DIV({ id: square.id });
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
@@ -99,26 +114,21 @@ UI.prototype.UpdateBoardCell = function(square) {
 		helper: "clone",
 		start: function(event, jui) {
 		    ui.PlayAudio("audio3");
-		    
 		    ui.SelectSquare(null);
-		    
 		    $(this).css({ opacity: 0.5 });
-		    
-		    $(jui.helper).animate({'font-size' : '120%'}, 300);
-		    
-		    $(jui.helper).addClass("dragBorder");
+		    $(jui.helper)
+                        .animate({'font-size' : '120%'}, 300)
+                        .addClass("dragBorder");
 		},
 		
 		drag: function(event, jui) {
 		    if (!doneOnce) {
 			$(jui.helper).addClass("dragBorder");
-			
 			doneOnce = true;
 		    }
 		},
 		stop: function(event, jui) {
 		    $(this).css({ opacity: 1 });
-
 		    ui.PlayAudio('audio5');
 		}
 	    });
@@ -128,8 +138,7 @@ UI.prototype.UpdateBoardCell = function(square) {
                           SPAN({ 'class': 'Letter' }, square.Tile.Letter),
                           SPAN({ 'class': 'Score' }, square.Tile.Score)));
     } else {
-	var middle = Math.floor(board.Dimension / 2);
-	if (square.X == middle && square.Y == middle) {
+	if (square.X == 7 && square.Y == 7) {
 	    div.setAttribute('class', "CenterStart");
 	} else {
 	    div.setAttribute('class', 'Empty');
@@ -138,8 +147,8 @@ UI.prototype.UpdateBoardCell = function(square) {
 	$(div).click(
 	    function () {
 		if (ui.CurrentlySelectedSquare) {
+                    ui.MoveTile(ui.CurrentlySelectedSquare, square);
 		    ui.SelectSquare(null);
-                    triggerEvent('MoveTile', ['Board', ui.CurrentlySelectedSquare, square]);
 		}
 	    }
 	);
@@ -148,29 +157,28 @@ UI.prototype.UpdateBoardCell = function(square) {
 	    hoverClass: "dropActive",
 	    drop: function(event, jui) {
 		ui.PlayAudio('audio4');
-                triggerEvent('MoveTile', ['Board', ui.idToSquare($(jui.draggable).attr("id")), square]);
+                ui.MoveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
 	
 	switch (square.Type) {
-	case SquareType.Normal:
+	case 'Normal':
             div.appendChild(A(null, SPAN(null, " ")));
 	    break;
-	case SquareType.DoubleWord:
-	    var middle = Math.floor(board.Dimension / 2);
-	    if (square.X == middle && square.Y == middle) {
+	case 'DoubleWord':
+	    if (square.X == 7 && square.Y == 7) {
                 div.appendChild(A(null, SPAN(null, '\u2605')));
 	    } else {
                 div.appendChild(A(null, SPAN(null, "DOUBLE WORD SCORE")));
 	    }
 	    break;
-	case SquareType.TripleWord:
+	case 'TripleWord':
             div.appendChild(A(null, SPAN(null, "TRIPLE WORD SCORE")));
 	    break;
-	case SquareType.DoubleLetter:
+	case 'DoubleLetter':
             div.appendChild(A(null, SPAN(null, "DOUBLE LETTER SCORE")));
 	    break;
-	case SquareType.TripleLetter:
+	case 'TripleLetter':
             div.appendChild(A(null, SPAN(null, "TRIPLE LETTER SCORE")));
 	}
     }
@@ -182,53 +190,24 @@ UI.prototype.UpdateBoardCell = function(square) {
 }
     
 UI.prototype.DrawBoard = function() {
+    var board = this.Board;
 
-    var rootDiv = document.getElementById('board');
-    var table = document.createElement('table');
-    rootDiv.appendChild(table);
-    
-    for (var y = 0; y < board.Dimension; y++) {
-	var tr = document.createElement('tr');
-	table.appendChild(tr);
-	
-	for (var x = 0; x < board.Dimension; x++) {
-	    var square = board.Squares[x][y];
-	    
-	    var td = document.createElement('td');
-	    tr.appendChild(td);
-	    
-	    var middle = Math.floor(board.Dimension / 2);
-	    var halfMiddle = Math.ceil(middle / 2);
-	    
-	    if (square.Type == SquareType.TripleWord) {
-		td.setAttribute('class', 'TripleWord');
-	    } else if (square.Type == SquareType.DoubleWord) {
-		td.setAttribute('class', 'DoubleWord');
-	    } else if (square.Type == SquareType.DoubleLetter) {
-		td.setAttribute('class', 'DoubleLetter');
-	    } else if (square.Type == SquareType.TripleLetter) {
-		td.setAttribute('class', 'TripleLetter');
-	    } else {
-		td.setAttribute('class', 'Normal');
-	    }
-	    
-	    var div = document.createElement('div');
-	    td.appendChild(div);
-	    
-	    var id = 'Board_' + x + "x" + y;
-	    div.setAttribute('id', id);
-	    
-	    var a = document.createElement('a');
-	    div.appendChild(a);
-
-            square.id = id;
-	    
-	    this.UpdateBoardCell(square);
-	}
-    }
+    $('#board').append(TABLE(null,
+                             map(function (y) {
+                                 return TR(null,
+                                           map(function (x) {
+	                                       var square = board.Squares[x][y];
+	                                       var id = 'Board_' + x + "x" + y;
+                                               square.id = id;
+                                               return TD({ 'class': square.Type },
+	                                                 DIV({ id: id },
+                                                             A()));
+                                           }, range(board.Dimension)));
+                             }, range(board.Dimension))));
+    this.RefreshBoard();
 }
 
-UI.prototype.UpdateRackCell = function(square) {
+UI.prototype.UpdateRackSquare = function(square) {
     var id = square.id;
     var div = document.createElement('div');
     $('#' + id)
@@ -273,26 +252,22 @@ UI.prototype.UpdateRackCell = function(square) {
 	        helper: "clone",
 	        start: function(event, jui) {
 		    ui.PlayAudio("audio3");
-
 		    ui.SelectSquare(null);
-
 		    $(this).css({ opacity: 0.5 });
-		    $(jui.helper).animate({'font-size' : '120%'}, 300);
-		    $(jui.helper).addClass("dragBorder");
-		    
+		    $(jui.helper)
+                        .animate({'font-size' : '120%'}, 300)
+                        .addClass("dragBorder");
 	        },
 	        
 	        drag: function(event, jui) {
 		    if (!doneOnce) {
 		        $(jui.helper).addClass("dragBorder");
-		        
 		        doneOnce = true;
 		    }
 	        },
 	        stop: function(event, jui) {
                     console.log('draggable stop');
 		    $(this).css({ opacity: 1 });
-
 		    ui.PlayAudio('audio5');
 	        }
 	    });
@@ -308,8 +283,8 @@ UI.prototype.UpdateRackCell = function(square) {
 	$(div).click(
 	    function () {
 		if (ui.CurrentlySelectedSquare) {
+		    ui.MoveTile(ui.CurrentlySelectedSquare, square);
 		    ui.SelectSquare(null);
-		    triggerEvent('MoveTile', ['Rack', ui.CurrentlySelectedSquare, square]);
                 }
 	    }
 	);
@@ -318,12 +293,12 @@ UI.prototype.UpdateRackCell = function(square) {
 	    hoverClass: "dropActive",
 	    drop: function(event, jui) {
 		ui.PlayAudio('audio4');
-                triggerEvent('MoveTile', ['Rack', ui.idToSquare($(jui.draggable).attr("id")), square]);
+                ui.MoveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
 	
 	switch (square.Type) {
-	case SquareType.Normal:
+	case 'Normal':
 	    a.appendChild(SPAN(null, " "));
 	    break;
 	default:
@@ -346,24 +321,30 @@ UI.prototype.DrawRack = function() {
                          }, range(8)))));
     var ui = this;
     forEach(range(8), function (x) {
-	ui.UpdateRackCell(rack.Squares[x]);
+	ui.UpdateRackSquare(rack.Squares[x]);
     });
 }
 
-UI.prototype.RefreshRack = function(rack) {
+UI.prototype.RefreshRack = function() {
+    var rack = this.Rack;
     for (var x = 0; x < rack.Dimension; x++) {
-	var square = rack.Squares[x];
 
-	this.UpdateRackCell(square);
+	this.UpdateRackSquare(rack.Squares[x]);
     }
 }
 
-UI.prototype.RefreshBoard = function(board) {
+UI.prototype.RefreshBoard = function() {
+    var board = this.Board;
     for (var y = 0; y < board.Dimension; y++) {
 	for (var x = 0; x < board.Dimension; x++) {
-            this.UpdateBoardCell(board.Squares[x][y]);
+            this.UpdateBoardSquare(board.Squares[x][y]);
 	}
     }
+}
+
+UI.prototype.Refresh = function () {
+    this.RefreshRack();
+    this.RefreshBoard();
 }
 
 UI.prototype.SelectSquare = function(square) {
@@ -382,6 +363,7 @@ UI.prototype.SelectSquare = function(square) {
 
     $('#board td').removeClass('Targeted');
 
+    // selecting the target first does not yet work.
     if (square && !square.Tile) {
         console.log('SelectSquare - ' + square.X + '/' + square.Y);
         $('#' + 'Board_' + square.X + "x" + square.Y)
@@ -389,6 +371,11 @@ UI.prototype.SelectSquare = function(square) {
     }
 }
 
+UI.prototype.MoveTile = function(fromSquare, toSquare) {
+    var tile = fromSquare.Tile;
+    fromSquare.PlaceTile(null);
+    toSquare.PlaceTile(tile);
+}
 
 UI.prototype.PlayAudio = function(id) {
     var audio = document.getElementById(id);
@@ -413,4 +400,18 @@ UI.prototype.PlayAudio = function(id) {
 	audio.addEventListener("canplay", currentTime, true);
     }
 }
+
+UI.prototype.CommitMove = function() {
+    this.Game.CommitMove();
+}
+
+UI.prototype.ReplenishRandomTiles = function() {
+    this.Rack.ReplenishRandomTiles();
+}
+
+UI.prototype.OpenForMove = function() {
+    this.Rack.Locked = false;
+    this.RefreshRack();
+}
+
 

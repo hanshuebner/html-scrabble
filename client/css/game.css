@@ -27,6 +27,13 @@ background: #333333;
 background: url('../images/wood.jpg');
 
 color: #FDFDF6;
+
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
 }
 
 div#title
@@ -377,7 +384,7 @@ z-index: 1000;
 }
 
 div.tableDivWrap td div.dropActive,
-div.tableDivWrap td div.Targeted:hover
+div.tableDivWrap td div.Targeted
 {
 cursor: pointer;
 
