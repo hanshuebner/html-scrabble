@@ -1,5 +1,5 @@
 function triggerEvent(event, args) {
-    console.log('triggerEvent', event, args);
+//    console.log('triggerEvent', event, args);
     $(document).trigger(event, args);
 }
 
@@ -20,7 +20,12 @@ function UI(game) {
         console.log('got game data', gameData);
 
         ui.Board = gameData.board;
-        ui.Rack = new Rack();
+        for (var i in gameData.players) {
+            var player = gameData.players[i];
+            if (player.rack) {
+                ui.Rack = player.rack;
+            }
+        }
 
         ui.DrawBoard();
         ui.DrawRack();
@@ -245,6 +250,7 @@ UI.prototype.UpdateRackSquare = function(square) {
 
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
+    console.log('UpdateRackSquare, square', square);
     if (square.Tile) {
         $(div).addClass('Tile');
         if (square.Tile.IsBlank) {
@@ -289,7 +295,6 @@ UI.prototype.UpdateRackSquare = function(square) {
 		    }
 	        },
 	        stop: function(event, jui) {
-                    console.log('draggable stop');
 		    $(this).css({ opacity: 1 });
 		    ui.PlayAudio('audio5');
 	        }
@@ -372,8 +377,6 @@ UI.prototype.Refresh = function () {
 
 UI.prototype.SelectSquare = function(square) {
 
-    console.log('SelectSquare', square);
-
     if (this.CurrentlySelectedSquare) {
         $('#' + this.CurrentlySelectedSquare.id).removeClass('Selected');
     }
@@ -424,8 +427,21 @@ UI.prototype.PlayAudio = function(id) {
     }
 }
 
+UI.prototype.ServerCommand = function(command, args) {
+    $.ajax({
+        type: 'PUT',
+        url: '/game/' + this.GameKey,
+        data: { command: command,
+                arguments: args }});
+}    
+
 UI.prototype.CommitMove = function() {
-    this.Game.CommitMove();
+    var move = CalculateMove(this.Board.Squares);
+    if (move.error) {
+        alert(move.error);
+        return;
+    }
+    this.ServerCommand('placeTiles', move.tilesPlaced);
 }
 
 UI.prototype.ReplenishRandomTiles = function() {

@@ -383,10 +383,8 @@ LetterBag.prototype.ReturnTile = function(tile)
     this.Tiles.push(tile);
 }
 
-function CalculateMove()
+function CalculateMove(squares)
 {
-    var squares = this.Board.Squares;
-
     // Check that the start field is occupied
     if (!squares[7][7].Tile) {
         return { error: "start field must be used" };

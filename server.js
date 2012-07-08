@@ -83,7 +83,7 @@ Game.create = function(language, players) {
     players.forEach(function (player) {
         player.rack = new scrabble.Rack();
         for (var i = 0; i < 7; i++) {
-            player.rack.Squares[i] = game.letterBag.GetRandomTile();
+            player.rack.Squares[i].Tile = game.letterBag.GetRandomTile();
         }
     });
     game.board = new scrabble.Board();
@@ -122,25 +122,28 @@ app.post("/game", function(req, res) {
     res.redirect("/game/" + game.key + "/" + game.players[0].key);
 });
 
-app.get("/game/:gameId/:playerId", function(req, res) {
-    if (!db.get(req.params.gameId)) {
-        throw "Game " + req.params.gameId + " does not exist";
+function gameHandler(handler) {
+    return function(req, res) {
+        var gameKey = req.params.gameKey;
+        var game = db.get(gameKey);
+        if (!game) {
+            throw "Game " + req.params.gameKey + " does not exist";
+        }
+        handler(game, req, res);
     }
+}
 
-    res.cookie(req.params.gameId, req.params.playerId, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
-    res.redirect("/game/" + req.params.gameId);
-});
 
-app.get("/game/:gameId", function (req, res, next) {
-    var gameId = req.params.gameId;
-    var game = db.get(gameId);
-    if (!game) {
-        throw "Game " + req.params.gameId + " does not exist";
-    }
+app.get("/game/:gameKey/:playerKey", gameHandler(function (game, req, res) {
+    res.cookie(req.params.gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
+    res.redirect("/game/" + req.params.gameKey);
+}));
+
+app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
     req.negotiate({
         'application/json': function () {
             var response = { board: game.board, players: [] }
-            var playerKey = req.cookies[gameId];
+            var playerKey = req.cookies[gameKey];
             for (var i = 0; i < game.players.length; i++) {
                 var player = game.players[i];
                 response.players.push({ name: player.name,
@@ -153,7 +156,12 @@ app.get("/game/:gameId", function (req, res, next) {
             res.sendfile(__dirname + '/client/index.html');
         }
     });
-});
+}));
+
+app.put("/game/:gameKey", gameHandler(function(game, req, res) {
+    console.log('put', game, 'command', req.body);
+    res.send('ok');
+}));
 
 io.sockets.on('connection', function (socket) {
   socket.emit('join', { });
