@@ -6,32 +6,54 @@ function triggerEvent(event, args) {
 function UI(game) {
     // constructor
 
-    this.Board = new Board();
-    this.Rack = new Rack();
-
-    this.DrawBoard();
-    this.DrawRack();
-
-    var ui = this;
-
-    function uiCall(f) {
-        return function() {
-            var args = Array.prototype.slice.call(arguments);
-            args.shift();                                   // remove event
-            f.apply(ui, args);
-        }
+    var splitUrl = document.URL.match(/.*\/([0-9a-f]+)$/);
+    if (splitUrl) {
+        this.GameKey = splitUrl[1];
+        this.PlayerKey = $.cookie(this.GameKey);
+    } else {
+        console.log('cannot parse url');
     }
 
-    $(document)
-        .bind('SquareChanged', uiCall(ui.UpdateSquare))
-        .bind('Refresh', uiCall(ui.Refresh))
-        .bind('RefreshRack', uiCall(ui.RefreshRack))
-        .bind('RefreshBoard', uiCall(ui.RefreshBoard));
+    var ui = this;
+    $.getJSON('/game/' + this.GameKey, function (err, gameData) {
+        console.log('got game data');
+        
+        ui.Board = new Board();
+        ui.Rack = new Rack();
 
-    ['CommitMove', 'OpenForMove', 'ReplenishRandomTiles'].forEach(function (action) {
-        var button = BUTTON(null, action)
-        $(button).bind('click', uiCall(ui[action]));
-        $('#buttons').append(button);
+        ui.DrawBoard();
+        ui.DrawRack();
+
+        ui.Socket = io.connect();
+        ui.Socket.on('join', function (data) {
+            console.log('join', data);
+        });
+        ui.Socket.on('leave', function (data) {
+            console.log('leave', data);
+        });
+        ui.Socket.on('turn', function (data) {
+            console.log('turn', data);
+        });
+
+        function uiCall(f) {
+            return function() {
+                var args = Array.prototype.slice.call(arguments);
+                args.shift();                                   // remove event
+                f.apply(ui, args);
+            }
+        }
+
+        $(document)
+            .bind('SquareChanged', uiCall(ui.UpdateSquare))
+            .bind('Refresh', uiCall(ui.Refresh))
+            .bind('RefreshRack', uiCall(ui.RefreshRack))
+            .bind('RefreshBoard', uiCall(ui.RefreshBoard));
+
+        ['CommitMove', 'OpenForMove', 'ReplenishRandomTiles'].forEach(function (action) {
+            var button = BUTTON(null, action)
+            $(button).bind('click', uiCall(ui[action]));
+            $('#buttons').append(button);
+        });
     });
 }
 

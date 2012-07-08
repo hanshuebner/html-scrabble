@@ -219,6 +219,15 @@ Square.prototype.toString = function() {
     return string;
 }
 
+Square.prototype.toJSON = function() {
+    return JSON.stringify({ Type: this.Type,
+                            X: this.X,
+                            Y: this.Y,
+                            Tile: this.Tile,
+                            TileLocked: this.TileLocked
+                          });
+}
+
 function Board() {
     this.Squares = MakeBoardArray();
 
@@ -304,10 +313,15 @@ Rack.prototype.toString = function() {
     return "Rack " + this.Dimension;
 }
 
-function LetterBag(language)
+function LetterBag()
 {
-    this.Tiles = [];
-    this.Letters = [];
+}
+
+LetterBag.create = function(language) {
+    var letterBag = new LetterBag;
+
+    letterBag.Tiles = [];
+    letterBag.Letters = [];
 
     var data = letterDistributions[language];
     if (!data) {
@@ -317,15 +331,15 @@ function LetterBag(language)
 	var item = data[i];
 	
 	var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
-	this.Letters.push(tile);
+	letterBag.Letters.push(tile);
 	
 	for (var n = 0; n < item.Count; ++n) {
 	    var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
-	    this.Tiles.push(tile);
+	    letterBag.Tiles.push(tile);
 	}
     }
     
-    this.Letters.sort(function(a,b) {
+    letterBag.Letters.sort(function(a,b) {
 	var a = a.Letter || Tile.prototype.BlankLetter;
 	var b = b.Letter || Tile.prototype.BlankLetter;
 
@@ -333,6 +347,8 @@ function LetterBag(language)
 	if (a > b) return 1;
 	return 0;
     });
+
+    return letterBag;
 }
 
 LetterBag.prototype.Shake = function()
@@ -520,6 +536,8 @@ function CalculateMove()
 }
 
 if (typeof exports == 'object') {
+    exports.Tile = Tile;
+    exports.Square = Square;
     exports.Rack = Rack;
     exports.Board = Board;
     exports.CalculateMove = CalculateMove;
