@@ -7,6 +7,8 @@ var express = require('express');
 var crypto = require('crypto');
 var negotiate = require('express-negotiate');
 var scrabble = require('./client/javascript/scrabble.js');
+var icebox = require('./client/javascript/icebox.js');
+var cycle = require('cycle');
 var DB = require('./db.js');
 
 var app = express.createServer();
@@ -84,7 +86,7 @@ Game.create = function(language, players) {
             player.rack.Squares[i] = game.letterBag.GetRandomTile();
         }
     });
-    console.log('game', game);
+    game.board = new scrabble.Board();
     db.set(game.key, game);
     return game;
 }
@@ -131,12 +133,21 @@ app.get("/game/:gameId/:playerId", function(req, res) {
 
 app.get("/game/:gameId", function (req, res, next) {
     var gameId = req.params.gameId;
-    if (!db.get(req.params.gameId)) {
+    var game = db.get(gameId);
+    if (!game) {
         throw "Game " + req.params.gameId + " does not exist";
     }
     req.negotiate({
         'application/json': function () {
-            res.send({ game: "he" });
+            var response = { board: game.board, players: [] }
+            var playerKey = req.cookies[gameId];
+            for (var i = 0; i < game.players.length; i++) {
+                var player = game.players[i];
+                response.players.push({ name: player.name,
+                                        score: player.score,
+                                        rack: ((player.key == playerKey) ? player.rack : null) });
+            }
+            res.send(cycle.decycle(icebox.freeze(response)));
         },
         'html': function () {
             res.sendfile(__dirname + '/client/index.html');

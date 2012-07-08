@@ -190,9 +190,6 @@ function Square(type, owner) {
 
     this.X = 0;
     this.Y = 0;
-
-    this.Tile = null;
-    this.TileLocked = false;
 }
 
 Square.prototype.PlaceTile = function(tile) {
@@ -200,7 +197,11 @@ Square.prototype.PlaceTile = function(tile) {
         throw "square already occupied: " + this;
     }
 
-    this.Tile = tile;
+    if (tile) {
+        this.Tile = tile;
+    } else {
+        delete this.Tile;
+    }
 
     triggerEvent('SquareChanged', [ this ]);
 }
@@ -217,15 +218,6 @@ Square.prototype.toString = function() {
         }
     }
     return string;
-}
-
-Square.prototype.toJSON = function() {
-    return JSON.stringify({ Type: this.Type,
-                            X: this.X,
-                            Y: this.Y,
-                            Tile: this.Tile,
-                            TileLocked: this.TileLocked
-                          });
 }
 
 function Board() {
@@ -271,6 +263,22 @@ function Board() {
     }
 
     triggerEvent('BoardReady', [ this ]);
+}
+
+Board.fromServerData = function(data) {
+    console.log('fromServerData');
+    data.constructor = Board.prototype;
+    for (var y = 0; y < data.Dimension; y++) {
+	for (var x = 0; x < data.Dimension; x++) {
+            var square = data.Squares[x][y];
+            square.prototype = Square.prototype;
+            if (square.Tile) {
+                square.Tile.prototype = Tile.prototype;
+            }
+        }
+    }
+    console.log('fromServerData done');
+    return data;
 }
 
 Board.prototype.Dimension = 15;

@@ -15,10 +15,11 @@ function UI(game) {
     }
 
     var ui = this;
-    $.getJSON('/game/' + this.GameKey, function (err, gameData) {
-        console.log('got game data');
-        
-        ui.Board = new Board();
+    $.get('/game/' + this.GameKey, function (gameData, err) {
+        gameData = thaw(gameData, { Board: Board, Tile: Tile, Square: Square, Rack: Rack });
+        console.log('got game data', gameData);
+
+        ui.Board = gameData.board;
         ui.Rack = new Rack();
 
         ui.DrawBoard();
