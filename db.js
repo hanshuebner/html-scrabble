@@ -1,4 +1,3 @@
-var cycle = require('cycle');
 var dirty = require('dirty');
 var util = require('util');
 var icebox = require('./client/javascript/icebox.js');
