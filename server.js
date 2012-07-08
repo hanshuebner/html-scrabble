@@ -85,8 +85,9 @@ Game.create = function(language, players) {
     players.forEach(function (player) {
         player.rack = new scrabble.Rack();
         for (var i = 0; i < 7; i++) {
-            player.rack.Squares[i].Tile = game.letterBag.GetRandomTile();
+            player.rack.squares[i].tile = game.letterBag.getRandomTile();
         }
+        console.log(player.rack);
     });
     game.board = new scrabble.Board();
     db.set(game.key, game);

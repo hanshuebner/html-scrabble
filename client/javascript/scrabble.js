@@ -52,111 +52,111 @@ function MakeBoardArray()
 }
 
 var letterDistributions = {
-    'English':  [ { Letter: null, Score: 0, Count: 2},
+    'English':  [ { letter: null, score: 0, count: 2},
 		  
-		  { Letter: "E", Score: 1, Count: 12},
-		  { Letter: "A", Score: 1, Count: 9},
-		  { Letter: "I", Score: 1, Count: 9},
-		  { Letter: "O", Score: 1, Count: 8},
-		  { Letter: "N", Score: 1, Count: 6},
-		  { Letter: "R", Score: 1, Count: 6},
-		  { Letter: "T", Score: 1, Count: 6},
-		  { Letter: "L", Score: 1, Count: 4},
-		  { Letter: "S", Score: 1, Count: 4},
-		  { Letter: "U", Score: 1, Count: 4},
+		  { letter: "E", score: 1, count: 12},
+		  { letter: "A", score: 1, count: 9},
+		  { letter: "I", score: 1, count: 9},
+		  { letter: "O", score: 1, count: 8},
+		  { letter: "N", score: 1, count: 6},
+		  { letter: "R", score: 1, count: 6},
+		  { letter: "T", score: 1, count: 6},
+		  { letter: "L", score: 1, count: 4},
+		  { letter: "S", score: 1, count: 4},
+		  { letter: "U", score: 1, count: 4},
 		  
-		  { Letter: "D", Score: 2, Count: 4},
-		  { Letter: "G", Score: 2, Count: 3},
+		  { letter: "D", score: 2, count: 4},
+		  { letter: "G", score: 2, count: 3},
 		  
-		  { Letter: "B", Score: 3, Count: 2},
-		  { Letter: "C", Score: 3, Count: 2},
-		  { Letter: "M", Score: 3, Count: 2},
-		  { Letter: "P", Score: 3, Count: 2},
+		  { letter: "B", score: 3, count: 2},
+		  { letter: "C", score: 3, count: 2},
+		  { letter: "M", score: 3, count: 2},
+		  { letter: "P", score: 3, count: 2},
 		  
-		  { Letter: "F", Score: 4, Count: 2},
-		  { Letter: "H", Score: 4, Count: 2},
-		  { Letter: "V", Score: 4, Count: 2},
-		  { Letter: "W", Score: 4, Count: 2},
-		  { Letter: "Y", Score: 4, Count: 2},
+		  { letter: "F", score: 4, count: 2},
+		  { letter: "H", score: 4, count: 2},
+		  { letter: "V", score: 4, count: 2},
+		  { letter: "W", score: 4, count: 2},
+		  { letter: "Y", score: 4, count: 2},
 		  
-		  { Letter: "K", Score: 5, Count: 1},
+		  { letter: "K", score: 5, count: 1},
 		  
-		  { Letter: "J", Score: 8, Count: 1},
-		  { Letter: "X", Score: 8, Count: 1},
+		  { letter: "J", score: 8, count: 1},
+		  { letter: "X", score: 8, count: 1},
 		  
-		  { Letter: "Q", Score: 10, Count: 1},
-		  { Letter: "Z", Score: 10, Count: 1}],
-    'French': [ { Letter: null, Score: 0, Count: 2},
+		  { letter: "Q", score: 10, count: 1},
+		  { letter: "Z", score: 10, count: 1}],
+    'French': [ { letter: null, score: 0, count: 2},
 		
-		{ Letter: "E", Score: 1, Count: 15},
-		{ Letter: "A", Score: 1, Count: 9},
-		{ Letter: "I", Score: 1, Count: 8},
-		{ Letter: "N", Score: 1, Count: 6},
-		{ Letter: "O", Score: 1, Count: 6},
-		{ Letter: "R", Score: 1, Count: 6},
-		{ Letter: "S", Score: 1, Count: 6},
-		{ Letter: "T", Score: 1, Count: 6},
-		{ Letter: "U", Score: 1, Count: 6},
-		{ Letter: "L", Score: 1, Count: 5},
+		{ letter: "E", score: 1, count: 15},
+		{ letter: "A", score: 1, count: 9},
+		{ letter: "I", score: 1, count: 8},
+		{ letter: "N", score: 1, count: 6},
+		{ letter: "O", score: 1, count: 6},
+		{ letter: "R", score: 1, count: 6},
+		{ letter: "S", score: 1, count: 6},
+		{ letter: "T", score: 1, count: 6},
+		{ letter: "U", score: 1, count: 6},
+		{ letter: "L", score: 1, count: 5},
 		
-		{ Letter: "D", Score: 2, Count: 3},
-		{ Letter: "G", Score: 2, Count: 2},
-		{ Letter: "M", Score: 3, Count: 3},
+		{ letter: "D", score: 2, count: 3},
+		{ letter: "G", score: 2, count: 2},
+		{ letter: "M", score: 3, count: 3},
 		
-		{ Letter: "B", Score: 3, Count: 2},
-		{ Letter: "C", Score: 3, Count: 2},
-		{ Letter: "P", Score: 3, Count: 2},
+		{ letter: "B", score: 3, count: 2},
+		{ letter: "C", score: 3, count: 2},
+		{ letter: "P", score: 3, count: 2},
 		
-		{ Letter: "F", Score: 4, Count: 2},
-		{ Letter: "H", Score: 4, Count: 2},
-		{ Letter: "V", Score: 4, Count: 2},
+		{ letter: "F", score: 4, count: 2},
+		{ letter: "H", score: 4, count: 2},
+		{ letter: "V", score: 4, count: 2},
 		
-		{ Letter: "J", Score: 8, Count: 1},
-		{ Letter: "Q", Score: 8, Count: 1},
+		{ letter: "J", score: 8, count: 1},
+		{ letter: "Q", score: 8, count: 1},
 
-		{ Letter: "K", Score: 10, Count: 1},
-		{ Letter: "W", Score: 10, Count: 1},
-		{ Letter: "X", Score: 10, Count: 1},
-		{ Letter: "Y", Score: 10, Count: 1},
-		{ Letter: "Z", Score: 10, Count: 1}
+		{ letter: "K", score: 10, count: 1},
+		{ letter: "W", score: 10, count: 1},
+		{ letter: "X", score: 10, count: 1},
+		{ letter: "Y", score: 10, count: 1},
+		{ letter: "Z", score: 10, count: 1}
 	      ],
-    'German': [ { Letter: null, Score: 0, Count: 2},
+    'German': [ { letter: null, score: 0, count: 2},
 		
-		{ Letter: "E", Score: 1, Count: 15},
-		{ Letter: "N", Score: 1, Count: 9},
-		{ Letter: "S", Score: 1, Count: 7},
-		{ Letter: "I", Score: 1, Count: 6},
-		{ Letter: "R", Score: 1, Count: 6},
-		{ Letter: "T", Score: 1, Count: 6},
-		{ Letter: "U", Score: 1, Count: 6},
-		{ Letter: "A", Score: 1, Count: 5},
-		{ Letter: "D", Score: 1, Count: 4},
+		{ letter: "E", score: 1, count: 15},
+		{ letter: "N", score: 1, count: 9},
+		{ letter: "S", score: 1, count: 7},
+		{ letter: "I", score: 1, count: 6},
+		{ letter: "R", score: 1, count: 6},
+		{ letter: "T", score: 1, count: 6},
+		{ letter: "U", score: 1, count: 6},
+		{ letter: "A", score: 1, count: 5},
+		{ letter: "D", score: 1, count: 4},
 		
-		{ Letter: "H", Score: 2, Count: 4},
-		{ Letter: "G", Score: 2, Count: 3},
-		{ Letter: "L", Score: 2, Count: 3},
-		{ Letter: "O", Score: 2, Count: 3},
+		{ letter: "H", score: 2, count: 4},
+		{ letter: "G", score: 2, count: 3},
+		{ letter: "L", score: 2, count: 3},
+		{ letter: "O", score: 2, count: 3},
 
-		{ Letter: "M", Score: 3, Count: 4},
-		{ Letter: "B", Score: 3, Count: 2},
-		{ Letter: "W", Score: 3, Count: 1},
-		{ Letter: "Z", Score: 3, Count: 1},
+		{ letter: "M", score: 3, count: 4},
+		{ letter: "B", score: 3, count: 2},
+		{ letter: "W", score: 3, count: 1},
+		{ letter: "Z", score: 3, count: 1},
 		
-		{ Letter: "C", Score: 4, Count: 2},
-		{ Letter: "F", Score: 4, Count: 2},
-		{ Letter: "K", Score: 4, Count: 2},
-		{ Letter: "P", Score: 4, Count: 1},
+		{ letter: "C", score: 4, count: 2},
+		{ letter: "F", score: 4, count: 2},
+		{ letter: "K", score: 4, count: 2},
+		{ letter: "P", score: 4, count: 1},
 		
-		{ Letter: "Ä", Score: 6, Count: 1},
-		{ Letter: "J", Score: 6, Count: 1},
-		{ Letter: "Ü", Score: 6, Count: 1},
-		{ Letter: "V", Score: 6, Count: 1},
+		{ letter: "Ä", score: 6, count: 1},
+		{ letter: "J", score: 6, count: 1},
+		{ letter: "Ü", score: 6, count: 1},
+		{ letter: "V", score: 6, count: 1},
 
-		{ Letter: "Ö", Score: 8, Count: 1},
-		{ Letter: "X", Score: 8, Count: 1},
+		{ letter: "Ö", score: 8, count: 1},
+		{ letter: "X", score: 8, count: 1},
 
-		{ Letter: "Q", Score: 10, Count: 1},
-		{ Letter: "Y", Score: 10, Count: 1}]};
+		{ letter: "Q", score: 10, count: 1},
+		{ letter: "Y", score: 10, count: 1}]};
 
 function type_of(obj) {
     if (typeof(obj) == 'object')
@@ -170,10 +170,10 @@ function type_of(obj) {
 
 function Tile(letter, score)
 {
-    this.Letter = letter;
-    this.Score = score;
+    this.letter = letter;
+    this.score = score;
 
-    if (this.Letter == this.BlankLetter) {
+    if (this.letter == this.BlankLetter) {
         this.isBlank = true;
     }
 }
@@ -181,39 +181,39 @@ function Tile(letter, score)
 Tile.prototype.BlankLetter = "-";
 
 Tile.prototype.toString = function() {
-    return "Tile: [" + this.Letter + "] --> " + this.Score;
+    return "Tile: [" + this.letter + "] --> " + this.score;
 }
 
 function Square(type, owner) {
-    this.Type = type;
-    this.Owner = owner;
+    this.type = type;
+    this.owner = owner;
 
-    this.X = 0;
-    this.Y = 0;
+    this.x = 0;
+    this.y = 0;
 }
 
-Square.prototype.PlaceTile = function(tile) {
-    if (tile && this.Tile) {
+Square.prototype.placeTile = function(tile) {
+    if (tile && this.tile) {
         throw "square already occupied: " + this;
     }
 
     if (tile) {
-        this.Tile = tile;
+        this.tile = tile;
     } else {
-        delete this.Tile;
+        delete this.tile;
     }
 
     triggerEvent('SquareChanged', [ this ]);
 }
 
 Square.prototype.toString = function() {
-    var string =  'Square type ' + this.Type + ' x: ' + this.X;
-    if (this.Y != -1) {
-        string += '/' + this.Y;
+    var string =  'Square type ' + this.type + ' x: ' + this.x;
+    if (this.y != -1) {
+        string += '/' + this.y;
     }
-    if (this.Tile) {
-        string += ' => ' + this.Tile;
-        if (this.TileLocked) {
+    if (this.tile) {
+        string += ' => ' + this.tile;
+        if (this.tileLocked) {
             string += ' (Locked)';
         }
     }
@@ -221,7 +221,7 @@ Square.prototype.toString = function() {
 }
 
 function Board() {
-    this.Squares = MakeBoardArray();
+    this.squares = MakeBoardArray();
 
     for (var y = 0; y < this.Dimension; y++) {
 	for (var x = 0; x < this.Dimension; x++) {
@@ -256,9 +256,9 @@ function Board() {
 		square = new Square('TripleLetter', this);
 	    }
 
-	    square.X = x;
-	    square.Y = y;
-	    this.Squares[x][y] = square;
+	    square.x = x;
+	    square.y = y;
+	    this.squares[x][y] = square;
 	}
     }
 
@@ -270,10 +270,10 @@ Board.fromServerData = function(data) {
     data.constructor = Board.prototype;
     for (var y = 0; y < data.Dimension; y++) {
 	for (var x = 0; x < data.Dimension; x++) {
-            var square = data.Squares[x][y];
+            var square = data.squares[x][y];
             square.prototype = Square.prototype;
-            if (square.Tile) {
-                square.Tile.prototype = Tile.prototype;
+            if (square.tile) {
+                square.tile.prototype = Tile.prototype;
             }
         }
     }
@@ -283,10 +283,10 @@ Board.fromServerData = function(data) {
 
 Board.prototype.Dimension = 15;
 
-Board.prototype.EmptyTiles = function() {
+Board.prototype.emptyTiles = function() {
     for (var y = 0; y < this.Dimension; y++) {
 	for (var x = 0; x < this.Dimension; x++) {
-	    this.Squares[x][y].PlaceTile(null);
+	    this.squares[x][y].placeTile(null);
 	}
     }
 }
@@ -296,24 +296,25 @@ Board.prototype.toString = function() {
 }
 
 function Rack() {
-    this.Dimension = 8;
-    this.Squares = [];
+    this.squares = [];
 
     for (var x = 0; x < this.Dimension; x++) {
 	var square = new Square('Normal', this);
-	square.X = x;
-	square.Y = -1;
-	this.Squares[x] = square;
+	square.x = x;
+	square.y = -1;
+	this.squares[x] = square;
     }
 
     triggerEvent('RackReady', [ this ]);
 }
 
-Rack.prototype.EmptyTiles = function() {
+Rack.prototype.Dimension = 8;
+
+Rack.prototype.emptyTiles = function() {
     for (var x = 0; x < this.Dimension; x++) {
-	var square = this.Squares[x];
+	var square = this.squares[x];
 	
-	square.PlaceTile(null);
+	square.placeTile(null);
     }
 }
 
@@ -328,8 +329,8 @@ function LetterBag()
 LetterBag.create = function(language) {
     var letterBag = new LetterBag;
 
-    letterBag.Tiles = [];
-    letterBag.Letters = [];
+    letterBag.tiles = [];
+    letterBag.letters = [];
 
     var data = letterDistributions[language];
     if (!data) {
@@ -338,18 +339,18 @@ LetterBag.create = function(language) {
     for (var i = 0; i < data.length; ++i) {
 	var item = data[i];
 	
-	var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
-	letterBag.Letters.push(tile);
+	var tile = new Tile(item.letter || Tile.prototype.BlankLetter, item.score);
+	letterBag.letters.push(tile);
 	
-	for (var n = 0; n < item.Count; ++n) {
-	    var tile = new Tile(item.Letter || Tile.prototype.BlankLetter, item.Score);
-	    letterBag.Tiles.push(tile);
+	for (var n = 0; n < item.count; ++n) {
+	    var tile = new Tile(item.letter || Tile.prototype.BlankLetter, item.score);
+	    letterBag.tiles.push(tile);
 	}
     }
     
-    letterBag.Letters.sort(function(a,b) {
-	var a = a.Letter || Tile.prototype.BlankLetter;
-	var b = b.Letter || Tile.prototype.BlankLetter;
+    letterBag.letters.sort(function(a,b) {
+	var a = a.letter || Tile.prototype.BlankLetter;
+	var b = b.letter || Tile.prototype.BlankLetter;
 
 	if (a < b) return -1;
 	if (a > b) return 1;
@@ -359,34 +360,34 @@ LetterBag.create = function(language) {
     return letterBag;
 }
 
-LetterBag.prototype.Shake = function()
+LetterBag.prototype.shake = function()
 {
-    var count = this.Tiles.length;
+    var count = this.tiles.length;
     for (i = 0; i < count * 3; i++) {
         var a = Math.floor(Math.random() * count);
         var b = Math.floor(Math.random() * count);
-        var tmp = this.Tiles[b];
-        this.Tiles[b] = this.Tiles[a];
-        this.Tiles[a] = tmp;
+        var tmp = this.tiles[b];
+        this.tiles[b] = this.tiles[a];
+        this.tiles[a] = tmp;
     }
 }
 
-LetterBag.prototype.GetRandomTile = function()
+LetterBag.prototype.getRandomTile = function()
 {
-    this.Shake();
+    this.shake();
 
-    return this.Tiles.pop();
+    return this.tiles.pop();
 }
 
-LetterBag.prototype.ReturnTile = function(tile)
+LetterBag.prototype.returnTile = function(tile)
 {
-    this.Tiles.push(tile);
+    this.tiles.push(tile);
 }
 
 function CalculateMove(squares)
 {
     // Check that the start field is occupied
-    if (!squares[7][7].Tile) {
+    if (!squares[7][7].tile) {
         return { error: "start field must be used" };
     }
     
@@ -400,8 +401,8 @@ function CalculateMove(squares)
     var tile;
     for (y = 0; !tile && y < 15; y++) {
         for (x = 0; !tile && x < 15; x++) {
-            if (squares[x][y].Tile && !squares[x][y].TileLocked) {
-                tile = squares[x][y].Tile;
+            if (squares[x][y].tile && !squares[x][y].tileLocked) {
+                tile = squares[x][y].tile;
                 topLeftX = x;
                 topLeftY = y;
             }
@@ -417,19 +418,19 @@ function CalculateMove(squares)
 
     function touchingOld(x, y) {
         var retval = 
-        (x > 0 && squares[x - 1][y].Tile && squares[x - 1][y].TileLocked)
-            || (x < 14 && squares[x + 1][y].Tile && squares[x + 1][y].TileLocked)
-            || (y > 0 && squares[x][y - 1].Tile && squares[x][y - 1].TileLocked)
-            || (y < 14 && squares[x][y + 1].Tile && squares[x][y + 1].TileLocked);
+        (x > 0 && squares[x - 1][y].tile && squares[x - 1][y].tileLocked)
+            || (x < 14 && squares[x + 1][y].tile && squares[x + 1][y].tileLocked)
+            || (y > 0 && squares[x][y - 1].tile && squares[x][y - 1].tileLocked)
+            || (y < 14 && squares[x][y + 1].tile && squares[x][y + 1].tileLocked);
         return retval;
     }
 
     var isTouchingOld = touchingOld(topLeftX, topLeftY);
     var horizontal = false;
     for (var x = topLeftX + 1; x < 15; x++) {
-        if (!squares[x][topLeftY].Tile) {
+        if (!squares[x][topLeftY].tile) {
             break;
-        } else if (!squares[x][topLeftY].TileLocked) {
+        } else if (!squares[x][topLeftY].tileLocked) {
             legalPlacements[x][topLeftY] = true;
             horizontal = true;
             isTouchingOld = isTouchingOld || touchingOld(x, topLeftY);
@@ -438,9 +439,9 @@ function CalculateMove(squares)
 
     if (!horizontal) {
         for (var y = topLeftY + 1; y < 15; y++) {
-            if (!squares[topLeftX][y].Tile) {
+            if (!squares[topLeftX][y].tile) {
                 break;
-            } else if (!squares[topLeftX][y].TileLocked) {
+            } else if (!squares[topLeftX][y].tileLocked) {
                 legalPlacements[topLeftX][y] = true;
                 isTouchingOld = isTouchingOld || touchingOld(topLeftX, y);
             }
@@ -455,7 +456,7 @@ function CalculateMove(squares)
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
-            if (square.Tile && !square.TileLocked && !legalPlacements[x][y]) {
+            if (square.tile && !square.tileLocked && !legalPlacements[x][y]) {
                 return { error: 'unconnected placement' };
             }
         }
@@ -468,17 +469,17 @@ function CalculateMove(squares)
         var score = 0;
         for (var y = 0; y < 15; y++) {
             for (var x = 0; x < 14; x++) {
-                if (squares[x][y].Tile && squares[x + 1][y].Tile) {
+                if (squares[x][y].tile && squares[x + 1][y].tile) {
                     var wordScore = 0;
                     var letters = '';
                     var wordMultiplier = 1;
                     var isNewWord = false;
-                    for (; x < 15 && squares[x][y].Tile; x++) {
+                    for (; x < 15 && squares[x][y].tile; x++) {
                         var square = squares[x][y];
-                        var letterScore = square.Tile.Score;
-                        isNewWord = isNewWord || !square.TileLocked;
-                        if (!square.TileLocked) {
-                            switch (square.Type) {
+                        var letterScore = square.tile.score;
+                        isNewWord = isNewWord || !square.tileLocked;
+                        if (!square.tileLocked) {
+                            switch (square.type) {
                             case 'DoubleLetter':
                                 letterScore *= 2;
                                 break;
@@ -494,7 +495,7 @@ function CalculateMove(squares)
                             }
                         }
                         wordScore += letterScore;
-                        letters += square.Tile.Letter;
+                        letters += square.tile.letter;
                     }
                     wordScore *= wordMultiplier;
                     if (isNewWord) {
@@ -523,10 +524,10 @@ function CalculateMove(squares)
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
-            if (square.Tile && !square.TileLocked) {
-                tilesPlaced.push({ Letter: square.Tile.Letter,
-                                   X: x,
-                                   Y: y });
+            if (square.tile && !square.tileLocked) {
+                tilesPlaced.push({ letter: square.tile.letter,
+                                   x: x,
+                                   y: y });
             }
         }
     }

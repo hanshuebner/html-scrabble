@@ -8,36 +8,36 @@ function UI(game) {
 
     var splitUrl = document.URL.match(/.*\/([0-9a-f]+)$/);
     if (splitUrl) {
-        this.GameKey = splitUrl[1];
-        this.PlayerKey = $.cookie(this.GameKey);
+        this.gameKey = splitUrl[1];
+        this.playerKey = $.cookie(this.gameKey);
     } else {
         console.log('cannot parse url');
     }
 
     var ui = this;
-    $.get('/game/' + this.GameKey, function (gameData, err) {
+    $.get('/game/' + this.gameKey, function (gameData, err) {
         gameData = thaw(gameData, { Board: Board, Tile: Tile, Square: Square, Rack: Rack });
         console.log('got game data', gameData);
 
-        ui.Board = gameData.board;
+        ui.board = gameData.board;
         for (var i in gameData.players) {
             var player = gameData.players[i];
             if (player.rack) {
-                ui.Rack = player.rack;
+                ui.rack = player.rack;
             }
         }
 
-        ui.DrawBoard();
-        ui.DrawRack();
+        ui.drawBoard();
+        ui.drawRack();
 
-        ui.Socket = io.connect();
-        ui.Socket.on('join', function (data) {
+        ui.socket = io.connect();
+        ui.socket.on('join', function (data) {
             console.log('join', data);
         });
-        ui.Socket.on('leave', function (data) {
+        ui.socket.on('leave', function (data) {
             console.log('leave', data);
         });
-        ui.Socket.on('turn', function (data) {
+        ui.socket.on('turn', function (data) {
             console.log('turn', data);
         });
 
@@ -50,12 +50,12 @@ function UI(game) {
         }
 
         $(document)
-            .bind('SquareChanged', uiCall(ui.UpdateSquare))
-            .bind('Refresh', uiCall(ui.Refresh))
-            .bind('RefreshRack', uiCall(ui.RefreshRack))
-            .bind('RefreshBoard', uiCall(ui.RefreshBoard));
+            .bind('SquareChanged', uiCall(ui.updateSquare))
+            .bind('Refresh', uiCall(ui.refresh))
+            .bind('RefreshRack', uiCall(ui.refreshRack))
+            .bind('RefreshBoard', uiCall(ui.refreshBoard));
 
-        ['CommitMove', 'OpenForMove', 'ReplenishRandomTiles'].forEach(function (action) {
+        ['CommitMove'].forEach(function (action) {
             var button = BUTTON(null, action)
             $(button).bind('click', uiCall(ui[action]));
             $('#buttons').append(button);
@@ -67,17 +67,17 @@ UI.prototype.idToSquare = function(id) {
     var match = id.match(/(Board|Rack)_(\d+)x?(\d*)/);
     if (match) {
         if (match[1] == 'Board') {
-            return this.Board.Squares[match[2]][match[3]];
+            return this.board.squares[match[2]][match[3]];
         } else {
-            return this.Rack.Squares[match[2]];
+            return this.rack.squares[match[2]];
         }
     } else {
         throw "cannot parse id " + id;
     }
 }
 
-UI.prototype.UpdateSquareState = function(board, square, state) {
-    var id = 'Board_' + square.X + "x" + square.Y;
+UI.prototype.updateSquareState = function(board, square, state) {
+    var id = 'Board_' + square.x + "x" + square.y;
     var td = document.getElementById(id).parentNode;
     $(td).removeClass("Invalid Valid ValidButWrongPlacement");
 
@@ -94,43 +94,43 @@ UI.prototype.UpdateSquareState = function(board, square, state) {
     }
 }
 
-UI.prototype.UpdateSquare = function(square) {
-    if (square.Owner == this.Rack) {
-        this.UpdateRackSquare(square);
-    } else if (square.Owner == this.Board) {
-        this.UpdateBoardSquare(square);
+UI.prototype.updateSquare = function(square) {
+    if (square.owner == this.rack) {
+        this.updateRackSquare(square);
+    } else if (square.owner == this.board) {
+        this.updateBoardSquare(square);
     } else {
         console.log('could not identify owner of square', square);
     }
 }
 
-UI.prototype.UpdateBoardSquare = function(square) {
+UI.prototype.updateBoardSquare = function(square) {
     var div = DIV({ id: square.id });
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
-    if (square.Tile) {
+    if (square.tile) {
         $(div).addClass('Tile')
-        if (square.TileLocked) {
+        if (square.tileLocked) {
             $(div).addClass('Locked');
         } else {
             $(div).addClass('Temp');
         }
-        if (square.Tile.IsBlank) {
+        if (square.tile.isBlank) {
             $(div).addClass('BlankLetter');
         }
 
-	if (!square.TileLocked) {
+	if (!square.tileLocked) {
 	    $(div).click(
 		function () {
-		    if (ui.CurrentlySelectedSquare) {
-			if (ui.CurrentlySelectedSquare == square) {
-			    ui.PlayAudio("audio1");
-			    ui.SelectSquare(null);
+		    if (ui.currentlySelectedSquare) {
+			if (ui.currentlySelectedSquare == square) {
+			    ui.playAudio("audio1");
+			    ui.selectSquare(null);
 			    return;
 			}
 		    }
-		    ui.PlayAudio("audio3");
-		    ui.SelectSquare(square);
+		    ui.playAudio("audio3");
+		    ui.selectSquare(square);
 		}
 	    );
 	    
@@ -141,8 +141,8 @@ UI.prototype.UpdateBoardSquare = function(square) {
 		opacity: 1,
 		helper: "clone",
 		start: function(event, jui) {
-		    ui.PlayAudio("audio3");
-		    ui.SelectSquare(null);
+		    ui.playAudio("audio3");
+		    ui.selectSquare(null);
 		    $(this).css({ opacity: 0.5 });
 		    $(jui.helper)
                         .animate({'font-size' : '120%'}, 300)
@@ -157,16 +157,16 @@ UI.prototype.UpdateBoardSquare = function(square) {
 		},
 		stop: function(event, jui) {
 		    $(this).css({ opacity: 1 });
-		    ui.PlayAudio('audio5');
+		    ui.playAudio('audio5');
 		}
 	    });
 	}
 
         div.appendChild(A(null,
-                          SPAN({ 'class': 'Letter' }, square.Tile.Letter),
-                          SPAN({ 'class': 'Score' }, square.Tile.Score)));
+                          SPAN({ 'class': 'Letter' }, square.tile.letter),
+                          SPAN({ 'class': 'Score' }, square.tile.score)));
     } else {
-	if (square.X == 7 && square.Y == 7) {
+	if (square.x == 7 && square.y == 7) {
 	    div.setAttribute('class', "CenterStart");
 	} else {
 	    div.setAttribute('class', 'Empty');
@@ -174,9 +174,9 @@ UI.prototype.UpdateBoardSquare = function(square) {
 	
 	$(div).click(
 	    function () {
-		if (ui.CurrentlySelectedSquare) {
-                    ui.MoveTile(ui.CurrentlySelectedSquare, square);
-		    ui.SelectSquare(null);
+		if (ui.currentlySelectedSquare) {
+                    ui.moveTile(ui.currentlySelectedSquare, square);
+		    ui.selectSquare(null);
 		}
 	    }
 	);
@@ -184,17 +184,17 @@ UI.prototype.UpdateBoardSquare = function(square) {
 	$(div).droppable({
 	    hoverClass: "dropActive",
 	    drop: function(event, jui) {
-		ui.PlayAudio('audio4');
-                ui.MoveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
+		ui.playAudio('audio4');
+                ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
 	
-	switch (square.Type) {
+	switch (square.type) {
 	case 'Normal':
             div.appendChild(A(null, SPAN(null, " ")));
 	    break;
 	case 'DoubleWord':
-	    if (square.X == 7 && square.Y == 7) {
+	    if (square.x == 7 && square.y == 7) {
                 div.appendChild(A(null, SPAN(null, '\u2605')));
 	    } else {
                 div.appendChild(A(null, SPAN(null, "DOUBLE WORD SCORE")));
@@ -217,25 +217,25 @@ UI.prototype.UpdateBoardSquare = function(square) {
         .append(div);
 }
     
-UI.prototype.DrawBoard = function() {
-    var board = this.Board;
+UI.prototype.drawBoard = function() {
+    var board = this.board;
 
     $('#board').append(TABLE(null,
                              map(function (y) {
                                  return TR(null,
                                            map(function (x) {
-	                                       var square = board.Squares[x][y];
+	                                       var square = board.squares[x][y];
 	                                       var id = 'Board_' + x + "x" + y;
                                                square.id = id;
-                                               return TD({ 'class': square.Type },
+                                               return TD({ 'class': square.type },
 	                                                 DIV({ id: id },
                                                              A()));
                                            }, range(board.Dimension)));
                              }, range(board.Dimension))));
-    this.RefreshBoard();
+    this.refreshBoard();
 }
 
-UI.prototype.UpdateRackSquare = function(square) {
+UI.prototype.updateRackSquare = function(square) {
     var id = square.id;
     var div = document.createElement('div');
     $('#' + id)
@@ -251,25 +251,25 @@ UI.prototype.UpdateRackSquare = function(square) {
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
     console.log('UpdateRackSquare, square', square);
-    if (square.Tile) {
+    if (square.tile) {
         $(div).addClass('Tile');
-        if (square.Tile.IsBlank) {
+        if (square.tile.isBlank) {
             $(div).addClass('BlankLetter');
         }
-        $(div).addClass(this.Rack.Locked ? 'Locked' : 'Temp');
+        $(div).addClass(this.rack.locked ? 'Locked' : 'Temp');
 
-        if (!this.Rack.Locked) {
+        if (!this.rack.locked) {
 	    $(div).click(
 	        function () {
-		    if (ui.CurrentlySelectedSquare) {
-		        if (ui.CurrentlySelectedSquare == square) {
-			    ui.PlayAudio("audio1");
-			    ui.SelectSquare(null);
+		    if (ui.currentlySelectedSquare) {
+		        if (ui.currentlySelectedSquare == square) {
+			    ui.playAudio("audio1");
+			    ui.selectSquare(null);
 			    return;
 		        }
 		    }
-		    ui.PlayAudio("audio3");
-		    ui.SelectSquare(square);
+		    ui.playAudio("audio3");
+		    ui.selectSquare(square);
                 }
 	    );
 
@@ -280,8 +280,8 @@ UI.prototype.UpdateRackSquare = function(square) {
 	        opacity: 1,
 	        helper: "clone",
 	        start: function(event, jui) {
-		    ui.PlayAudio("audio3");
-		    ui.SelectSquare(null);
+		    ui.playAudio("audio3");
+		    ui.selectSquare(null);
 		    $(this).css({ opacity: 0.5 });
 		    $(jui.helper)
                         .animate({'font-size' : '120%'}, 300)
@@ -296,23 +296,23 @@ UI.prototype.UpdateRackSquare = function(square) {
 	        },
 	        stop: function(event, jui) {
 		    $(this).css({ opacity: 1 });
-		    ui.PlayAudio('audio5');
+		    ui.playAudio('audio5');
 	        }
 	    });
         }
 	
         a.appendChild(SPAN({ 'class': 'Letter' },
-                           square.Tile.Letter));
+                           square.tile.letter));
         a.appendChild(SPAN({ 'class': 'Score' },
-                           square.Tile.Score));
+                           square.tile.score));
     } else {
 	div.setAttribute('class', 'Empty');
 	
 	$(div).click(
 	    function () {
-		if (ui.CurrentlySelectedSquare) {
-		    ui.MoveTile(ui.CurrentlySelectedSquare, square);
-		    ui.SelectSquare(null);
+		if (ui.currentlySelectedSquare) {
+		    ui.moveTile(ui.currentlySelectedSquare, square);
+		    ui.selectSquare(null);
                 }
 	    }
 	);
@@ -320,12 +320,12 @@ UI.prototype.UpdateRackSquare = function(square) {
 	$(div).droppable({
 	    hoverClass: "dropActive",
 	    drop: function(event, jui) {
-		ui.PlayAudio('audio4');
-                ui.MoveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
+		ui.playAudio('audio4');
+                ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
 	
-	switch (square.Type) {
+	switch (square.type) {
 	case 'Normal':
 	    a.appendChild(SPAN(null, " "));
 	    break;
@@ -335,75 +335,75 @@ UI.prototype.UpdateRackSquare = function(square) {
     }
 }
 
-UI.prototype.DrawRack = function() {
-    var rack = this.Rack;
+UI.prototype.drawRack = function() {
+    var rack = this.rack;
 
     $('#rack')
         .append(TABLE(null,
                       TR(null,
                          map(function (x) {
                              var id = 'Rack_' + x;
-                             rack.Squares[x].id = id;
+                             rack.squares[x].id = id;
                              return TD({ 'class': 'Normal' },
                                        DIV({ id: id }, A()));
                          }, range(8)))));
     var ui = this;
     forEach(range(8), function (x) {
-	ui.UpdateRackSquare(rack.Squares[x]);
+	ui.updateRackSquare(rack.squares[x]);
     });
 }
 
-UI.prototype.RefreshRack = function() {
-    var rack = this.Rack;
-    for (var x = 0; x < rack.Dimension; x++) {
+UI.prototype.refreshRack = function() {
+    var rack = this.rack;
+    for (var x = 0; x < rack.dimension; x++) {
 
-	this.UpdateRackSquare(rack.Squares[x]);
+	this.updateRackSquare(rack.squares[x]);
     }
 }
 
-UI.prototype.RefreshBoard = function() {
-    var board = this.Board;
+UI.prototype.refreshBoard = function() {
+    var board = this.board;
     for (var y = 0; y < board.Dimension; y++) {
 	for (var x = 0; x < board.Dimension; x++) {
-            this.UpdateBoardSquare(board.Squares[x][y]);
+            this.updateBoardSquare(board.squares[x][y]);
 	}
     }
 }
 
-UI.prototype.Refresh = function () {
-    this.RefreshRack();
-    this.RefreshBoard();
+UI.prototype.refresh = function () {
+    this.refreshRack();
+    this.refreshBoard();
 }
 
-UI.prototype.SelectSquare = function(square) {
+UI.prototype.selectSquare = function(square) {
 
-    if (this.CurrentlySelectedSquare) {
-        $('#' + this.CurrentlySelectedSquare.id).removeClass('Selected');
+    if (this.currentlySelectedSquare) {
+        $('#' + this.currentlySelectedSquare.id).removeClass('Selected');
     }
 
-    this.CurrentlySelectedSquare = square;
+    this.currentlySelectedSquare = square;
 
-    if (this.CurrentlySelectedSquare) {
-        $('#' + this.CurrentlySelectedSquare.id).addClass('Selected');
+    if (this.currentlySelectedSquare) {
+        $('#' + this.currentlySelectedSquare.id).addClass('Selected');
     }
 
     $('#board td').removeClass('Targeted');
 
     // selecting the target first does not yet work.
-    if (square && !square.Tile) {
-        console.log('SelectSquare - ' + square.X + '/' + square.Y);
-        $('#' + 'Board_' + square.X + "x" + square.Y)
+    if (square && !square.tile) {
+        console.log('SelectSquare - ' + square.x + '/' + square.y);
+        $('#' + 'Board_' + square.x + "x" + square.y)
             .addClass('Targeted');
     }
 }
 
-UI.prototype.MoveTile = function(fromSquare, toSquare) {
-    var tile = fromSquare.Tile;
-    fromSquare.PlaceTile(null);
-    toSquare.PlaceTile(tile);
+UI.prototype.moveTile = function(fromSquare, toSquare) {
+    var tile = fromSquare.tile;
+    fromSquare.placeTile(null);
+    toSquare.placeTile(tile);
 }
 
-UI.prototype.PlayAudio = function(id) {
+UI.prototype.playAudio = function(id) {
     var audio = document.getElementById(id);
 
     if (audio.playing) {
@@ -427,30 +427,20 @@ UI.prototype.PlayAudio = function(id) {
     }
 }
 
-UI.prototype.ServerCommand = function(command, args) {
+UI.prototype.serverCommand = function(command, args) {
     $.ajax({
         type: 'PUT',
-        url: '/game/' + this.GameKey,
+        url: '/game/' + this.gameKey,
         data: { command: command,
                 arguments: args }});
 }    
 
 UI.prototype.CommitMove = function() {
-    var move = CalculateMove(this.Board.Squares);
+    var move = CalculateMove(this.board.squares);
     if (move.error) {
         alert(move.error);
         return;
     }
-    this.ServerCommand('placeTiles', move.tilesPlaced);
+    this.serverCommand('placeTiles', move.tilesPlaced);
 }
-
-UI.prototype.ReplenishRandomTiles = function() {
-    this.Rack.ReplenishRandomTiles();
-}
-
-UI.prototype.OpenForMove = function() {
-    this.Rack.Locked = false;
-    this.RefreshRack();
-}
-
 
