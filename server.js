@@ -8,7 +8,6 @@ var crypto = require('crypto');
 var negotiate = require('express-negotiate');
 var scrabble = require('./client/javascript/scrabble.js');
 var icebox = require('./client/javascript/icebox.js');
-var cycle = require('cycle');
 var DB = require('./db.js');
 
 var app = express.createServer();
@@ -60,19 +59,22 @@ db.on('load', function() {
     app.listen(9093);
 });
 
-function makeKey() {
-    return crypto.randomBytes(8).toString('hex');
-}
-
-function Game() {
-}
-
-db.registerObject(Game);
 db.registerObject(scrabble.Tile);
 db.registerObject(scrabble.Square);
 db.registerObject(scrabble.Board);
 db.registerObject(scrabble.Rack);
 db.registerObject(scrabble.LetterBag);
+
+function makeKey() {
+    return crypto.randomBytes(8).toString('hex');
+}
+
+// Game //////////////////////////////////////////////////////////////////
+
+function Game() {
+}
+
+db.registerObject(Game);
 
 Game.create = function(language, players) {
     var game = new Game();
@@ -99,6 +101,18 @@ Game.load = function(key) {
     }
     return game;
 }
+
+Game.prototype.lookupPlayer = function(req) {
+    var playerKey = req.cookies[this.key];
+    for (var i in this.players) {
+        if (this.players[i].key == playerKey) {
+            return this.players[i];
+        }
+    }
+    throw "invalid player key " + playerKey + " for game " + this.key;
+}
+
+// Handlers //////////////////////////////////////////////////////////////////
 
 app.get("/game", function(req, res) {
     res.sendfile(__dirname + '/client/make-game.html');
@@ -133,6 +147,13 @@ function gameHandler(handler) {
     }
 }
 
+function playerHandler(handler) {
+    return gameHandler(function(game, req, res) {
+        var player = game.lookupPlayer(req);
+        handler(player, game, req, res);
+    });
+}
+        
 
 app.get("/game/:gameKey/:playerKey", gameHandler(function (game, req, res) {
     res.cookie(req.params.gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
@@ -143,14 +164,14 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
     req.negotiate({
         'application/json': function () {
             var response = { board: game.board, players: [] }
-            var playerKey = req.cookies[gameKey];
+            var thisPlayer = game.lookupPlayer(req);
             for (var i = 0; i < game.players.length; i++) {
                 var player = game.players[i];
                 response.players.push({ name: player.name,
                                         score: player.score,
-                                        rack: ((player.key == playerKey) ? player.rack : null) });
+                                        rack: ((player == thisPlayer) ? player.rack : null) });
             }
-            res.send(cycle.decycle(icebox.freeze(response)));
+            res.send(icebox.freeze(response));
         },
         'html': function () {
             res.sendfile(__dirname + '/client/index.html');
@@ -158,8 +179,8 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
     });
 }));
 
-app.put("/game/:gameKey", gameHandler(function(game, req, res) {
-    console.log('put', game, 'command', req.body);
+app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
+    console.log('put', game.key, 'player', player, 'command', req.body);
     res.send('ok');
 }));
 
