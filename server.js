@@ -1,5 +1,6 @@
 
 var repl = require('repl');
+var util = require('util');
 var fs = require('fs');
 var io = require('socket.io');
 var nodemailer = require('nodemailer');
@@ -87,7 +88,6 @@ Game.create = function(language, players) {
         for (var i = 0; i < 7; i++) {
             player.rack.squares[i].tile = game.letterBag.getRandomTile();
         }
-        console.log(player.rack);
     });
     game.board = new scrabble.Board();
     db.set(game.key, game);
@@ -181,7 +181,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
 }));
 
 app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
-    console.log('put', game.key, 'player', player, 'command', req.body);
+    console.log('put', game.key, 'player', util.inspect(player, true, null), 'command', util.inspect(req.body, true, null));
     res.send('ok');
 }));
 

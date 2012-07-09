@@ -17,7 +17,6 @@ function UI(game) {
     var ui = this;
     $.get('/game/' + this.gameKey, function (gameData, err) {
         gameData = thaw(gameData, { Board: Board, Tile: Tile, Square: Square, Rack: Rack });
-        console.log('got game data', gameData);
 
         ui.board = gameData.board;
         for (var i in gameData.players) {
@@ -250,7 +249,6 @@ UI.prototype.updateRackSquare = function(square) {
 
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
-    console.log('UpdateRackSquare, square', square);
     if (square.tile) {
         $(div).addClass('Tile');
         if (square.tile.isBlank) {
