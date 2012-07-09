@@ -174,7 +174,7 @@ function Tile(letter, score)
     this.score = score;
 }
 
-Tile.prototype.isBlank() {
+Tile.prototype.isBlank = function() {
     return this.letter;
 }
 
