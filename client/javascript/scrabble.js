@@ -52,7 +52,7 @@ function MakeBoardArray()
 }
 
 var letterDistributions = {
-    'English':  [ { letter: null, score: 0, count: 2},
+    'English':  [ { score: 0, count: 2},
 		  
 		  { letter: "E", score: 1, count: 12},
 		  { letter: "A", score: 1, count: 9},
@@ -86,7 +86,7 @@ var letterDistributions = {
 		  
 		  { letter: "Q", score: 10, count: 1},
 		  { letter: "Z", score: 10, count: 1}],
-    'French': [ { letter: null, score: 0, count: 2},
+    'French': [ { score: 0, count: 2},
 		
 		{ letter: "E", score: 1, count: 15},
 		{ letter: "A", score: 1, count: 9},
@@ -120,7 +120,7 @@ var letterDistributions = {
 		{ letter: "Y", score: 10, count: 1},
 		{ letter: "Z", score: 10, count: 1}
 	      ],
-    'German': [ { letter: null, score: 0, count: 2},
+    'German': [ { score: 0, count: 2},
 		
 		{ letter: "E", score: 1, count: 15},
 		{ letter: "N", score: 1, count: 9},
@@ -172,16 +172,14 @@ function Tile(letter, score)
 {
     this.letter = letter;
     this.score = score;
-
-    if (this.letter == this.BlankLetter) {
-        this.isBlank = true;
-    }
 }
 
-Tile.prototype.BlankLetter = "-";
+Tile.prototype.isBlank() {
+    return this.letter;
+}
 
 Tile.prototype.toString = function() {
-    return "Tile: [" + this.letter + "] --> " + this.score;
+    return "Tile: [" + (this.isBlank() ? "blank" : this.letter) + "] --> " + this.score;
 }
 
 function Square(type, owner) {
@@ -339,18 +337,18 @@ LetterBag.create = function(language) {
     for (var i = 0; i < data.length; ++i) {
 	var item = data[i];
 	
-	var tile = new Tile(item.letter || Tile.prototype.BlankLetter, item.score);
+	var tile = new Tile(item.letter || " ", item.score);
 	letterBag.letters.push(tile);
 	
 	for (var n = 0; n < item.count; ++n) {
-	    var tile = new Tile(item.letter || Tile.prototype.BlankLetter, item.score);
+	    var tile = new Tile(item.letter || " ", item.score);
 	    letterBag.tiles.push(tile);
 	}
     }
     
     letterBag.letters.sort(function(a,b) {
-	var a = a.letter || Tile.prototype.BlankLetter;
-	var b = b.letter || Tile.prototype.BlankLetter;
+	var a = a.letter || " ";
+	var b = b.letter || " ";
 
 	if (a < b) return -1;
 	if (a > b) return 1;

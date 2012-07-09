@@ -114,7 +114,7 @@ UI.prototype.updateBoardSquare = function(square) {
         } else {
             $(div).addClass('Temp');
         }
-        if (square.tile.isBlank) {
+        if (square.tile.isBlank()) {
             $(div).addClass('BlankLetter');
         }
 
@@ -251,7 +251,7 @@ UI.prototype.updateRackSquare = function(square) {
 
     if (square.tile) {
         $(div).addClass('Tile');
-        if (square.tile.isBlank) {
+        if (square.tile.isBlank()) {
             $(div).addClass('BlankLetter');
         }
         $(div).addClass(this.rack.locked ? 'Locked' : 'Temp');
