@@ -8,9 +8,9 @@ var EventEmitter = require('events').EventEmitter;
 function DB(path) {
     this.prototypeMap = {};
     EventEmitter.call(this);
-    this.db = dirty(path);
+    this.dirty = dirty(path);
     var db = this;
-    this.db.on('load', function () { db.emit('load', 0); });
+    this.dirty.on('load', function () { db.emit('load', 0); });
 }
 
 util.inherits(DB, EventEmitter);
@@ -20,11 +20,11 @@ DB.prototype.registerObject = function(constructor) {
 }
 
 DB.prototype.get = function(key) {
-    return icebox.thaw(this.db.get(key), this.prototypeMap);
+    return icebox.thaw(this.dirty.get(key), this.prototypeMap);
 }
 
 DB.prototype.set = function(key, object) {
-    this.db.set(key, icebox.freeze(object));
+    this.dirty.set(key, icebox.freeze(object));
 }
 
 exports.DB = DB;
