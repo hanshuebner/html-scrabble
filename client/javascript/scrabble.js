@@ -175,7 +175,7 @@ function Tile(letter, score)
 }
 
 Tile.prototype.isBlank = function() {
-    return this.letter;
+    return !this.letter;
 }
 
 Tile.prototype.toString = function() {
@@ -199,6 +199,7 @@ Square.prototype.placeTile = function(tile) {
         this.tile = tile;
     } else {
         delete this.tile;
+        delete this.tileLocked;
     }
 
     triggerEvent('SquareChanged', [ this ]);
@@ -377,12 +378,23 @@ LetterBag.prototype.getRandomTile = function()
     return this.tiles.pop();
 }
 
+LetterBag.prototype.getRandomTiles = function(count)
+{
+    this.shake();
+
+    var retval = [];
+    for (var i = 0; this.tiles.length && (i < count); i++) {
+        retval.push(this.tiles.pop());
+    }
+    return retval;
+}
+
 LetterBag.prototype.returnTile = function(tile)
 {
     this.tiles.push(tile);
 }
 
-function CalculateMove(squares)
+function calculateMove(squares)
 {
     // Check that the start field is occupied
     if (!squares[7][7].tile) {
@@ -545,6 +557,6 @@ if (typeof exports == 'object') {
     exports.Square = Square;
     exports.Rack = Rack;
     exports.Board = Board;
-    exports.CalculateMove = CalculateMove;
+    exports.calculateMove = calculateMove;
     exports.LetterBag = LetterBag;
 }

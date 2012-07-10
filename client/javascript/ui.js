@@ -17,19 +17,26 @@ function UI(game) {
     var ui = this;
     $.get('/game/' + this.gameKey, function (gameData, err) {
         gameData = thaw(gameData, { Board: Board, Tile: Tile, Square: Square, Rack: Rack });
+        console.log('gameData', gameData);
 
         ui.board = gameData.board;
-        for (var i in gameData.players) {
-            var player = gameData.players[i];
-            if (player.rack) {
-                ui.rack = player.rack;
-            }
-        }
+        $('#scoreboard')
+            .append(TABLE(null,
+                          gameData.players.map(function(player) {
+                              if (player.rack) {
+                                  ui.rack = player.rack;
+                                  ui.rack.locked = !player.yourTurn;
+                              }
+                              return TR(null,
+                                        TD({ 'class': 'name' }, player.name),
+                                        TD({ 'class': 'score' }, player.score));
+                          })));
 
         ui.drawBoard();
         ui.drawRack();
 
         ui.socket = io.connect();
+        ui.socket.emit('join', { gameKey: ui.gameKey });
         ui.socket.on('join', function (data) {
             console.log('join', data);
         });
@@ -38,6 +45,7 @@ function UI(game) {
         });
         ui.socket.on('turn', function (data) {
             console.log('turn', data);
+            $('#log').append(DIV(null, data));
         });
 
         function uiCall(f) {
@@ -256,20 +264,24 @@ UI.prototype.updateRackSquare = function(square) {
         }
         $(div).addClass(this.rack.locked ? 'Locked' : 'Temp');
 
-        if (!this.rack.locked) {
-	    $(div).click(
-	        function () {
-		    if (ui.currentlySelectedSquare) {
-		        if (ui.currentlySelectedSquare == square) {
-			    ui.playAudio("audio1");
-			    ui.selectSquare(null);
-			    return;
+        if (this.rack.locked) {
+            $(div).addClass('Locked');
+        } else {
+	    $(div)
+                .addClass('Temp')
+                .click(
+	            function () {
+		        if (ui.currentlySelectedSquare) {
+		            if (ui.currentlySelectedSquare == square) {
+			        ui.playAudio("audio1");
+			        ui.selectSquare(null);
+			        return;
+		            }
 		        }
-		    }
-		    ui.playAudio("audio3");
-		    ui.selectSquare(square);
-                }
-	    );
+		        ui.playAudio("audio3");
+		        ui.selectSquare(square);
+                    }
+	        );
 
 	    var doneOnce = false;
 	    
@@ -353,8 +365,7 @@ UI.prototype.drawRack = function() {
 
 UI.prototype.refreshRack = function() {
     var rack = this.rack;
-    for (var x = 0; x < rack.dimension; x++) {
-
+    for (var x = 0; x < rack.Dimension; x++) {
 	this.updateRackSquare(rack.squares[x]);
     }
 }
@@ -425,20 +436,38 @@ UI.prototype.playAudio = function(id) {
     }
 }
 
-UI.prototype.serverCommand = function(command, args) {
+UI.prototype.serverCommand = function(command, args, success) {
     $.ajax({
         type: 'PUT',
         url: '/game/' + this.gameKey,
-        data: { command: command,
-                arguments: args }});
+        contentType: 'application/json',
+        data: JSON.stringify({ command: command,
+                               arguments: args }),
+        success: success });
 }    
 
 UI.prototype.CommitMove = function() {
-    var move = CalculateMove(this.board.squares);
+    var move = calculateMove(this.board.squares);
     if (move.error) {
         alert(move.error);
         return;
     }
-    this.serverCommand('placeTiles', move.tilesPlaced);
+    this.rack.locked = true;
+    this.refreshRack();
+    for (var i = 0; i < move.tilesPlaced.length; i++) {
+        var tilePlaced = move.tilesPlaced[i];
+        var square = this.board.squares[tilePlaced.x][tilePlaced.y];
+        square.tileLocked = true;
+        this.updateBoardSquare(square);
+    }
+    console.log(move.tilesPlaced);
+    this.serverCommand('makeMove',
+                       move.tilesPlaced,
+                       function (data) {
+                           if (!data.newTiles) {
+                               console.log('expected new tiles, got ' + data);
+                           }
+                           console.log('got new tiles:', data);
+                       });
 }
 

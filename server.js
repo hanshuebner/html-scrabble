@@ -1,4 +1,5 @@
 
+var _ = require('underscore');
 var repl = require('repl');
 var util = require('util');
 var fs = require('fs');
@@ -11,28 +12,18 @@ var scrabble = require('./client/javascript/scrabble.js');
 var icebox = require('./client/javascript/icebox.js');
 var DB = require('./db.js');
 
+var EventEmitter = require('events').EventEmitter;
+
 var app = express.createServer();
 var io = io.listen(app);
 var db = new DB.DB('data.db');
 
-var mailTransport = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
+var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
 
 // //////////////////////////////////////////////////////////////////////
 
-function testMail() {
-    transport.sendMail({ from: 'Hans Hübner <hans@huebner.org>',
-                         to: [ 'hans.huebner@gmail.com' ],
-                         subject: 'täst',
-                         text: 'hälö from nodemailer',
-                         html: 'here is your <a href="http://heise.de/">link</a>' },
-                       function (err) {
-                           if (err) {
-                               console.log('sending mail failed', err);
-                           } else {
-                               console.log('mail sent');
-                           }
-                       });
-}
+var baseUrl = 'http://localhost:9093/';
+var mailSender = "Scrabble Server <scrabble@netzhansa.com>";
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -75,6 +66,8 @@ function makeKey() {
 function Game() {
 }
 
+util.inherits(Game, EventEmitter);
+
 db.registerObject(Game);
 
 Game.create = function(language, players) {
@@ -83,24 +76,80 @@ Game.create = function(language, players) {
     game.players = players;
     game.key = makeKey();
     game.letterBag = scrabble.LetterBag.create(language);
-    players.forEach(function (player) {
+    for (var i = 0; i < players.length; i++) {
+        var player = players[i];
+        player.index = i;
         player.rack = new scrabble.Rack();
-        for (var i = 0; i < 7; i++) {
-            player.rack.squares[i].tile = game.letterBag.getRandomTile();
+        for (var j = 0; j < 7; j++) {
+            player.rack.squares[j].tile = game.letterBag.getRandomTile();
         }
-    });
+        player.score = 0;
+    }
+    console.log('players', players);
     game.board = new scrabble.Board();
-    db.set(game.key, game);
+    game.whosTurn = 0;
+    game.save();
+    game.players.forEach(function (player) {
+        game.sendInvitation(player);
+    });
     return game;
 }
 
-Game.load = function(key) {
-    var raw = db.get(key);
-    var game = new Game;
-    for (var property in raw) {
-        game[property] = raw[property];
+Game.prototype.makeLink = function(player)
+{
+    var url = baseUrl + "game/" + this.key;
+    if (player) {
+        url += "/" + player.key;
     }
-    return game;
+    return url;
+}
+
+function joinProse(array)
+{
+    var length = array.length;
+    switch (length) {
+    case 0:
+        return "";
+    case 1:
+        return array[0];
+    default:
+        return _.reduce(array.slice(1, length - 1), function (word, accu) { return word + ", " + accu }, array[0]) + " and " + array[length - 1];
+    }
+}
+
+Game.prototype.sendInvitation = function(player)
+{
+    smtp.sendMail({ from: mailSender,
+                    to: [ player.email ],
+                    subject: 'You have been invited to play Scrabble with ' + joinProse(_.pluck(_.without(this.players, player), 'name')),
+                    text: 'Use this link to play:\n\n' + this.makeLink(player),
+                    html: 'Click <a href="' + this.makeLink(player) + '">here</a> to play.' },
+                  function (err) {
+                      if (err) {
+                          console.log('sending mail failed', err);
+                      }
+                  });
+}
+
+Game.prototype.save = function(key) {
+    db.set(this.key, this);
+}
+
+Game.load = function(key) {
+    if (!this.games) {
+        this.games = {};
+    }
+    if (!this.games[key]) {
+        var game = db.get(key);
+        if (!game) {
+            throw "game " + key + " not found";
+        }
+        EventEmitter.call(game);
+        game.connections = [];
+        Object.defineProperty(game, 'connections', { enumerable: false }); // makes connections non-persistent
+        this.games[key] = game;
+    }
+    return this.games[key];
 }
 
 Game.prototype.lookupPlayer = function(req) {
@@ -111,6 +160,87 @@ Game.prototype.lookupPlayer = function(req) {
         }
     }
     throw "invalid player key " + playerKey + " for game " + this.key;
+}
+
+Game.prototype.makeMove = function(player, placementList) {
+    console.log('makeMove', placementList);
+    var game = this;
+    // determine if it is this player's turn
+    if (player !== game.players[game.whosTurn]) {
+        throw "not this player's turn";
+    }
+    // validate the move (i.e. does the user have the tiles placed, are the tiles free on the board
+    var rackSquares = player.rack.squares.slice();          // need to clone
+    var placements = placementList.map(function (placement) {
+        var fromSquare = null;
+        for (var i = 0; i < rackSquares.length; i++) {
+            var square = rackSquares[i];
+            if (square && square.tile && square.tile.letter == placement.letter) {
+                fromSquare = square;
+                delete rackSquares[i];
+                break;
+            }
+        }
+        if (!fromSquare) {
+            throw 'cannot find letter ' + placement.letter + ' in rack of player ' + player.name;
+        }
+        var toSquare = game.board.squares[placement.x][placement.y];
+        if (toSquare.tile) {
+            throw 'target tile ' + placement.x + '/' + placement.y + ' is already occupied';
+        }
+        return [fromSquare, toSquare];
+    });
+    placements.forEach(function(squares) {
+        var tile = squares[0].tile;
+        squares[0].placeTile(null);
+        squares[1].placeTile(tile);
+    });
+    var move = scrabble.calculateMove(game.board.squares);
+    if (move.error) {
+        // fixme should be generalized function -- wait, no rollback? :|
+        placements.forEach(function(squares) {
+            var tile = squares[1].tile;
+            squares[1].placeTile(null);
+            squares[0].placeTile(tile);
+        });
+        throw move.error;
+    }
+    placements.forEach(function(squares) {
+        squares[1].tileLocked = true;
+    });
+    // add score
+    move.words.forEach(function(word) {
+        player.score += word.score;
+    });
+    // determine who's turn it is now
+    game.whosTurn = (game.whosTurn + 1) % game.players.length;
+    // get new tiles
+    var newTiles = game.letterBag.getRandomTiles(placements.length);
+    for (var i = 0; i < newTiles.length; i++) {
+        placements[i][0].placeTile(newTiles[i]);
+    }
+    // store new game data
+    game.save();
+
+    // notify listeners
+    game.connections.forEach(function (socket) {
+        socket.emit('turn', { player: player.index,
+                              placements: placementList,
+                              nextTurn: player.whosTurn });
+    });
+
+    return { newTiles: newTiles };
+}
+
+Game.prototype.newConnection = function(socket) {
+    var game = this;
+    if (!game.connections) {
+        game.connections = [];
+    }
+    game.connections.push(socket);
+    socket.on('disconnect', function () {
+        game.connections = _.without(game.connections, this);
+    });
 }
 
 // Handlers //////////////////////////////////////////////////////////////////
@@ -127,7 +257,9 @@ app.post("/game", function(req, res) {
         var email = req.body['email' + x];
         console.log('name', name, 'email', email, 'params', req.params);
         if (name && email) {
-            players.push({ name: name, email: email, key: makeKey() });
+            players.push({ name: name,
+                           email: email,
+                           key: makeKey() });
         }
     });
 
@@ -140,7 +272,7 @@ app.post("/game", function(req, res) {
 function gameHandler(handler) {
     return function(req, res) {
         var gameKey = req.params.gameKey;
-        var game = db.get(gameKey);
+        var game = Game.load(gameKey);
         if (!game) {
             throw "Game " + req.params.gameKey + " does not exist";
         }
@@ -170,7 +302,8 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
                 var player = game.players[i];
                 response.players.push({ name: player.name,
                                         score: player.score,
-                                        rack: ((player == thisPlayer) ? player.rack : null) });
+                                        rack: ((player == thisPlayer) ? player.rack : null),
+                                        yourTurn: (i == game.whosTurn) });
             }
             res.send(icebox.freeze(response));
         },
@@ -181,12 +314,25 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
 }));
 
 app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
-    console.log('put', game.key, 'player', util.inspect(player, true, null), 'command', util.inspect(req.body, true, null));
-    res.send('ok');
+    var body = icebox.thaw(req.body);
+    console.log('put', game.key, 'player', player.name, 'command', body.command, 'arguments', req.body.arguments);
+    switch (req.body.command) {
+    case 'makeMove':
+        res.send(icebox.freeze(game.makeMove(player, body.arguments)));
+        break;
+    default:
+        throw 'unrecognized game PUT command: ' + body.command;
+    }
 }));
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('join', { });
+    socket.on('join', function (data) {
+        var game = Game.load(data.gameKey);
+        if (!game) {
+            throw "game " + data.gameKey + " not found";
+        }
+        game.newConnection(this);
+    });
 });
 
 var repl = repl.start({

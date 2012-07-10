@@ -1,19 +1,17 @@
 body
 {
     font-family: helvetica, arial, sans-serif;
-    font-size: 100.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
+    font-size: 80.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
+    width: 70em;
 
     margin: 0;
 
     padding: 0;
-    padding-top: 1em;
 
     border: none;
 
     background: #333333;
     background: url('../images/wood.jpg');
-
-    color: #FDFDF6;
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -21,25 +19,6 @@ body
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
-
-div#title
-{
-    margin: 0;
-    padding: 0;
-    padding-top: 1em;
-}
-
-div#title span
-{
-    font-size: 3em;
-
-    margin: 0;
-    padding: 0;
-
-    font-weight: bold;
-    letter-spacing: 0.7em;
-    padding-left: 0.7em;
 }
 
 div.tableDivWrap
@@ -55,6 +34,42 @@ div.bottomShade table
     -webkit-box-shadow: 0 0 1em #000000;
     -moz-box-shadow: 0 0 1em #000000;
     -o-box-shadow: 0 0 1em #000000;
+}
+
+div#container
+{
+    overflow: auto;
+    width: 73em;
+}
+
+div#controls
+{
+    float: left;
+    margin: 1em;
+    margin-top: 2em;
+    width: 20em;
+}
+
+div#controls > div
+{
+    background-color: #F7F7E3;
+    border-color: #DCDCC6;
+
+    border-style: solid;
+
+    -moz-border-radius: 0.4em;
+    -webkit-border-radius: 0.4em;
+    -o-border-radius: 0.4em;
+    border-radius: 0.4em;
+
+    margin-bottom: 0.4em;
+    padding: 0.4em;
+}
+
+div#boardWrap
+{
+    float: right;
+    width: 50em;
 }
 
 div.tableDivWrap table
