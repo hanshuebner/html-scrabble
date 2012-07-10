@@ -10,8 +10,6 @@ body
 
     border: none;
 
-    text-align: center;
-
     background: #333333;
     background: url('../images/wood.jpg');
 
@@ -456,35 +454,3 @@ div#anagrams th
         margin-top: -0.5em; /* actually doesn't work :( */
     }
 }
-
-@media all and (-webkit-min-device-pixel-ratio:10000), not all and (-webkit-min-device-pixel-ratio:0)
-{
-    .opera {display: block}
-}
-
-
-.ie6 {_display: block}
-
-*:first-child+html .ie7 {display: block}
-
-html>/**/body .ffsc{display: block}
-
-.ie67 {*display: block}
-
-/*\*/
-html>body*.ie7sc {display: block}
-/**/
-
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .webkit {display: block}
-}
-
-.ff2ie7, x:-moz-any-link {display: block}
-
-.ff3ie7, x:-moz-any-link, x:default {display: block}
-
-html>/**/body .modern {display: block}
-
-@-moz-document url-prefix() { .ff23 {display: block}}
-
-html>/**/body .ff3, x:-moz-any-link, x:default { } /* Only FireFox 3 */
