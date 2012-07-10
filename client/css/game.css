@@ -1,153 +1,118 @@
-/*
-COLOR_CODE: GRID-OUTLINE
-306754 dark green
-AAA38E 54534A dark beige
-
-COLOR_CODE: GRID-SQUARES
-4E9258 light green
-BEB9A6 light beige
-*/
-
 body
 {
-font-family: helvetica, arial, sans-serif;
-font-size: 100.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
+    font-family: helvetica, arial, sans-serif;
+    font-size: 100.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
 
-margin: 0;
+    margin: 0;
 
-padding: 0;
-padding-top: 1em;
+    padding: 0;
+    padding-top: 1em;
 
-border: none;
+    border: none;
 
-text-align: center;
+    text-align: center;
 
-background: #333333;
-/* url('../images/Background.png') repeat left top; */
-background: url('../images/wood.jpg');
+    background: #333333;
+    background: url('../images/wood.jpg');
 
-color: #FDFDF6;
+    color: #FDFDF6;
 
--webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 div#title
 {
-margin: 0;
-padding: 0;
-padding-top: 1em;
+    margin: 0;
+    padding: 0;
+    padding-top: 1em;
 }
 
 div#title span
 {
-font-size: 3em;
+    font-size: 3em;
 
-margin: 0;
-padding: 0;
+    margin: 0;
+    padding: 0;
 
-font-weight: bold;
-letter-spacing: 0.7em;
-padding-left: 0.7em;
-
-/* text-shadow: 0px 0px 50px #333333; */
+    font-weight: bold;
+    letter-spacing: 0.7em;
+    padding-left: 0.7em;
 }
 
 div.tableDivWrap
 {
-margin: 0;
-padding: 0;
-
-/* width: 100%; */
+    margin: 0;
+    padding: 0;
 }
 
 div.surroundShade table,
 div.bottomShade table
 {
-box-shadow: 0 0 1em #000000;
--webkit-box-shadow: 0 0 1em #000000;
--moz-box-shadow: 0 0 1em #000000;
--o-box-shadow: 0 0 1em #000000;
+    box-shadow: 0 0 1em #000000;
+    -webkit-box-shadow: 0 0 1em #000000;
+    -moz-box-shadow: 0 0 1em #000000;
+    -o-box-shadow: 0 0 1em #000000;
 }
 
 div.tableDivWrap table
 {
-/*
-table-layout: fixed;
-*/
+    border-collapse: separate;
+    border-spacing: 0 0;
 
-border-collapse: separate; /* collapse ==== zero 'cellspacing' */
-border-spacing: 0 0; /* horizontal, vertical */
+    border-width: 0.5em;
+    border-style: solid;
+    border-color:  #54534A;
 
-border-width: 0.5em;
-border-style: solid;
-border-color:  #54534A;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: auto;
+    margin-right: auto;
 
-margin-top: 1em;
-margin-bottom: 1em;
-margin-left: auto;
-margin-right: auto;
+    padding: 0.5em;
 
-padding: 0.5em;
-
-background-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
+    background-color: #AAA38E;
 }
 
 div#rack table
 {
-border-width: 0.2em;
+    border-width: 0.2em;
 
-padding: 0.2em;
+    padding: 0.2em;
 }
-
-/*
-#rack table td
-{
-border-bottom: 0.2em solid #AAA38E;
-}
-*/
 
 div.tableDivWrap tr
 {
-margin: 0;
-padding: 0;
+    margin: 0;
+    padding: 0;
 
-border: none;
+    border: none;
 }
 
 div.tableDivWrap td, div.tableDivWrap th
 {
-margin: 0;
-padding: 0; /* table 'cellpadding' */
+    margin: 0;
+    padding: 0;
 
-border: none;
+    border: none;
 
-/*
-text-align: center;
-vertical-align: middle;
-*/
+    white-space: normal;
+    overflow: hidden;
 
-white-space: normal;
-overflow: hidden;
-/*
-text-overflow: ellipsis;
-*/
+    border-width: 0.15em;
+    border-style: dotted;
 
-border-width: 0.15em;
-border-style: dotted;
-
-/* required for filling rounded corners of tiles */
-background-color: #BEB9A6; /* COLOR_CODE: GRID-SQUARES */
+    background-color: #BEB9A6;
 }
 
 div.tableDivWrap td.Normal
 {
-border-style: solid;
-border-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
+    border-style: solid;
+    border-color: #AAA38E;
 }
 
 div.tableDivWrap td.DoubleWord,
@@ -155,271 +120,251 @@ div.tableDivWrap td.TripleWord,
 div.tableDivWrap td.DoubleLetter,
 div.tableDivWrap td.TripleLetter
 {
-/* required for background of dotted borders */
-background-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
+    background-color: #AAA38E;
 }
 
 div.tableDivWrap td.DoubleWord
 {
-border-color: #FBBBB9;
+    border-color: #FBBBB9;
 }
 
 div.tableDivWrap td.TripleWord
 {
-border-color: #F75D59;
+    border-color: #F75D59;
 }
 
 div.tableDivWrap td.DoubleLetter
 {
-border-color: #A0CFEC;
+    border-color: #A0CFEC;
 }
 
 div.tableDivWrap td.TripleLetter
 {
-border-color: #157DEC;
+    border-color: #157DEC;
 }
 
 div.tableDivWrap td div
 {
-display: block;
+    display: block;
 
-margin: 0;
-padding: 0;
+    margin: 0;
+    padding: 0;
 
-border: none;
+    border: none;
 
-/*
-text-align: center;
-vertical-align: middle;
-*/
+    width: 2.5em;
+    height: 2.5em;
 
-width: 2.5em;
-height: 2.5em;
+    border-style: solid;
+    border-width: 0.15em;
 
-border-style: solid;
-border-width: 0.15em;
+    background-color: red;
 
-background-color: red;
+    cursor: crosshair;
 
-cursor: crosshair;
-
-color: #333333;
+    color: #333333;
 }
 
 div.tableDivWrap td div a
 {
--webkit-user-select: none;
--moz-user-select: none;
--o-user-select: none;
-user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 
-text-decoration: none;
+    text-decoration: none;
 
-display: block;
+    display: block;
 
-margin: 0;
-padding: 0;
+    margin: 0;
+    padding: 0;
 
-border: none;
+    border: none;
 
-text-align: center;
-/* vertical-align: middle; */
+    text-align: center;
 }
 
 @-webkit-keyframes glow
 {
-0% {
-border: 0.15em solid #FF9900;
-}
-100% {
-border: 0.15em solid #DC143C;
-}
+    0% {
+        border: 0.15em solid #FF9900;
+    }
+    100% {
+        border: 0.15em solid #DC143C;
+    }
 }
 
 @-moz-keyframes glow
 {
-0% {
-border: 0.15em solid #FF9900;
-}
-100% {
-border: 0.15em solid #DC143C;
-}
+    0% {
+        border: 0.15em solid #FF9900;
+    }
+    100% {
+        border: 0.15em solid #DC143C;
+    }
 }
 
 @keyframes glow
 {
-0% {
-border: 0.15em solid #FFFFFF;
-}
-100% {
-border: 0.15em solid #333333;
-}
+    0% {
+        border: 0.15em solid #FFFFFF;
+    }
+    100% {
+        border: 0.15em solid #333333;
+    }
 }
 
 div.tableDivWrap td.DoubleWord div
 {
-background-color: #FBBBB9;
+    background-color: #FBBBB9;
 
-border-color: #FBBBB9;
+    border-color: #FBBBB9;
 
-color: #F75D59;
+    color: #F75D59;
 }
 
 div.tableDivWrap td.TripleWord div
 {
-background-color: #F75D59;
+    background-color: #F75D59;
 
-border-color: #F75D59;
+    border-color: #F75D59;
 
-color: #8B0000;
+    color: #8B0000;
 }
 
 div.tableDivWrap td.Normal div
 {
-background-color: #BEB9A6; /* COLOR_CODE: GRID-SQUARES */
+    background-color: #BEB9A6;
 
-border-color: #BEB9A6; /* COLOR_CODE: GRID-SQUARES */
+    border-color: #BEB9A6;
 }
 
 div.tableDivWrap td.DoubleLetter div
 {
-background-color: #A0CFEC;
+    background-color: #A0CFEC;
 
-border-color: #A0CFEC;
+    border-color: #A0CFEC;
 
-color: #157DEC;
+    color: #157DEC;
 }
 
 div.tableDivWrap td.TripleLetter div
 {
-background-color: #157DEC;
+    background-color: #157DEC;
 
-border-color: #157DEC;
+    border-color: #157DEC;
 
-color: #000080;
+    color: #000080;
 }
 
 div.tableDivWrap td div.Tile
 {
-cursor: move;
+    cursor: move;
 
-background-color: #F7F7E3; /* ECE5B6; */
+    background-color: #F7F7E3;
 
-border-color: #DCDCC6;
+    border-color: #DCDCC6;
 
-border-style: solid;
+    border-style: solid;
 
--moz-border-radius: 0.4em;
--webkit-border-radius: 0.4em;
--o-border-radius: 0.4em;
-border-radius: 0.4em;
+    -moz-border-radius: 0.4em;
+    -webkit-border-radius: 0.4em;
+    -o-border-radius: 0.4em;
+    border-radius: 0.4em;
 }
 
 div.tableDivWrap td div.Tile a
 {
-/* text-shadow: 1px 1px 2px #ffffff; */
 }
 
 div.tableDivWrap td div.Locked
 {
-cursor: default;
-color: #474633;
+    cursor: default;
+    color: #474633;
 }
 
 div.tableDivWrap td div.Temp
 {
-border-color: #626258;  /*C7B37F; FFF8C6; */
-/*
-border-left-color: #8F8B66;
-border-top-color: #8F8B66;
-*/
+    border-color: #626258;
 }
 
 div.tableDivWrap td div.CenterStart
 {
-border-color: #AAA38E; /* COLOR_CODE: GRID-OUTLINE */
+    border-color: #AAA38E;
 }
 
 div.tableDivWrap td div.Temp:hover
 {
-color: #000000 !important;
+    color: #000000 !important;
 
-border-color: #FF9900;
+    border-color: #FF9900;
 }
 
 
 div.tableDivWrap td div.Selected,
 .dragBorder
 {
-color: #000000 !important;
+    color: #000000 !important;
 
--webkit-animation-name: glow;
--webkit-animation-duration: 0.5s;
--webkit-animation-iteration-count: infinite;
--webkit-animation-direction: alternate;
--webkit-animation-timing-function: linear;
+    -webkit-animation-name: glow;
+    -webkit-animation-duration: 0.5s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-timing-function: linear;
 
--moz-animation-name: glow;
--moz-animation-duration: 0.5s;
--moz-animation-iteration-count: infinite;
--moz-animation-direction: alternate;
--moz-animation-timing-function: linear;
+    -moz-animation-name: glow;
+    -moz-animation-duration: 0.5s;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-direction: alternate;
+    -moz-animation-timing-function: linear;
 
-animation-name: glow;
-animation-duration: 0.5s;
-animation-iteration-count: infinite;
-animation-direction: alternate;
-animation-timing-function: linear;
+    animation-name: glow;
+    animation-duration: 0.5s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: linear;
 
-border-color: #DC143C !important;
+    border-color: #DC143C !important;
 }
 
 .dragBorder
 {
--webkit-box-shadow: 0px 0px 0.5em #333333;
--moz-box-shadow: 0px 0px 0.5em #333333;
--o-box-shadow: 0px 0px 0.5em #333333;
-box-shadow: 0px 0px 0.5em #333333;
-z-index: 1000;
+    -webkit-box-shadow: 0px 0px 0.5em #333333;
+    -moz-box-shadow: 0px 0px 0.5em #333333;
+    -o-box-shadow: 0px 0px 0.5em #333333;
+    box-shadow: 0px 0px 0.5em #333333;
+    z-index: 1000;
 }
 
 div.tableDivWrap td div.dropActive,
 div.tableDivWrap td div.Targeted
 {
-cursor: pointer;
+    cursor: pointer;
 
-border-color: #333333 !important;
-
-/* 
-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
--webkit-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
--moz-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
--o-box-shadow: inset 0 0 0.3em 0.3em #333333 !important;
-*/
+    border-color: #333333 !important;
 }
 
 div.tableDivWrap td div a span
 {
-margin: 0;
-padding: 0;
-/* vertical-align: middle; */
+    margin: 0;
+    padding: 0;
 }
 
 div.tableDivWrap td div.Tile a span.Letter
 {
-font-size: 1.1em;
-font-weight: bold;
+    font-size: 1.1em;
+    font-weight: bold;
 
-line-height: 2.2em;
+    line-height: 2.2em;
 
-padding-left: 0em;
+    padding-left: 0em;
 }
 
 div.tableDivWrap td div.Tile a span.Score
 {
-font-size: 0.6em;
-vertical-align: sub;
-padding-left: -0.2em;
+    font-size: 0.6em;
+    vertical-align: sub;
+    padding-left: -0.2em;
 }
 
 div.tableDivWrap td.DoubleWord div.Empty a,
@@ -428,117 +373,93 @@ div.tableDivWrap td.DoubleLetter div.Empty a,
 div.tableDivWrap td.TripleLetter div.Empty a,
 div.tableDivWrap td.Normal div.Empty a span
 {
-font-size: 0.53em;
-padding-top: 0.2em;
-line-height: 1.5em;
-letter-spacing: 0.16em;
+    font-size: 0.53em;
+    padding-top: 0.2em;
+    line-height: 1.5em;
+    letter-spacing: 0.16em;
 }
-
-/*
-div.tableDivWrap td.DoubleWord div.Empty a br
-{
-	line-height: 5px;
-	height: 3px;
-}
-*/
 
 div.tableDivWrap td div.CenterStart a
 {
-font-size: 2.5em;
-color: #54534A;
+    font-size: 2.5em;
+    color: #54534A;
 }
 
 div.tableDivWrap td div.BlankLetter a
 {
-/*
-box-shadow: inset 0 0 0.1em 0.1em #FFD700 !important;
--webkit-box-shadow: inset 0 0 0.2em 0.2em #ADFF2F !important;
--moz-box-shadow: inset 0 0 0.1em 0.1em #FFD700 !important;
--o-box-shadow: inset 0 0 0.1em 0.1em #FFD700 !important;
-*/
-border-left: 0.2em solid #ADFF2F;
-border-right: 0.2em solid #ADFF2F;
+    border-left: 0.2em solid #ADFF2F;
+    border-right: 0.2em solid #ADFF2F;
 }
 
 div.tableDivWrap td.Invalid
 {
-border-style: solid;
-border-color: red;
-background-color: red;
+    border-style: solid;
+    border-color: red;
+    background-color: red;
 }
 
 div.tableDivWrap td.Valid
 {
-border-style: solid;
-border-color: green;
-background-color: green;
+    border-style: solid;
+    border-color: green;
+    background-color: green;
 }
 
 div.tableDivWrap td.ValidButWrongPlacement
 {
-border-style: solid;
-border-color: orange;
-background-color: orange;
+    border-style: solid;
+    border-color: orange;
+    background-color: orange;
 }
 
 div#anagrams table
 {
-width: 80%;
+    width: 80%;
 }
 
 div#anagrams td, div#anagrams th
 {
-margin: 0;
-padding: 1em; /* table 'cellpadding' */
+    margin: 0;
+    padding: 1em;
 }
 
 div#anagrams th
 {
-border: none;
+    border: none;
 }
 
 /*
-The CSS hack below targets Webkit only (Safari and Chrome), see:
-http://www.etchevarne.net/toolkit/css-hacks.html
-*/
+  The CSS hack below targets Webkit only (Safari and Chrome), see:
+  http://www.etchevarne.net/toolkit/css-hacks.html
+  */
 
 /*\*/
 @media screen and (-webkit-min-device-pixel-ratio:0)
 {
-body:nth-of-type(1) div.tableDivWrap td div.CenterStart a
-{
-margin-top: -0.2em;
-font-size: 2.2em;
-}
+    body:nth-of-type(1) div.tableDivWrap td div.CenterStart a
+    {
+        margin-top: -0.2em;
+        font-size: 2.2em;
+    }
 }
 /**/
 
 /*
-The CSS hack below targets Firefox only, see:
-http://www.etchevarne.net/toolkit/css-hacks.html
-*/
+  The CSS hack below targets Firefox only, see:
+  http://www.etchevarne.net/toolkit/css-hacks.html
+  */
 
 @-moz-document url-prefix()
 {
-div.tableDivWrap td div.Tile a span.Score
-{
-margin-top: -0.5em; /* actually doesn't work :( */
+    div.tableDivWrap td div.Tile a span.Score
+    {
+        margin-top: -0.5em; /* actually doesn't work :( */
+    }
 }
-}
-
-
-
-
-
-
-
-
-
-
 
 @media all and (-webkit-min-device-pixel-ratio:10000), not all and (-webkit-min-device-pixel-ratio:0)
 {
-	.opera {display: block}
+    .opera {display: block}
 }
 
 
@@ -551,11 +472,11 @@ html>/**/body .ffsc{display: block}
 .ie67 {*display: block}
 
 /*\*/
-	html>body*.ie7sc {display: block}
+html>body*.ie7sc {display: block}
 /**/
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-.webkit {display: block}
+    .webkit {display: block}
 }
 
 .ff2ie7, x:-moz-any-link {display: block}
