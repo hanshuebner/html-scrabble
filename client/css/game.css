@@ -66,6 +66,11 @@ div#controls > div
     padding: 0.4em;
 }
 
+div#log {
+    height: 30em;
+    overflow: auto;
+}
+
 div#boardWrap
 {
     float: right;

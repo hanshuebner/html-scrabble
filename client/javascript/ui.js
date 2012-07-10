@@ -41,10 +41,14 @@ function UI(game) {
             console.log('join', data);
         });
         ui.socket.on('leave', function (data) {
-            console.log('leave', data);
+            console.log('leave', data.command);
         });
         ui.socket.on('turn', function (data) {
             console.log('turn', data);
+            var td = $('#scoreboard td.score')[data.player];
+            var score = parseInt($(td).text(), 10);
+            score += data.move.score;
+            $(td).text(score);
             $('#log').append(DIV(null, data));
         });
 
@@ -62,7 +66,7 @@ function UI(game) {
             .bind('RefreshRack', uiCall(ui.refreshRack))
             .bind('RefreshBoard', uiCall(ui.refreshBoard));
 
-        ['CommitMove'].forEach(function (action) {
+        ['CommitMove', 'Shuffle'].forEach(function (action) {
             var button = BUTTON(null, action)
             $(button).bind('click', uiCall(ui[action]));
             $('#buttons').append(button);
@@ -444,7 +448,7 @@ UI.prototype.serverCommand = function(command, args, success) {
         data: JSON.stringify({ command: command,
                                arguments: args }),
         success: success });
-}    
+}
 
 UI.prototype.CommitMove = function() {
     var move = calculateMove(this.board.squares);
@@ -471,3 +475,16 @@ UI.prototype.CommitMove = function() {
                        });
 }
 
+UI.prototype.Shuffle = function() {
+    function random(i) {
+        return Math.floor(Math.random() * i);
+    }
+    for (var i = 0; i < 16; i++) {
+        var from = this.rack.squares[random(8)];
+        var to = this.rack.squares[random(8)];
+        var tmp = from.tile;
+        from.tile = to.tile;
+        to.tile = tmp;
+    }
+    this.refreshRack();
+}

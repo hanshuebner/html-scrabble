@@ -225,6 +225,7 @@ Game.prototype.makeMove = function(player, placementList) {
     // notify listeners
     game.connections.forEach(function (socket) {
         socket.emit('turn', { player: player.index,
+                              move: move,
                               placements: placementList,
                               nextTurn: player.whosTurn });
     });
