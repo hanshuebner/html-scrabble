@@ -4,8 +4,4 @@ Forked off http://code.google.com/p/html-scrabble/
 
 Uses node.js as server, depends on socket.io and express:
 
-$ npm install socket.io
-$ npm install express
-$ npm install express-negotiate
-$ npm install dirty
-$ npm install underscore
+$ npm install socket.io express express-negotiate dirty underscore
