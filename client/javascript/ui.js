@@ -506,10 +506,10 @@ UI.prototype.serverCommand = function(command, args, success) {
 
 UI.prototype.boardLocked = function(newVal) {
     if (arguments.length > 0) {
-        boardLocked = newVal;
+        this.board.locked = newVal;
         this.refreshBoard();
     }
-    return boardLocked;
+    return this.board.locked;
 }
 
 UI.prototype.CommitMove = function() {
