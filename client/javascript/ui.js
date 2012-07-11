@@ -3,6 +3,8 @@ function triggerEvent(event, args) {
     $(document).trigger(event, args);
 }
 
+var PrototypeMap = { Board: Board, Tile: Tile, Square: Square, Rack: Rack };
+
 function UI(game) {
     // constructor
 
@@ -16,10 +18,11 @@ function UI(game) {
 
     var ui = this;
     $.get('/game/' + this.gameKey, function (gameData, err) {
-        gameData = thaw(gameData, { Board: Board, Tile: Tile, Square: Square, Rack: Rack });
+        gameData = thaw(gameData, PrototypeMap);
         console.log('gameData', gameData);
 
         ui.board = gameData.board;
+        ui.players = gameData.players;
         $('#scoreboard')
             .append(TABLE(null,
                           gameData.players.map(function(player) {
@@ -29,11 +32,30 @@ function UI(game) {
                               }
                               return TR(null,
                                         TD({ 'class': 'name' }, player.name),
-                                        TD({ 'class': 'score' }, player.score));
+                                        player.scoreElement = TD({ 'class': 'score' }, player.score));
                           })));
 
         ui.drawBoard();
         ui.drawRack();
+
+        function processTurn(turn) {
+            player = ui.players[turn.player];
+            player.score += turn.move.score;
+            $(player.scoreElement).text(player.score);
+            $('#log')
+                .append(DIV({ 'class': 'moveScore' },
+                            DIV({ 'class': 'score' },
+                                SPAN({ 'class': 'playerName' }, player.name),
+                                SPAN({ 'class': 'score' }, turn.move.score)),
+                            turn.move.words.map(function (word) {
+                                return DIV({ 'class': 'wordScore' },
+                                           SPAN({ 'class': 'word' }, word.word),
+                                           SPAN({ 'class': 'score' }, word.score))
+                            })))
+                .animate({ scrollTop: $('#log').prop('scrollHeight') }, 1000);
+        }
+
+        gameData.turns.map(processTurn);
 
         ui.socket = io.connect();
         ui.socket.emit('join', { gameKey: ui.gameKey });
@@ -45,11 +67,7 @@ function UI(game) {
         });
         ui.socket.on('turn', function (data) {
             console.log('turn', data);
-            var td = $('#scoreboard td.score')[data.player];
-            var score = parseInt($(td).text(), 10);
-            score += data.move.score;
-            $(td).text(score);
-            $('#log').append(DIV(null, data));
+            processTurn(data);
         });
 
         function uiCall(f) {
@@ -174,8 +192,8 @@ UI.prototype.updateBoardSquare = function(square) {
 	}
 
         div.appendChild(A(null,
-                          SPAN({ 'class': 'Letter' }, square.tile.letter),
-                          SPAN({ 'class': 'Score' }, square.tile.score)));
+                          SPAN({ 'class': 'Letter' }, square.tile.letter ? square.tile.letter : ''),
+                          SPAN({ 'class': 'Score' }, square.tile.score ? square.tile.score : '')));
     } else {
 	if (square.x == 7 && square.y == 7) {
 	    div.setAttribute('class', "CenterStart");
@@ -315,10 +333,10 @@ UI.prototype.updateRackSquare = function(square) {
 	    });
         }
 	
-        a.appendChild(SPAN({ 'class': 'Letter' },
-                           square.tile.letter));
+        a.appendChild(SPAN({ 'class': 'Letter'  },
+                           square.tile.letter ? square.tile.letter : ''));
         a.appendChild(SPAN({ 'class': 'Score' },
-                           square.tile.score));
+                           square.tile.score ? square.tile.score : ''));
     } else {
 	div.setAttribute('class', 'Empty');
 	
@@ -451,28 +469,38 @@ UI.prototype.serverCommand = function(command, args, success) {
 }
 
 UI.prototype.CommitMove = function() {
+    var ui = this;
     var move = calculateMove(this.board.squares);
     if (move.error) {
         alert(move.error);
         return;
     }
-    this.rack.locked = true;
-    this.refreshRack();
+    ui.rack.locked = true;
+    ui.refreshRack();
     for (var i = 0; i < move.tilesPlaced.length; i++) {
         var tilePlaced = move.tilesPlaced[i];
-        var square = this.board.squares[tilePlaced.x][tilePlaced.y];
+        var square = ui.board.squares[tilePlaced.x][tilePlaced.y];
         square.tileLocked = true;
-        this.updateBoardSquare(square);
+        ui.updateBoardSquare(square);
     }
     console.log(move.tilesPlaced);
-    this.serverCommand('makeMove',
-                       move.tilesPlaced,
-                       function (data) {
-                           if (!data.newTiles) {
-                               console.log('expected new tiles, got ' + data);
-                           }
-                           console.log('got new tiles:', data);
-                       });
+    ui.serverCommand('makeMove',
+                     move.tilesPlaced,
+                     function (data) {
+                         data = thaw(data, PrototypeMap);
+                         if (!data.newTiles) {
+                             console.log('expected new tiles, got ' + data);
+                         }
+                         console.log('got new tiles:', data.newTiles);
+                         ui.rack.squares.forEach(function (square) {
+                             if (data.newTiles.length) {
+                                 if (!square.tile) {
+                                     square.placeTile(data.newTiles.pop());
+                                     ui.updateRackSquare(square);
+                                 }
+                             }
+                         });
+                     });
 }
 
 UI.prototype.Shuffle = function() {

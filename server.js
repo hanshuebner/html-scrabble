@@ -87,6 +87,7 @@ Game.create = function(language, players) {
     }
     console.log('players', players);
     game.board = new scrabble.Board();
+    game.turns = [];
     game.whosTurn = 0;
     game.save();
     game.players.forEach(function (player) {
@@ -208,26 +209,34 @@ Game.prototype.makeMove = function(player, placementList) {
     placements.forEach(function(squares) {
         squares[1].tileLocked = true;
     });
+
     // add score
     move.words.forEach(function(word) {
         player.score += word.score;
     });
+
     // determine who's turn it is now
     game.whosTurn = (game.whosTurn + 1) % game.players.length;
+
     // get new tiles
     var newTiles = game.letterBag.getRandomTiles(placements.length);
     for (var i = 0; i < newTiles.length; i++) {
         placements[i][0].placeTile(newTiles[i]);
     }
+
+    // store turn log
+    var turn = { player: player.index,
+                 move: move,
+                 placements: placementList };
+    game.turns.push(turn);
+
     // store new game data
     game.save();
 
     // notify listeners
+    turn.nextTurn = game.whosTurn;
     game.connections.forEach(function (socket) {
-        socket.emit('turn', { player: player.index,
-                              move: move,
-                              placements: placementList,
-                              nextTurn: player.whosTurn });
+        socket.emit('turn', turn);
     });
 
     return { newTiles: newTiles };
@@ -297,7 +306,9 @@ app.get("/game/:gameKey/:playerKey", gameHandler(function (game, req, res) {
 app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
     req.negotiate({
         'application/json': function () {
-            var response = { board: game.board, players: [] }
+            var response = { board: game.board,
+                             turns: game.turns,
+                             players: [] }
             var thisPlayer = game.lookupPlayer(req);
             for (var i = 0; i < game.players.length; i++) {
                 var player = game.players[i];

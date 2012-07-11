@@ -71,6 +71,22 @@ div#log {
     overflow: auto;
 }
 
+div#log span.score {
+    padding-left: 0.5em;
+}
+
+div#log .wordScore {
+    margin-left: 1em;
+}
+
+div#log > div {
+    margin-top: 0.4em;
+}
+
+div#log > div > div {
+    margin-top: 0.2em;
+}
+
 div#boardWrap
 {
     float: right;
@@ -368,7 +384,8 @@ div.tableDivWrap td div a span
     padding: 0;
 }
 
-div.tableDivWrap td div.Tile a span.Letter
+div.tableDivWrap td div.Tile a span.Letter,
+div.tableDivWrap td div.Tile a span.BlankLetter
 {
     font-size: 1.1em;
     font-weight: bold;
