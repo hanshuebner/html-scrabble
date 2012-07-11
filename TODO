@@ -1,0 +1,12 @@
+- instant scoring
+- detect game end
+- game status display
+- send notifications to disconnected users
+- handle disconnect/reconnect
+- garbage collect cookies
+- compact database
+- chat
+- keyboard entry of words
+- blank letter requester
+- UI scalability
+- iOS runability
