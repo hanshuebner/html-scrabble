@@ -87,6 +87,7 @@ function UI(game) {
                 placeTurnTiles(turn);
             }
             if (turn.nextTurn == ui.playerNumber) {
+                ui.playAudio("yourturn");
                 ui.boardLocked(false);
             }
         });
