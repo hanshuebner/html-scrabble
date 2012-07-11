@@ -235,7 +235,7 @@ Game.prototype.makeMove = function(player, placementList) {
     game.save();
 
     // notify listeners
-    turn.nextTurn = game.whosTurn;
+    turn.whosTurn = game.whosTurn;
     game.connections.forEach(function (socket) {
         socket.emit('turn', turn);
     });
@@ -309,14 +309,14 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
         'application/json': function () {
             var response = { board: game.board,
                              turns: game.turns,
+                             whosTurn: game.whosTurn,
                              players: [] }
             var thisPlayer = game.lookupPlayer(req);
             for (var i = 0; i < game.players.length; i++) {
                 var player = game.players[i];
                 response.players.push({ name: player.name,
                                         score: player.score,
-                                        rack: ((player == thisPlayer) ? player.rack : null),
-                                        yourTurn: (i == game.whosTurn) });
+                                        rack: ((player == thisPlayer) ? player.rack : null) });
             }
             res.send(icebox.freeze(response));
         },

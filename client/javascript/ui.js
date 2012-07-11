@@ -29,7 +29,7 @@ function UI(game) {
                           gameData.players.map(function(player) {
                               if (player.rack) {
                                   ui.rack = player.rack;
-                                  ui.boardLocked(!player.yourTurn);
+                                  ui.boardLocked(playerNumber != gameData.whosTurn);
                                   ui.playerNumber = playerNumber;
                               }
                               playerNumber++;
@@ -69,7 +69,19 @@ function UI(game) {
             }
         }
 
+        function displayWhosTurn(playerNumber) {
+            if (playerNumber == ui.playerNumber) {
+                $('#whosturn').empty().text("Your turn");
+            } else {
+                console.log('playerNumber', playerNumber, 'players', ui.players);
+                var name = ui.players[playerNumber].name;
+                $('#whosturn').empty().text(name + "'" + ((name.charAt(name.length - 1) == 's') ? '' : 's') + " turn");
+            }
+        }
+
         gameData.turns.map(appendTurnToLog);
+
+        displayWhosTurn(gameData.whosTurn);
 
         ui.socket = io.connect();
         ui.socket.emit('join', { gameKey: ui.gameKey });
@@ -83,13 +95,15 @@ function UI(game) {
             console.log('turn', turn);
             appendTurnToLog(turn);
             processTurnScore(turn);
+            // If this has been a move by another player, place tiles on board
             if (turn.player != ui.playerNumber) {
                 placeTurnTiles(turn);
             }
-            if (turn.nextTurn == ui.playerNumber) {
+            if (turn.whosTurn == ui.playerNumber) {
                 ui.playAudio("yourturn");
                 ui.boardLocked(false);
             }
+            displayWhosTurn(turn.whosTurn);
         });
 
         function uiCall(f) {
