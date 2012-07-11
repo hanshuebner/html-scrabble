@@ -2,6 +2,9 @@ Online multiplayer Scrabble with HTML/JavaScript UI
 
 Forked off http://code.google.com/p/html-scrabble/
 
-Uses node.js as server, depends on socket.io and express:
+Uses node.js as server, depends on some npm packages:
 
 $ npm install socket.io express express-negotiate dirty underscore nodemailer
+$ node server.js
+
+Open your web browser on http://localhost:9093/game
