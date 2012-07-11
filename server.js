@@ -185,6 +185,7 @@ Game.prototype.makeMove = function(player, placementList) {
         if (!fromSquare) {
             throw 'cannot find letter ' + placement.letter + ' in rack of player ' + player.name;
         }
+        placement.score = fromSquare.tile.score;
         var toSquare = game.board.squares[placement.x][placement.y];
         if (toSquare.tile) {
             throw 'target tile ' + placement.x + '/' + placement.y + ' is already occupied';

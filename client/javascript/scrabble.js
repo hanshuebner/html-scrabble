@@ -190,13 +190,14 @@ function Square(type, owner) {
     this.y = 0;
 }
 
-Square.prototype.placeTile = function(tile) {
+Square.prototype.placeTile = function(tile, locked) {
     if (tile && this.tile) {
         throw "square already occupied: " + this;
     }
 
     if (tile) {
         this.tile = tile;
+        this.tileLocked = locked;
     } else {
         delete this.tile;
         delete this.tileLocked;

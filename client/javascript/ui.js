@@ -23,25 +23,26 @@ function UI(game) {
 
         ui.board = gameData.board;
         ui.players = gameData.players;
+        var playerNumber = 0;
         $('#scoreboard')
             .append(TABLE(null,
                           gameData.players.map(function(player) {
                               if (player.rack) {
                                   ui.rack = player.rack;
                                   ui.rack.locked = !player.yourTurn;
+                                  ui.playerNumber = playerNumber;
                               }
+                              playerNumber++;
                               return TR(null,
-                                        TD({ 'class': 'name' }, player.name),
+                                        TD({ 'class': 'name' }, player.rack ? "You" : player.name),
                                         player.scoreElement = TD({ 'class': 'score' }, player.score));
                           })));
 
         ui.drawBoard();
         ui.drawRack();
 
-        function processTurn(turn) {
+        function appendTurnToLog(turn) {
             player = ui.players[turn.player];
-            player.score += turn.move.score;
-            $(player.scoreElement).text(player.score);
             $('#log')
                 .append(DIV({ 'class': 'moveScore' },
                             DIV({ 'class': 'score' },
@@ -55,7 +56,20 @@ function UI(game) {
                 .animate({ scrollTop: $('#log').prop('scrollHeight') }, 1000);
         }
 
-        gameData.turns.map(processTurn);
+        function processTurnScore(turn) {
+            player = ui.players[turn.player];
+            player.score += turn.move.score;
+            $(player.scoreElement).text(player.score);
+        }
+
+        function placeTurnTiles(turn) {
+            for (var i in turn.placements) {
+                var placement = turn.placements[i];
+                ui.board.squares[placement.x][placement.y].placeTile(new Tile(placement.letter, placement.score), true);
+            }
+        }
+
+        gameData.turns.map(appendTurnToLog);
 
         ui.socket = io.connect();
         ui.socket.emit('join', { gameKey: ui.gameKey });
@@ -65,9 +79,17 @@ function UI(game) {
         ui.socket.on('leave', function (data) {
             console.log('leave', data.command);
         });
-        ui.socket.on('turn', function (data) {
-            console.log('turn', data);
-            processTurn(data);
+        ui.socket.on('turn', function (turn) {
+            console.log('turn', turn);
+            appendTurnToLog(turn);
+            processTurnScore(turn);
+            if (turn.player != ui.playerNumber) {
+                placeTurnTiles(turn);
+            }
+            if (turn.nextTurn == ui.playerNumber) {
+                ui.rack.locked = false;
+                ui.refreshRack();
+            }
         });
 
         function uiCall(f) {
@@ -491,7 +513,6 @@ UI.prototype.CommitMove = function() {
                          if (!data.newTiles) {
                              console.log('expected new tiles, got ' + data);
                          }
-                         console.log('got new tiles:', data.newTiles);
                          ui.rack.squares.forEach(function (square) {
                              if (data.newTiles.length) {
                                  if (!square.tile) {
