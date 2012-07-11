@@ -67,7 +67,12 @@ div#controls > div
 }
 
 div#log {
-    height: 30em;
+    height: 20em;
+    overflow: auto;
+}
+
+div#move {
+    height: 10em;
     overflow: auto;
 }
 

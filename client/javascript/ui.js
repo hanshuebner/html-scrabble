@@ -107,7 +107,7 @@ function UI(game) {
             .bind('RefreshBoard', uiCall(ui.refreshBoard));
 
         ['CommitMove', 'Shuffle'].forEach(function (action) {
-            var button = BUTTON(null, action)
+            var button = BUTTON({ id: action }, action)
             $(button).bind('click', uiCall(ui[action]));
             $('#buttons').append(button);
         });
@@ -454,6 +454,25 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     var tile = fromSquare.tile;
     fromSquare.placeTile(null);
     toSquare.placeTile(tile);
+    ui.updateGameStatus();
+}
+
+UI.prototype.updateGameStatus = function() {
+    var move = calculateMove(this.board.squares);
+    $('#move').empty();
+    if (move.error) {
+        $('#move')
+            .append(move.error);
+        $('#CommitMove').attr('disabled', 'disabled');
+    } else {
+        $('#move')
+            .append(DIV(null, "score: " + move.score));
+        move.words.forEach(function (word) {
+            $('#move')
+                .append(DIV(null, word.word + " " + word.score));
+        });
+        $('#CommitMove').removeAttr('disabled');
+    }
 }
 
 UI.prototype.playAudio = function(id) {
@@ -497,6 +516,8 @@ UI.prototype.CommitMove = function() {
         alert(move.error);
         return;
     }
+    $('#move').empty();
+    $('#CommitMove').attr('disabled', 'disabled');
     ui.rack.locked = true;
     ui.refreshRack();
     for (var i = 0; i < move.tilesPlaced.length; i++) {
