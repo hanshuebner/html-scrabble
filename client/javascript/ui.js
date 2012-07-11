@@ -41,7 +41,11 @@ function UI(game) {
         ui.drawBoard();
         ui.drawRack();
 
-        function appendTurnToLog(turn) {
+        function scrollLogToEnd() {
+            $('#log').animate({ scrollTop: $('#log').prop('scrollHeight') }, 1000);
+        }
+
+        function appendTurnToLog(turn, suppressScroll) {
             player = ui.players[turn.player];
             $('#log')
                 .append(DIV({ 'class': 'moveScore' },
@@ -52,8 +56,7 @@ function UI(game) {
                                 return DIV({ 'class': 'wordScore' },
                                            SPAN({ 'class': 'word' }, word.word),
                                            SPAN({ 'class': 'score' }, word.score))
-                            })))
-                .animate({ scrollTop: $('#log').prop('scrollHeight') }, 1000);
+                            })));
         }
 
         function processTurnScore(turn) {
@@ -80,6 +83,7 @@ function UI(game) {
         }
 
         gameData.turns.map(appendTurnToLog);
+        scrollLogToEnd();
 
         displayWhosTurn(gameData.whosTurn);
 
@@ -94,6 +98,7 @@ function UI(game) {
         ui.socket.on('turn', function (turn) {
             console.log('turn', turn);
             appendTurnToLog(turn);
+            scrollLogToEnd();
             processTurnScore(turn);
             // If this has been a move by another player, place tiles on board
             if (turn.player != ui.playerNumber) {
