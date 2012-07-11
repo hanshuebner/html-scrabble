@@ -510,7 +510,6 @@ function calculateMove(squares)
                     }
                     wordScore *= wordMultiplier;
                     if (isNewWord) {
-                        console.log("word: [" + letters + "] score " + wordScore);
                         move.words.push({ word: letters, score: wordScore });
                         score += wordScore;
                     }
@@ -544,11 +543,9 @@ function calculateMove(squares)
     }
     if (tilesPlaced.length == 7) {
         move.score += 50;
-        console.log('all letters placed, 50 points bonus');
+        move.allTilesBonus = true;
     }
     move.tilesPlaced = tilesPlaced;
-
-    console.log('move score: ' + move.score);
 
     return move;
 }

@@ -29,7 +29,7 @@ function UI(game) {
                           gameData.players.map(function(player) {
                               if (player.rack) {
                                   ui.rack = player.rack;
-                                  ui.rack.locked = !player.yourTurn;
+                                  ui.boardLocked(!player.yourTurn);
                                   ui.playerNumber = playerNumber;
                               }
                               playerNumber++;
@@ -87,8 +87,7 @@ function UI(game) {
                 placeTurnTiles(turn);
             }
             if (turn.nextTurn == ui.playerNumber) {
-                ui.rack.locked = false;
-                ui.refreshRack();
+                ui.boardLocked(false);
             }
         });
 
@@ -222,23 +221,23 @@ UI.prototype.updateBoardSquare = function(square) {
 	} else {
 	    div.setAttribute('class', 'Empty');
 	}
-	
-	$(div).click(
-	    function () {
-		if (ui.currentlySelectedSquare) {
-                    ui.moveTile(ui.currentlySelectedSquare, square);
-		    ui.selectSquare(null);
-		}
-	    }
-	);
 
-	$(div).droppable({
-	    hoverClass: "dropActive",
-	    drop: function(event, jui) {
-		ui.playAudio('audio4');
-                ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
-	    }
-	});
+        if (!ui.boardLocked()) {
+	    $(div)
+                .click(function () {
+		    if (ui.currentlySelectedSquare) {
+                        ui.moveTile(ui.currentlySelectedSquare, square);
+		        ui.selectSquare(null);
+		    }
+	        })
+                .droppable({
+	            hoverClass: "dropActive",
+	            drop: function(event, jui) {
+		        ui.playAudio('audio4');
+                        ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
+	            }
+	        });
+        }
 	
 	switch (square.type) {
 	case 'Normal':
@@ -306,54 +305,48 @@ UI.prototype.updateRackSquare = function(square) {
         if (square.tile.isBlank()) {
             $(div).addClass('BlankLetter');
         }
-        $(div).addClass(this.rack.locked ? 'Locked' : 'Temp');
-
-        if (this.rack.locked) {
-            $(div).addClass('Locked');
-        } else {
-	    $(div)
-                .addClass('Temp')
-                .click(
-	            function () {
-		        if (ui.currentlySelectedSquare) {
-		            if (ui.currentlySelectedSquare == square) {
-			        ui.playAudio("audio1");
-			        ui.selectSquare(null);
-			        return;
-		            }
+	$(div)
+            .addClass('Temp')
+            .click(
+	        function () {
+		    if (ui.currentlySelectedSquare) {
+		        if (ui.currentlySelectedSquare == square) {
+			    ui.playAudio("audio1");
+			    ui.selectSquare(null);
+			    return;
 		        }
-		        ui.playAudio("audio3");
-		        ui.selectSquare(square);
-                    }
-	        );
-
-	    var doneOnce = false;
-	    
-	    $(div).draggable({
-	        revert: "invalid",
-	        opacity: 1,
-	        helper: "clone",
-	        start: function(event, jui) {
-		    ui.playAudio("audio3");
-		    ui.selectSquare(null);
-		    $(this).css({ opacity: 0.5 });
-		    $(jui.helper)
-                        .animate({'font-size' : '120%'}, 300)
-                        .addClass("dragBorder");
-	        },
-	        
-	        drag: function(event, jui) {
-		    if (!doneOnce) {
-		        $(jui.helper).addClass("dragBorder");
-		        doneOnce = true;
 		    }
-	        },
-	        stop: function(event, jui) {
-		    $(this).css({ opacity: 1 });
-		    ui.playAudio('audio5');
-	        }
-	    });
-        }
+		    ui.playAudio("audio3");
+		    ui.selectSquare(square);
+                }
+	    );
+
+	var doneOnce = false;
+	
+	$(div).draggable({
+	    revert: "invalid",
+	    opacity: 1,
+	    helper: "clone",
+	    start: function(event, jui) {
+		ui.playAudio("audio3");
+		ui.selectSquare(null);
+		$(this).css({ opacity: 0.5 });
+		$(jui.helper)
+                    .animate({'font-size' : '120%'}, 300)
+                    .addClass("dragBorder");
+	    },
+	    
+	    drag: function(event, jui) {
+		if (!doneOnce) {
+		    $(jui.helper).addClass("dragBorder");
+		    doneOnce = true;
+		}
+	    },
+	    stop: function(event, jui) {
+		$(this).css({ opacity: 1 });
+		ui.playAudio('audio5');
+	    }
+	});
 	
         a.appendChild(SPAN({ 'class': 'Letter'  },
                            square.tile.letter ? square.tile.letter : ''));
@@ -454,7 +447,9 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     var tile = fromSquare.tile;
     fromSquare.placeTile(null);
     toSquare.placeTile(tile);
-    setTimeout(function () { ui.updateGameStatus() }, 100);
+    if (!this.boardLocked()) {
+        setTimeout(function () { ui.updateGameStatus() }, 100);
+    }
 }
 
 UI.prototype.updateGameStatus = function() {
@@ -509,6 +504,15 @@ UI.prototype.serverCommand = function(command, args, success) {
         success: success });
 }
 
+UI.prototype.boardLocked = function(newVal) {
+    if (arguments.length > 0) {
+        boardLocked = newVal;
+        this.refreshBoard();
+        console.log('board lock:', boardLocked);
+    }
+    return boardLocked;
+}
+
 UI.prototype.CommitMove = function() {
     var ui = this;
     var move = calculateMove(this.board.squares);
@@ -518,8 +522,7 @@ UI.prototype.CommitMove = function() {
     }
     $('#move').empty();
     $('#CommitMove').attr('disabled', 'disabled');
-    ui.rack.locked = true;
-    ui.refreshRack();
+    ui.boardLocked(true);
     for (var i = 0; i < move.tilesPlaced.length; i++) {
         var tilePlaced = move.tilesPlaced[i];
         var square = ui.board.squares[tilePlaced.x][tilePlaced.y];
