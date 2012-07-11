@@ -38,7 +38,7 @@
 
 if (typeof triggerEvent == 'undefined') {
     triggerEvent = function() {
-        console.log.apply(console, arguments);
+        // console.log.apply(console, arguments);
     }
 }
 
