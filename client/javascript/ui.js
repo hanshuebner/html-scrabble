@@ -454,7 +454,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     var tile = fromSquare.tile;
     fromSquare.placeTile(null);
     toSquare.placeTile(tile);
-    ui.updateGameStatus();
+    setTimeout(function () { ui.updateGameStatus() }, 100);
 }
 
 UI.prototype.updateGameStatus = function() {
