@@ -194,12 +194,10 @@ UI.prototype.updateBoardSquare = function(square) {
 		function () {
 		    if (ui.currentlySelectedSquare) {
 			if (ui.currentlySelectedSquare == square) {
-			    ui.playAudio("audio1");
 			    ui.selectSquare(null);
 			    return;
 			}
 		    }
-		    ui.playAudio("audio3");
 		    ui.selectSquare(square);
 		}
 	    );
@@ -211,7 +209,6 @@ UI.prototype.updateBoardSquare = function(square) {
 		opacity: 1,
 		helper: "clone",
 		start: function(event, jui) {
-		    ui.playAudio("audio3");
 		    ui.selectSquare(null);
 		    $(this).css({ opacity: 0.5 });
 		    $(jui.helper)
@@ -227,7 +224,6 @@ UI.prototype.updateBoardSquare = function(square) {
 		},
 		stop: function(event, jui) {
 		    $(this).css({ opacity: 1 });
-		    ui.playAudio('audio5');
 		}
 	    });
 	}
@@ -253,7 +249,6 @@ UI.prototype.updateBoardSquare = function(square) {
                 .droppable({
 	            hoverClass: "dropActive",
 	            drop: function(event, jui) {
-		        ui.playAudio('audio4');
                         ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	            }
 	        });
@@ -331,12 +326,10 @@ UI.prototype.updateRackSquare = function(square) {
 	        function () {
 		    if (ui.currentlySelectedSquare) {
 		        if (ui.currentlySelectedSquare == square) {
-			    ui.playAudio("audio1");
 			    ui.selectSquare(null);
 			    return;
 		        }
 		    }
-		    ui.playAudio("audio3");
 		    ui.selectSquare(square);
                 }
 	    );
@@ -348,7 +341,6 @@ UI.prototype.updateRackSquare = function(square) {
 	    opacity: 1,
 	    helper: "clone",
 	    start: function(event, jui) {
-		ui.playAudio("audio3");
 		ui.selectSquare(null);
 		$(this).css({ opacity: 0.5 });
 		$(jui.helper)
@@ -364,7 +356,6 @@ UI.prototype.updateRackSquare = function(square) {
 	    },
 	    stop: function(event, jui) {
 		$(this).css({ opacity: 1 });
-		ui.playAudio('audio5');
 	    }
 	});
 	
@@ -387,7 +378,6 @@ UI.prototype.updateRackSquare = function(square) {
 	$(div).droppable({
 	    hoverClass: "dropActive",
 	    drop: function(event, jui) {
-		ui.playAudio('audio4');
                 ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
