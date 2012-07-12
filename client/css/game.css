@@ -396,19 +396,19 @@ div.tableDivWrap td div a span
 div.tableDivWrap td div.Tile a span.Letter,
 div.tableDivWrap td div.Tile a span.BlankLetter
 {
-    font-size: 1.1em;
-    font-weight: bold;
+    font-size: 1.8em;
+    font-weight: normal;
 
-    line-height: 2.2em;
+    line-height: 1.5em;
 
-    padding-left: 0em;
+    padding-left: 0.2em;
 }
 
 div.tableDivWrap td div.Tile a span.Score
 {
-    font-size: 0.6em;
+    font-size: 0.8em;
     vertical-align: sub;
-    padding-left: -0.2em;
+    padding-left: 0.2em;
 }
 
 div.tableDivWrap td.DoubleWord div.Empty a,
