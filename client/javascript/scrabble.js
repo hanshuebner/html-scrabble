@@ -283,12 +283,18 @@ Board.fromServerData = function(data) {
 
 Board.prototype.Dimension = 15;
 
-Board.prototype.emptyTiles = function() {
+Board.prototype.forAllSquares = function(f) {
     for (var y = 0; y < this.Dimension; y++) {
 	for (var x = 0; x < this.Dimension; x++) {
-	    this.squares[x][y].placeTile(null);
-	}
+            f(this.squares[x][y]);
+        }
     }
+}
+
+Board.prototype.emptyTiles = function() {
+    this.forAllSquares(function (square) {
+        square.placeTile(null);
+    });
 }
 
 Board.prototype.toString = function() {
