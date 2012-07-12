@@ -246,6 +246,7 @@ Game.prototype.makeMove = function(player, placementList) {
 
     // notify listeners
     turn.whosTurn = game.whosTurn;
+    turn.remainingTileCount = game.letterBag.remainingTileCount();
     game.connections.forEach(function (socket) {
         socket.emit('turn', turn);
     });
@@ -320,6 +321,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
             var response = { board: game.board,
                              turns: game.turns,
                              whosTurn: game.whosTurn,
+                             remainingTileCount: game.letterBag.remainingTileCount(),
                              players: [] }
             var thisPlayer = game.lookupPlayer(req);
             for (var i = 0; i < game.players.length; i++) {

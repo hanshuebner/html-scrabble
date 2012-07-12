@@ -36,7 +36,23 @@ function UI(game) {
                               return TR(null,
                                         TD({ 'class': 'name' }, player.rack ? "You" : player.name),
                                         player.scoreElement = TD({ 'class': 'score' }, player.score));
-                          })));
+                          })))
+            .append(DIV({ id: 'letterbagStatus' }));
+
+        function displayRemainingTileCount(count) {
+            if (count > 0) {
+                $('#letterbagStatus')
+                    .empty()
+                    .append(DIV(null, SPAN({ id: 'remainingTileCount' }, count),
+                                " remaining tiles"));
+            } else {
+                $('#letterbagStatus')
+                    .empty()
+                    .append(DIV(null, "The letterbag is empty"));
+            }
+        }
+
+        displayRemainingTileCount(gameData.remainingTileCount);
 
         ui.drawBoard();
         ui.drawRack();
@@ -108,6 +124,7 @@ function UI(game) {
                 if (turn.player != ui.playerNumber) {
                     placeTurnTiles(turn);
                 }
+                displayRemainingTileCount(turn.remainingTileCount);
             }
             if (turn.whosTurn == ui.playerNumber) {
                 ui.playAudio("yourturn");

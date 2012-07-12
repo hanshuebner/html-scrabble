@@ -42,6 +42,11 @@ div#container
     width: 73em;
 }
 
+div#letterbagStatus > div
+{
+    margin: 0.5em;
+}
+
 div#controls
 {
     float: left;

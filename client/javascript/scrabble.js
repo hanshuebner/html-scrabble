@@ -401,6 +401,11 @@ LetterBag.prototype.returnTile = function(tile)
     this.tiles.push(tile);
 }
 
+LetterBag.prototype.remainingTileCount = function(tile)
+{
+    return this.tiles.length;
+}
+
 function calculateMove(squares)
 {
     // Check that the start field is occupied
