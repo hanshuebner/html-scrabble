@@ -172,64 +172,74 @@ Game.prototype.makeMove = function(player, placementList) {
     }
     // validate the move (i.e. does the user have the tiles placed, are the tiles free on the board
     var rackSquares = player.rack.squares.slice();          // need to clone
-    var placements = placementList.map(function (placement) {
-        var fromSquare = null;
-        for (var i = 0; i < rackSquares.length; i++) {
-            var square = rackSquares[i];
-            if (square && square.tile && square.tile.letter == placement.letter) {
-                fromSquare = square;
-                delete rackSquares[i];
-                break;
+    var turn;
+    if (placementList) {
+        var placements = placementList.map(function (placement) {
+            var fromSquare = null;
+            for (var i = 0; i < rackSquares.length; i++) {
+                var square = rackSquares[i];
+                if (square && square.tile && square.tile.letter == placement.letter) {
+                    fromSquare = square;
+                    delete rackSquares[i];
+                    break;
+                }
             }
-        }
-        if (!fromSquare) {
-            throw 'cannot find letter ' + placement.letter + ' in rack of player ' + player.name;
-        }
-        placement.score = fromSquare.tile.score;
-        var toSquare = game.board.squares[placement.x][placement.y];
-        if (toSquare.tile) {
-            throw 'target tile ' + placement.x + '/' + placement.y + ' is already occupied';
-        }
-        return [fromSquare, toSquare];
-    });
-    placements.forEach(function(squares) {
-        var tile = squares[0].tile;
-        squares[0].placeTile(null);
-        squares[1].placeTile(tile);
-    });
-    var move = scrabble.calculateMove(game.board.squares);
-    if (move.error) {
-        // fixme should be generalized function -- wait, no rollback? :|
-        placements.forEach(function(squares) {
-            var tile = squares[1].tile;
-            squares[1].placeTile(null);
-            squares[0].placeTile(tile);
+            if (!fromSquare) {
+                throw 'cannot find letter ' + placement.letter + ' in rack of player ' + player.name;
+            }
+            placement.score = fromSquare.tile.score;
+            var toSquare = game.board.squares[placement.x][placement.y];
+            if (toSquare.tile) {
+                throw 'target tile ' + placement.x + '/' + placement.y + ' is already occupied';
+            }
+            return [fromSquare, toSquare];
         });
-        throw move.error;
-    }
-    placements.forEach(function(squares) {
-        squares[1].tileLocked = true;
-    });
+        placements.forEach(function(squares) {
+            var tile = squares[0].tile;
+            squares[0].placeTile(null);
+            squares[1].placeTile(tile);
+        });
+        var move = scrabble.calculateMove(game.board.squares);
+        if (move.error) {
+            // fixme should be generalized function -- wait, no rollback? :|
+            placements.forEach(function(squares) {
+                var tile = squares[1].tile;
+                squares[1].placeTile(null);
+                squares[0].placeTile(tile);
+            });
+            throw move.error;
+        }
+        placements.forEach(function(squares) {
+            squares[1].tileLocked = true;
+        });
 
-    // add score
-    move.words.forEach(function(word) {
-        player.score += word.score;
-    });
+        // add score
+        move.words.forEach(function(word) {
+            player.score += word.score;
+        });
 
-    // determine who's turn it is now
-    game.whosTurn = (game.whosTurn + 1) % game.players.length;
+        // get new tiles
+        var newTiles = game.letterBag.getRandomTiles(placements.length);
+        for (var i = 0; i < newTiles.length; i++) {
+            placements[i][0].placeTile(newTiles[i]);
+        }
 
-    // get new tiles
-    var newTiles = game.letterBag.getRandomTiles(placements.length);
-    for (var i = 0; i < newTiles.length; i++) {
-        placements[i][0].placeTile(newTiles[i]);
+        turn = { type: 'move',
+                 player: player.index,
+                 score: move.score,
+                 move: move,
+                 placements: placementList };
+    } else {
+        turn = { type: 'pass',
+                 score: 0,
+                 player: player.index };
     }
 
     // store turn log
-    var turn = { player: player.index,
-                 move: move,
-                 placements: placementList };
     game.turns.push(turn);
+
+    // determine who's turn it is now
+    game.whosTurn = (game.whosTurn + 1) % game.players.length;
 
     // store new game data
     game.save();
@@ -330,6 +340,7 @@ app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
     var body = icebox.thaw(req.body);
     console.log('put', game.key, 'player', player.name, 'command', body.command, 'arguments', req.body.arguments);
     switch (req.body.command) {
+    case 'pass':
     case 'makeMove':
         res.send(icebox.freeze(game.makeMove(player, body.arguments)));
         break;

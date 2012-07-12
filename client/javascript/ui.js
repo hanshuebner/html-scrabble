@@ -17,6 +17,7 @@ function UI(game) {
     }
 
     var ui = this;
+
     $.get('/game/' + this.gameKey, function (gameData, err) {
         gameData = thaw(gameData, PrototypeMap);
         console.log('gameData', gameData);
@@ -29,7 +30,6 @@ function UI(game) {
                           gameData.players.map(function(player) {
                               if (player.rack) {
                                   ui.rack = player.rack;
-                                  ui.boardLocked(playerNumber != gameData.whosTurn);
                                   ui.playerNumber = playerNumber;
                               }
                               playerNumber++;
@@ -47,21 +47,23 @@ function UI(game) {
 
         function appendTurnToLog(turn, suppressScroll) {
             player = ui.players[turn.player];
-            $('#log')
-                .append(DIV({ 'class': 'moveScore' },
-                            DIV({ 'class': 'score' },
-                                SPAN({ 'class': 'playerName' }, player.name),
-                                SPAN({ 'class': 'score' }, turn.move.score)),
-                            turn.move.words.map(function (word) {
-                                return DIV({ 'class': 'wordScore' },
-                                           SPAN({ 'class': 'word' }, word.word),
-                                           SPAN({ 'class': 'score' }, word.score))
-                            })));
+            var div = DIV({ 'class': 'moveScore' },
+                          DIV({ 'class': 'score' },
+                              SPAN({ 'class': 'playerName' }, player.name),
+                              SPAN({ 'class': 'score' }, turn.score)));
+            if (turn.move) {
+                turn.move.words.forEach(function (word) {
+                    $(div).append(DIV({ 'class': 'wordScore' },
+                                      SPAN({ 'class': 'word' }, word.word),
+                                      SPAN({ 'class': 'score' }, word.score)));
+                });
+            }
+            $('#log').append(div);
         }
 
-        function processTurnScore(turn) {
+        function processMoveScore(turn) {
             player = ui.players[turn.player];
-            player.score += turn.move.score;
+            player.score += turn.score;
             $(player.scoreElement).text(player.score);
         }
 
@@ -86,6 +88,7 @@ function UI(game) {
         scrollLogToEnd();
 
         displayWhosTurn(gameData.whosTurn);
+        ui.boardLocked(ui.playerNumber != gameData.whosTurn);
 
         ui.socket = io.connect();
         ui.socket.emit('join', { gameKey: ui.gameKey });
@@ -99,10 +102,12 @@ function UI(game) {
             console.log('turn', turn);
             appendTurnToLog(turn);
             scrollLogToEnd();
-            processTurnScore(turn);
-            // If this has been a move by another player, place tiles on board
-            if (turn.player != ui.playerNumber) {
-                placeTurnTiles(turn);
+            if (turn.type == 'move') {
+                processMoveScore(turn);
+                // If this has been a move by another player, place tiles on board
+                if (turn.player != ui.playerNumber) {
+                    placeTurnTiles(turn);
+                }
             }
             if (turn.whosTurn == ui.playerNumber) {
                 ui.playAudio("yourturn");
@@ -111,26 +116,30 @@ function UI(game) {
             displayWhosTurn(turn.whosTurn);
         });
 
-        function uiCall(f) {
-            return function() {
-                var args = Array.prototype.slice.call(arguments);
-                args.shift();                                   // remove event
-                f.apply(ui, args);
-            }
-        }
-
         $(document)
-            .bind('SquareChanged', uiCall(ui.updateSquare))
-            .bind('Refresh', uiCall(ui.refresh))
-            .bind('RefreshRack', uiCall(ui.refreshRack))
-            .bind('RefreshBoard', uiCall(ui.refreshBoard));
+            .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
+            .bind('Refresh', ui.eventCallback(ui.refresh))
+            .bind('RefreshRack', ui.eventCallback(ui.refreshRack))
+            .bind('RefreshBoard', ui.eventCallback(ui.refreshBoard));
 
-        ['CommitMove', 'Shuffle'].forEach(function (action) {
-            var button = BUTTON({ id: action }, action)
-            $(button).bind('click', uiCall(ui[action]));
-            $('#buttons').append(button);
-        });
     });
+    ['CommitMove', 'Pass', 'SwapTiles'].forEach(function (action) {
+        var button = BUTTON({ id: action, disabled: 'disabled' }, action)
+        $(button).bind('click', ui.eventCallback(ui[action]));
+        $('#turnButtons').append(button);
+    });
+}
+
+UI.prototype.eventCallback = function(f) {
+    var ui = this;
+    return function() {
+        var args = Array.prototype.slice.call(arguments);
+        args.shift();                                   // remove event
+        if (typeof f == 'string') {
+            f = ui[f];
+        }
+        f.apply(ui, args);
+    }
 }
 
 UI.prototype.idToSquare = function(id) {
@@ -398,6 +407,9 @@ UI.prototype.drawRack = function() {
     $('#rack')
         .append(TABLE(null,
                       TR(null,
+                         BUTTON({ id: 'Shuffle' }, "Shuffle"),
+                         BR(),
+                         BUTTON({ id: 'TakeBackTiles' }, "TakeBackTiles"),
                          map(function (x) {
                              var id = 'Rack_' + x;
                              rack.squares[x].id = id;
@@ -405,6 +417,9 @@ UI.prototype.drawRack = function() {
                                        DIV({ id: id }, A()));
                          }, range(8)))));
     var ui = this;
+    ['Shuffle', 'TakeBackTiles'].forEach(function (action) {
+        $('#' + action).bind('click', ui.eventCallback(action));
+    });
     forEach(range(8), function (x) {
 	ui.updateRackSquare(rack.squares[x]);
     });
@@ -516,10 +531,23 @@ UI.prototype.serverCommand = function(command, args, success) {
 
 UI.prototype.boardLocked = function(newVal) {
     if (arguments.length > 0) {
+        console.log('boardLocked', newVal);
+        if (newVal) {
+            $('#turnButtons button').attr('disabled', 'disabled');
+        } else {
+            $('#turnButtons button').removeAttr('disabled');
+            $('#CommitMove').attr('disabled', 'disabled');
+        }
         this.board.locked = newVal;
         this.refreshBoard();
     }
     return this.board.locked;
+}
+
+UI.prototype.endMove = function() {
+    $('#move').empty();
+    $('#turnButtons button').attr('disabled', 'disabled');
+    this.boardLocked(true);
 }
 
 UI.prototype.CommitMove = function() {
@@ -529,9 +557,7 @@ UI.prototype.CommitMove = function() {
         alert(move.error);
         return;
     }
-    $('#move').empty();
-    $('#CommitMove').attr('disabled', 'disabled');
-    ui.boardLocked(true);
+    this.endMove();
     for (var i = 0; i < move.tilesPlaced.length; i++) {
         var tilePlaced = move.tilesPlaced[i];
         var square = ui.board.squares[tilePlaced.x][tilePlaced.y];
@@ -555,6 +581,26 @@ UI.prototype.CommitMove = function() {
                              }
                          });
                      });
+}
+
+UI.prototype.Pass = function() {
+    var ui = this;
+    ui.TakeBackTiles();
+    ui.endMove();
+    ui.serverCommand('pass')
+}
+
+UI.prototype.TakeBackTiles = function() {
+    var ui = this;
+    var freeRackSquares = filter(function (square) { return !square.tile }, ui.rack.squares);
+    ui.board.forAllSquares(function(boardSquare) {
+        if (boardSquare.tile && !boardSquare.tileLocked) {
+            freeRackSquares.pop().tile = boardSquare.tile;
+            boardSquare.tile = null;
+            ui.updateBoardSquare(boardSquare);
+        }
+    });
+    ui.refreshRack();
 }
 
 UI.prototype.Shuffle = function() {
