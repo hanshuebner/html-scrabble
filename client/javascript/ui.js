@@ -97,6 +97,7 @@ function UI(game) {
         }
 
         function displayEndMessage(endMessage) {
+            console.log('displayEndMessage', endMessage);
             var winners;
             for (var i in ui.players) {
                 var player = ui.players[i];

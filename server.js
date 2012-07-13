@@ -281,20 +281,45 @@ Game.prototype.makeMove = function(player, placementList) {
 Game.prototype.finish = function(reason) {
     var game = this;
 
-    var endMessage = { players: [],
-                       reason: reason };
     delete game.whosTurn;
-    for (var i in game.players) {
-        var player = game.players[i];
-        var rack = player.rack.squares.forEach(function (square) {
+
+    // Tally scores  
+    var playerWithNoTiles;
+    var pointsRemainingOnRacks = 0;
+    game.players.forEach(function(player) {
+        var tilesLeft = false;
+        var rackScore = 0;
+        player.rack.squares.forEach(function (square) {
             if (square.tile) {
-                player.score -= square.tile.score;
+                rackScore += square.tile.score;
+                tilesLeft = true;
             }
         });
-        endMessage.players.push({ name: player.name,
-                                  score: player.score,
-                                  rack: player.rack });
+        if (tilesLeft) {
+            player.score -= rackScore;
+            player.tallyScore = -rackScore;
+            pointsRemainingOnRacks += rackScore;
+        } else {
+            if (playerWithNoTiles) {
+                throw "unexpectedly found more than one player with no tiles when finishing game";
+            }
+            playerWithNoTiles = player;
+        }
+    });
+
+    if (playerWithNoTiles) {
+        playerWithNoTiles.score += pointsRemainingOnRacks;
+        playerWithNoTiles.tallyScore = pointsRemainingOnRacks;
     }
+
+    var endMessage = { reason: reason,
+                       players: game.players.map(function(player) {
+                           return { name: player.name,
+                                    score: player.score,
+                                    tallyScore: player.tallyScore,
+                                    rack: player.rack };
+                       })
+                     };
     game.endMessage = endMessage;
 }
 
