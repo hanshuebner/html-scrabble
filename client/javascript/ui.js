@@ -168,6 +168,9 @@ function UI(game) {
             }
             if (typeof turn.whosTurn == 'number') {
                 displayWhosTurn(turn.whosTurn);
+                if (turn.whosTurn == ui.playerNumber) {
+                    ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
+                }
             }
         });
         ui.socket.on('gameEnded', function (endMessage) {
@@ -639,6 +642,8 @@ UI.prototype.CommitMove = function() {
                              }
                          });
                      });
+
+    ui.enableNotifications();
 }
 
 UI.prototype.Pass = function() {
@@ -673,4 +678,25 @@ UI.prototype.Shuffle = function() {
         to.tile = tmp;
     }
     this.refreshRack();
+}
+
+UI.prototype.enableNotifications = function() {
+    // must be called in response to user action
+    if (window.webkitNotifications) {
+        console.log('notification permission:', window.webkitNotifications.checkPermission());
+        if (window.webkitNotifications.checkPermission() != 0) {
+            console.log('requesting notification permission');
+            window.webkitNotifications.requestPermission();
+        }
+    }
+}
+
+UI.prototype.notify = function(title, text) {
+    if (window.webkitNotifications) {
+        if (this.notification) {
+            this.notification.cancel();
+        }
+        this.notification = window.webkitNotifications.createNotification('favicon.ico', title, text);
+        this.notification.show();
+    }
 }
