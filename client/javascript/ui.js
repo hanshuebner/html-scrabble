@@ -151,6 +151,7 @@ function UI(game) {
                     window.location = window.location;
                 } else {
                     ui.wasConnected = true;
+                    ui.socket.emit('join', { gameKey: ui.gameKey });
                 }
             })
             .on('disconnect', function(data) {
