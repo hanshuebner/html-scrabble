@@ -144,7 +144,7 @@ Game.load = function(key) {
     if (!this.games[key]) {
         var game = db.get(key);
         if (!game) {
-            throw "game " + key + " not found";
+            return null;
         }
         EventEmitter.call(game);
         game.connections = [];
@@ -431,9 +431,10 @@ io.sockets.on('connection', function (socket) {
     socket.on('join', function (data) {
         var game = Game.load(data.gameKey);
         if (!game) {
-            throw "game " + data.gameKey + " not found";
+            console.log("game " + data.gameKey + " not found");
+        } else {
+            game.newConnection(this);
         }
-        game.newConnection(this);
     });
 });
 
