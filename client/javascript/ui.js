@@ -700,11 +700,20 @@ UI.prototype.enableNotifications = function() {
 }
 
 UI.prototype.notify = function(title, text) {
+    var ui = this;
     if (window.webkitNotifications) {
         if (this.notification) {
             this.notification.cancel();
         }
-        this.notification = window.webkitNotifications.createNotification('favicon.ico', title, text);
-        this.notification.show();
+        var notification = window.webkitNotifications.createNotification('favicon.ico', title, text);
+        ui.notification = notification;
+        $(notification)
+            .on('click', function () {
+                this.cancel();
+            })
+            .on('close', function () {
+                delete ui.notification;
+            });
+        notification.show();
     }
 }
