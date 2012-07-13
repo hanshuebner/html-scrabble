@@ -144,40 +144,46 @@ function UI(game) {
         ui.boardLocked(ui.playerNumber != gameData.whosTurn);
 
         ui.socket = io.connect();
-        ui.socket.emit('join', { gameKey: ui.gameKey });
-        ui.socket.on('join', function (data) {
-            console.log('join', data);
-        });
-        ui.socket.on('leave', function (data) {
-            console.log('leave', data.command);
-        });
-        ui.socket.on('turn', function (turn) {
-            console.log('turn', turn);
-            appendTurnToLog(turn);
-            scrollLogToEnd(300);
-            if (turn.type == 'move') {
-                processMoveScore(turn);
-                // If this has been a move by another player, place tiles on board
-                if (turn.player != ui.playerNumber) {
-                    placeTurnTiles(turn);
+        ui.socket
+            .on('connect', function(data) {
+                console.log('socket connected');
+                if (ui.wasConnected) {
+                    window.location = window.location;
+                } else {
+                    ui.wasConnected = true;
                 }
-                displayRemainingTileCount(turn.remainingTileCount);
-            }
-            if (turn.whosTurn == ui.playerNumber) {
-                ui.playAudio("yourturn");
-                ui.boardLocked(false);
-            }
-            if (typeof turn.whosTurn == 'number') {
-                displayWhosTurn(turn.whosTurn);
+            })
+            .on('disconnect', function(data) {
+                console.log('socket disconnect');
+                $.blockUI({ message: '<h1>Server unavailable, please wait</h1>' });
+            })
+            .on('turn', function (turn) {
+                console.log('turn', turn);
+                appendTurnToLog(turn);
+                scrollLogToEnd(300);
+                if (turn.type == 'move') {
+                    processMoveScore(turn);
+                    // If this has been a move by another player, place tiles on board
+                    if (turn.player != ui.playerNumber) {
+                        placeTurnTiles(turn);
+                }
+                    displayRemainingTileCount(turn.remainingTileCount);
+                }
                 if (turn.whosTurn == ui.playerNumber) {
-                    ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
+                    ui.playAudio("yourturn");
+                    ui.boardLocked(false);
                 }
-            }
-        });
-        ui.socket.on('gameEnded', function (endMessage) {
-            endMessage = thaw(endMessage, PrototypeMap);
-            displayEndMessage(endMessage);
-        });
+                if (typeof turn.whosTurn == 'number') {
+                    displayWhosTurn(turn.whosTurn);
+                    if (turn.whosTurn == ui.playerNumber) {
+                        ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
+                    }
+                }
+            })
+            .on('gameEnded', function (endMessage) {
+                endMessage = thaw(endMessage, PrototypeMap);
+                displayEndMessage(endMessage);
+            });
         $(document)
             .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
             .bind('Refresh', ui.eventCallback(ui.refresh))
