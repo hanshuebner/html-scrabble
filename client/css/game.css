@@ -396,10 +396,10 @@ div.tableDivWrap td div a span
 div.tableDivWrap td div.Tile a span.Letter,
 div.tableDivWrap td div.Tile a span.BlankLetter
 {
-    font-size: 1.8em;
-    font-weight: normal;
+    font-size: 1.4em;
+    font-weight: bold;
 
-    line-height: 1.5em;
+    line-height: 1.7em;
 
     padding-left: 0.2em;
 }
