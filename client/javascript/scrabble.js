@@ -156,7 +156,23 @@ var letterDistributions = {
 		{ letter: "X", score: 8, count: 1},
 
 		{ letter: "Q", score: 10, count: 1},
-		{ letter: "Y", score: 10, count: 1}]};
+		{ letter: "Y", score: 10, count: 1}],
+    'Test': [ { score: 0, count: 1},
+	      
+	      { letter: "E", score: 1, count: 1},
+	      { letter: "N", score: 1, count: 1},
+	      { letter: "S", score: 1, count: 1},
+	      { letter: "I", score: 1, count: 1},
+	      { letter: "R", score: 1, count: 1},
+	      { letter: "T", score: 1, count: 1},
+	      { letter: "U", score: 1, count: 1},
+	      { letter: "A", score: 1, count: 1},
+	      { letter: "D", score: 1, count: 1},
+	      
+	      { letter: "H", score: 2, count: 1},
+	      { letter: "G", score: 2, count: 1},
+	      { letter: "L", score: 2, count: 1},
+	      { letter: "O", score: 2, count: 1}]};
 
 function type_of(obj) {
     if (typeof(obj) == 'object')
@@ -336,7 +352,6 @@ LetterBag.create = function(language) {
     var letterBag = new LetterBag;
 
     letterBag.tiles = [];
-    letterBag.letters = [];
 
     var data = letterDistributions[language];
     if (!data) {
@@ -346,7 +361,6 @@ LetterBag.create = function(language) {
 	var item = data[i];
 	
 	var tile = new Tile(item.letter || " ", item.score);
-	letterBag.letters.push(tile);
 	
 	for (var n = 0; n < item.count; ++n) {
 	    var tile = new Tile(item.letter || " ", item.score);
@@ -354,15 +368,6 @@ LetterBag.create = function(language) {
 	}
     }
     
-    letterBag.letters.sort(function(a,b) {
-	var a = a.letter || " ";
-	var b = b.letter || " ";
-
-	if (a < b) return -1;
-	if (a > b) return 1;
-	return 0;
-    });
-
     return letterBag;
 }
 

@@ -89,6 +89,7 @@ Game.create = function(language, players) {
     game.board = new scrabble.Board();
     game.turns = [];
     game.whosTurn = 0;
+    game.passes = 0;
     game.save();
     game.players.forEach(function (player) {
         game.sendInvitation(player);
@@ -165,11 +166,18 @@ Game.prototype.lookupPlayer = function(req) {
 
 Game.prototype.makeMove = function(player, placementList) {
     console.log('makeMove', placementList);
+
     var game = this;
+
+    if (game.ended()) {
+        throw "this game has ended: " + game.endMessage.reason;
+    }
+
     // determine if it is this player's turn
     if (player !== game.players[game.whosTurn]) {
         throw "not this player's turn";
     }
+
     // validate the move (i.e. does the user have the tiles placed, are the tiles free on the board
     var rackSquares = player.rack.squares.slice();          // need to clone
     var turn;
@@ -214,9 +222,7 @@ Game.prototype.makeMove = function(player, placementList) {
         });
 
         // add score
-        move.words.forEach(function(word) {
-            player.score += word.score;
-        });
+        player.score += move.score;
 
         // get new tiles
         var newTiles = game.letterBag.getRandomTiles(placements.length);
@@ -229,7 +235,10 @@ Game.prototype.makeMove = function(player, placementList) {
                  score: move.score,
                  move: move,
                  placements: placementList };
+
+        game.passes = 0;
     } else {
+        game.passes++;
         turn = { type: 'pass',
                  score: 0,
                  player: player.index };
@@ -238,20 +247,59 @@ Game.prototype.makeMove = function(player, placementList) {
     // store turn log
     game.turns.push(turn);
 
-    // determine who's turn it is now
-    game.whosTurn = (game.whosTurn + 1) % game.players.length;
+    // determine whether the game's end has been reached
+    if (game.passes == (game.players.length * 2)) {
+        game.finish('all players passed two times');
+    } else if (_.every(player.rack.squares, function(square) { return !square.tile; })) {
+        game.finish('player ' + game.whosTurn + ' ended the game');
+    } else {
+        // determine who's turn it is now
+        game.whosTurn = (game.whosTurn + 1) % game.players.length;
+        turn.whosTurn = game.whosTurn;
+    }
 
     // store new game data
     game.save();
 
     // notify listeners
-    turn.whosTurn = game.whosTurn;
     turn.remainingTileCount = game.letterBag.remainingTileCount();
     game.connections.forEach(function (socket) {
         socket.emit('turn', turn);
     });
 
+    // if the game has ended, send extra notification with final scores
+    if (game.ended()) {
+        endMessage = icebox.freeze(game.endMessage);
+        game.connections.forEach(function (socket) {
+            socket.emit('gameEnded', endMessage);
+        });
+    }
+
     return { newTiles: newTiles };
+}
+
+Game.prototype.finish = function(reason) {
+    var game = this;
+
+    var endMessage = { players: [],
+                       reason: reason };
+    delete game.whosTurn;
+    for (var i in game.players) {
+        var player = game.players[i];
+        var rack = player.rack.squares.forEach(function (square) {
+            if (square.tile) {
+                player.score -= square.tile.score;
+            }
+        });
+        endMessage.players.push({ name: player.name,
+                                  score: player.score,
+                                  rack: player.rack });
+    }
+    game.endMessage = endMessage;
+}
+
+Game.prototype.ended = function() {
+    return this.endMessage;
 }
 
 Game.prototype.newConnection = function(socket) {
@@ -329,6 +377,9 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
                 response.players.push({ name: player.name,
                                         score: player.score,
                                         rack: ((player == thisPlayer) ? player.rack : null) });
+            }
+            if (game.ended()) {
+                response.endMessage = game.endMessage;
             }
             res.send(icebox.freeze(response));
         },

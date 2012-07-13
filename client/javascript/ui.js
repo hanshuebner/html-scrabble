@@ -3,6 +3,19 @@ function triggerEvent(event, args) {
     $(document).trigger(event, args);
 }
 
+function joinProse(array)
+{
+    var length = array.length;
+    switch (length) {
+    case 0:
+        return "";
+    case 1:
+        return array[0];
+    default:
+        return _.reduce(array.slice(1, length - 1), function (word, accu) { return word + ", " + accu }, array[0]) + " and " + array[length - 1];
+    }
+}
+
 var PrototypeMap = { Board: Board, Tile: Tile, Square: Square, Rack: Rack };
 
 function UI(game) {
@@ -83,6 +96,23 @@ function UI(game) {
             $(player.scoreElement).text(player.score);
         }
 
+        function displayEndMessage(endMessage) {
+            var winners;
+            for (var i in ui.players) {
+                var player = ui.players[i];
+                player.score = endMessage.players[i].score;
+                $(player.scoreElement).text(player.score);
+                if (!winners || player.score > winners[0].score) {
+                    winners = [ player.name ];
+                } else if (player.score == winners[0].score) {
+                    winners.push(player.name);
+                }
+            }
+            $('#whosturn').empty();
+            $('#log').append(DIV({ 'class': 'gameEnded' },
+                                 'Game has ended, ' + joinProse(winners) + ((winners.length == 1) ? ' has ' : ' have ') + 'won'))
+        }
+
         function placeTurnTiles(turn) {
             for (var i in turn.placements) {
                 var placement = turn.placements[i];
@@ -91,17 +121,23 @@ function UI(game) {
         }
 
         function displayWhosTurn(playerNumber) {
+            console.log('playerNumber', playerNumber, 'players', ui.players);
             if (playerNumber == ui.playerNumber) {
                 $('#whosturn').empty().text("Your turn");
-            } else {
-                console.log('playerNumber', playerNumber, 'players', ui.players);
+            } else if (typeof playerNumber == 'number') {
                 var name = ui.players[playerNumber].name;
                 $('#whosturn').empty().text(name + "'" + ((name.charAt(name.length - 1) == 's') ? '' : 's') + " turn");
+            } else {
+                $('#whosturn').empty();
             }
         }
 
         gameData.turns.map(appendTurnToLog);
         scrollLogToEnd(0);
+
+        if (gameData.endMessage) {
+            displayEndMessage(gameData.endMessage);
+        }
 
         displayWhosTurn(gameData.whosTurn);
         ui.boardLocked(ui.playerNumber != gameData.whosTurn);
@@ -130,9 +166,14 @@ function UI(game) {
                 ui.playAudio("yourturn");
                 ui.boardLocked(false);
             }
-            displayWhosTurn(turn.whosTurn);
+            if (typeof turn.whosTurn == 'number') {
+                displayWhosTurn(turn.whosTurn);
+            }
         });
-
+        ui.socket.on('gameEnded', function (endMessage) {
+            endMessage = thaw(endMessage, PrototypeMap);
+            displayEndMessage(endMessage);
+        });
         $(document)
             .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
             .bind('Refresh', ui.eventCallback(ui.refresh))
