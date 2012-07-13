@@ -1,7 +1,7 @@
 body
 {
     font-family: helvetica, arial, sans-serif;
-    font-size: 80.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
+    font-size: 100.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
     width: 70em;
 
     margin: 0;
@@ -14,6 +14,7 @@ body
     background: url('../images/wood.jpg');
 
     -webkit-touch-callout: none;
+
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
@@ -30,10 +31,11 @@ div.tableDivWrap
 div.surroundShade table,
 div.bottomShade table
 {
-    box-shadow: 0 0 1em #000000;
-    -webkit-box-shadow: 0 0 1em #000000;
-    -moz-box-shadow: 0 0 1em #000000;
-    -o-box-shadow: 0 0 1em #000000;
+    -webkit-box-shadow: 0 0 0.5em #000000;
+    -moz-box-shadow: 0 0 0.5em #000000;
+    -ms-box-shadow: 0 0 0.5em #000000;
+    -o-box-shadow: 0 0 0.5em #000000;
+    box-shadow: 0 0 0.5em #000000;
 }
 
 div#container
@@ -61,9 +63,10 @@ div#controls > div
     border-color: #DCDCC6;
 
     border-style: solid;
-
-    -moz-border-radius: 0.4em;
+	
     -webkit-border-radius: 0.4em;
+    -moz-border-radius: 0.4em;
+    -ms-border-radius: 0.4em;
     -o-border-radius: 0.4em;
     border-radius: 0.4em;
 
@@ -108,7 +111,7 @@ div.tableDivWrap table
     border-collapse: separate;
     border-spacing: 0 0;
 
-    border-width: 0.5em;
+    border-width: 0.2em;
     border-style: solid;
     border-color:  #54534A;
 
@@ -117,7 +120,7 @@ div.tableDivWrap table
     margin-left: auto;
     margin-right: auto;
 
-    padding: 0.5em;
+    padding: 0.2em;
 
     background-color: #AAA38E;
 }
@@ -146,7 +149,7 @@ div.tableDivWrap td, div.tableDivWrap th
     white-space: normal;
     overflow: hidden;
 
-    border-width: 0.15em;
+    border-width: 0.122em;
     border-style: dotted;
 
     background-color: #BEB9A6;
@@ -195,8 +198,8 @@ div.tableDivWrap td div
 
     border: none;
 
-    width: 2.5em;
-    height: 2.5em;
+    width: 2em;
+    height: 2em;
 
     border-style: solid;
     border-width: 0.15em;
@@ -212,6 +215,7 @@ div.tableDivWrap td div a
 {
     -webkit-user-select: none;
     -moz-user-select: none;
+    -ms-user-select: none;
     -o-user-select: none;
     user-select: none;
 
@@ -309,11 +313,12 @@ div.tableDivWrap td div.Tile
     border-color: #DCDCC6;
 
     border-style: solid;
-
-    -moz-border-radius: 0.4em;
-    -webkit-border-radius: 0.4em;
-    -o-border-radius: 0.4em;
-    border-radius: 0.4em;
+	
+    -webkit-border-radius: 0.2em;
+    -moz-border-radius: 0.2em;
+    -ms-border-radius: 0.2em;
+    -o-border-radius: 0.2em;
+    border-radius: 0.2em;
 }
 
 div.tableDivWrap td div.Tile a
@@ -361,6 +366,18 @@ div.tableDivWrap td div.Selected,
     -moz-animation-direction: alternate;
     -moz-animation-timing-function: linear;
 
+    -ms-animation-name: glow;
+    -ms-animation-duration: 0.5s;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-direction: alternate;
+    -ms-animation-timing-function: linear;
+
+    -o-animation-name: glow;
+    -o-animation-duration: 0.5s;
+    -o-animation-iteration-count: infinite;
+    -o-animation-direction: alternate;
+    -o-animation-timing-function: linear;
+	
     animation-name: glow;
     animation-duration: 0.5s;
     animation-iteration-count: infinite;
@@ -374,8 +391,10 @@ div.tableDivWrap td div.Selected,
 {
     -webkit-box-shadow: 0px 0px 0.5em #333333;
     -moz-box-shadow: 0px 0px 0.5em #333333;
+    -ms-box-shadow: 0px 0px 0.5em #333333;
     -o-box-shadow: 0px 0px 0.5em #333333;
     box-shadow: 0px 0px 0.5em #333333;
+
     z-index: 1000;
 }
 
@@ -396,12 +415,21 @@ div.tableDivWrap td div a span
 div.tableDivWrap td div.Tile a span.Letter,
 div.tableDivWrap td div.Tile a span.BlankLetter
 {
-    font-size: 1.4em;
+    font-size: 1.2em;
     font-weight: bold;
 
-    line-height: 1.8em;
+    line-height: 1.6em;
 
     padding-left: 0.2em;
+}
+
+@-moz-document url-prefix(http://)
+{
+	div.tableDivWrap td div.Tile a span.Letter,
+	div.tableDivWrap td div.Tile a span.BlankLetter
+    {
+	    line-height: 1.8em;
+    }
 }
 
 div.tableDivWrap td div.Tile a span.Score
@@ -417,16 +445,36 @@ div.tableDivWrap td.DoubleLetter div.Empty a,
 div.tableDivWrap td.TripleLetter div.Empty a,
 div.tableDivWrap td.Normal div.Empty a span
 {
-    font-size: 0.53em;
-    padding-top: 0.2em;
-    line-height: 1.5em;
-    letter-spacing: 0.16em;
+    font-size: 0.50em;
+    padding-top: 0.0em;
+    line-height: 1.4em;
+    letter-spacing: 0.0em;
 }
 
 div.tableDivWrap td div.CenterStart a
 {
-    font-size: 2.5em;
+    font-size: 2.8em;
     color: #54534A;
+}
+
+/*\*/
+@media screen and (-webkit-min-device-pixel-ratio:0)
+{
+    body:nth-of-type(1) div.tableDivWrap td div.CenterStart a
+    {
+        margin-top: -0.22em;
+        font-size: 1.8em;
+    }
+}
+/**/
+
+@-moz-document url-prefix(http://)
+{
+    div.tableDivWrap td div.CenterStart a
+    {
+        margin-top: -0.35em;
+        font-size: 3.22em;
+    }
 }
 
 div.tableDivWrap td div.BlankLetter a
@@ -470,33 +518,4 @@ div#anagrams td, div#anagrams th
 div#anagrams th
 {
     border: none;
-}
-
-/*
-  The CSS hack below targets Webkit only (Safari and Chrome), see:
-  http://www.etchevarne.net/toolkit/css-hacks.html
-  */
-
-/*\*/
-@media screen and (-webkit-min-device-pixel-ratio:0)
-{
-    body:nth-of-type(1) div.tableDivWrap td div.CenterStart a
-    {
-        margin-top: -0.2em;
-        font-size: 2.2em;
-    }
-}
-/**/
-
-/*
-  The CSS hack below targets Firefox only, see:
-  http://www.etchevarne.net/toolkit/css-hacks.html
-  */
-
-@-moz-document url-prefix()
-{
-    div.tableDivWrap td div.Tile a span.Score
-    {
-        margin-top: -0.5em; /* actually doesn't work :( */
-    }
 }
