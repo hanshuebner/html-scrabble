@@ -1,3 +1,7 @@
+if (typeof exports == 'object') {
+    _ = require('underscore');
+}
+
 /*
   Coding Exercise: multiplayer online Scrabble(tm) clone written in
   modern HTML, CSS, and JavaScript
@@ -172,7 +176,17 @@ var letterDistributions = {
 	      { letter: "H", score: 2, count: 1},
 	      { letter: "G", score: 2, count: 1},
 	      { letter: "L", score: 2, count: 1},
-	      { letter: "O", score: 2, count: 1}]};
+	      { letter: "O", score: 2, count: 1},
+
+	      { letter: "M", score: 3, count: 1},
+	      { letter: "B", score: 3, count: 1},
+	      { letter: "W", score: 3, count: 1},
+	      { letter: "Z", score: 3, count: 1},
+	      
+	      { letter: "C", score: 4, count: 1},
+	      { letter: "F", score: 4, count: 1},
+	      { letter: "K", score: 4, count: 1}
+            ]};
 
 function type_of(obj) {
     if (typeof(obj) == 'object')
@@ -317,10 +331,10 @@ Board.prototype.toString = function() {
     return "Board " + this.Dimension + " x " + this.Dimension;
 }
 
-function Rack() {
+function Rack(size) {
     this.squares = [];
 
-    for (var x = 0; x < this.Dimension; x++) {
+    for (var x = 0; x < size; x++) {
 	var square = new Square('Normal', this);
 	square.x = x;
 	square.y = -1;
@@ -330,10 +344,8 @@ function Rack() {
     triggerEvent('RackReady', [ this ]);
 }
 
-Rack.prototype.Dimension = 8;
-
 Rack.prototype.emptyTiles = function() {
-    for (var x = 0; x < this.Dimension; x++) {
+    for (var x = 0; x < this.squares.length; x++) {
 	var square = this.squares[x];
 	
 	square.placeTile(null);
@@ -341,7 +353,18 @@ Rack.prototype.emptyTiles = function() {
 }
 
 Rack.prototype.toString = function() {
-    return "Rack " + this.Dimension;
+    return "Rack " + this.squares.length;
+}
+
+Rack.prototype.letters = function() {
+    return _.reduce(this.squares,
+                    function (accu, square) {
+                        if (square.tile) {
+                            accu.push(square.tile.letter);
+                        }
+                        return accu;
+                    },
+                    []);
 }
 
 function LetterBag()
@@ -404,6 +427,11 @@ LetterBag.prototype.getRandomTiles = function(count)
 LetterBag.prototype.returnTile = function(tile)
 {
     this.tiles.push(tile);
+}
+
+LetterBag.prototype.returnTiles = function(tiles)
+{
+    this.tiles = this.tiles.concat(tiles);
 }
 
 LetterBag.prototype.remainingTileCount = function(tile)

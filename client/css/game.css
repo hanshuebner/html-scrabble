@@ -2,7 +2,6 @@ body
 {
     font-family: helvetica, arial, sans-serif;
     font-size: 100.01%; /* 100.01% good practice, but with 62.5% => 1em == 10px (factor of 10) GENERALLY: 1em = 12pt = 16px = 100% */
-    width: 70em;
 
     margin: 0;
 
@@ -41,7 +40,7 @@ div.bottomShade table
 div#container
 {
     overflow: auto;
-    width: 73em;
+    width: 76em;
 }
 
 div#letterbagStatus > div
@@ -54,7 +53,7 @@ div#controls
     float: left;
     margin: 1em;
     margin-top: 2em;
-    width: 20em;
+    width: 24em;
 }
 
 div#controls > div
@@ -74,12 +73,12 @@ div#controls > div
     padding: 0.4em;
 }
 
-div#log {
-    height: 20em;
+div#move {
+    height: 10em;
     overflow: auto;
 }
 
-div#move {
+div#log {
     height: 10em;
     overflow: auto;
 }
@@ -100,8 +99,17 @@ div#log > div > div {
     margin-top: 0.2em;
 }
 
+div#scoreboard {
+    min-height: 4em;
+}
+
+div#whosturn {
+    height: 1em;
+}
+
 div#boardWrap
 {
+    margin-top: 1em;
     float: right;
     width: 50em;
 }
@@ -125,7 +133,8 @@ div.tableDivWrap table
     background-color: #AAA38E;
 }
 
-div#rack table
+div#rack table,
+div#swapRack table
 {
     border-width: 0.2em;
     padding: 0.2em;

@@ -35,6 +35,7 @@ function UI(game) {
         gameData = thaw(gameData, PrototypeMap);
         console.log('gameData', gameData);
 
+        ui.swapRack = new Rack(7);
         ui.board = gameData.board;
         ui.players = gameData.players;
         var playerNumber = 0;
@@ -69,6 +70,7 @@ function UI(game) {
 
         ui.drawBoard();
         ui.drawRack();
+        ui.drawSwapRack();
 
         function scrollLogToEnd(speed) {
             $('#log').animate({ scrollTop: $('#log').prop('scrollHeight') }, speed);
@@ -263,7 +265,8 @@ UI.prototype.updateSquareState = function(board, square, state) {
 }
 
 UI.prototype.updateSquare = function(square) {
-    if (square.owner == this.rack) {
+    if (square.owner == this.rack
+        || square.owner == this.swapRack) {
         this.updateRackSquare(square);
     } else if (square.owner == this.board) {
         this.updateBoardSquare(square);
@@ -514,6 +517,22 @@ UI.prototype.drawRack = function() {
     });
 }
 
+UI.prototype.drawSwapRack = function() {
+    var swapRack = this.swapRack;
+    $('#swapRack')
+        .append(TABLE(null,
+                      TR(null,
+                         map(function (x) {
+                             var id = 'SwapRack_' + x;
+                             swapRack.squares[x].id = id;
+                             return TD({ 'class': 'Normal' },
+                                       DIV({ id: id }, A()));
+                         }, range(7)))));
+    forEach(range(7), function (x) {
+	ui.updateRackSquare(swapRack.squares[x]);
+    });
+}
+
 UI.prototype.refreshRack = function() {
     var rack = this.rack;
     for (var x = 0; x < rack.Dimension; x++) {
@@ -608,7 +627,8 @@ UI.prototype.playAudio = function(id) {
     }
 }
 
-UI.prototype.serverCommand = function(command, args, success) {
+UI.prototype.sendMoveToServer = function(command, args, success) {
+    this.cancelNotification();
     $.ajax({
         type: 'PUT',
         url: '/game/' + this.gameKey,
@@ -638,6 +658,23 @@ UI.prototype.endMove = function() {
     this.boardLocked(true);
 }
 
+UI.prototype.processMoveResponse = function(data) {
+    console.log('move response:', data);
+    var ui = this;
+    data = thaw(data, PrototypeMap);
+    if (!data.newTiles) {
+        console.log('expected new tiles, got ' + data);
+    }
+    ui.rack.squares.forEach(function (square) {
+        if (data.newTiles.length) {
+            if (!square.tile) {
+                square.placeTile(data.newTiles.pop());
+                ui.updateRackSquare(square);
+            }
+        }
+    });
+}
+
 UI.prototype.CommitMove = function() {
     var ui = this;
     var move = calculateMove(this.board.squares);
@@ -653,22 +690,9 @@ UI.prototype.CommitMove = function() {
         ui.updateBoardSquare(square);
     }
     console.log(move.tilesPlaced);
-    ui.serverCommand('makeMove',
-                     move.tilesPlaced,
-                     function (data) {
-                         data = thaw(data, PrototypeMap);
-                         if (!data.newTiles) {
-                             console.log('expected new tiles, got ' + data);
-                         }
-                         ui.rack.squares.forEach(function (square) {
-                             if (data.newTiles.length) {
-                                 if (!square.tile) {
-                                     square.placeTile(data.newTiles.pop());
-                                     ui.updateRackSquare(square);
-                                 }
-                             }
-                         });
-                     });
+    ui.sendMoveToServer('makeMove',
+                        move.tilesPlaced,
+                        bind(this.processMoveResponse, ui));
 
     ui.enableNotifications();
 }
@@ -677,7 +701,15 @@ UI.prototype.Pass = function() {
     var ui = this;
     ui.TakeBackTiles();
     ui.endMove();
-    ui.serverCommand('pass')
+    ui.sendMoveToServer('pass')
+}
+
+UI.prototype.SwapTiles = function() {
+    var ui = this;
+    ui.endMove();
+    ui.sendMoveToServer('swap',
+                        ui.swapRack.letters(),
+                        bind(this.processMoveResponse, ui));
 }
 
 UI.prototype.TakeBackTiles = function() {
@@ -721,9 +753,7 @@ UI.prototype.enableNotifications = function() {
 UI.prototype.notify = function(title, text) {
     var ui = this;
     if (window.webkitNotifications) {
-        if (this.notification) {
-            this.notification.cancel();
-        }
+        this.cancelNotification();
         var notification = window.webkitNotifications.createNotification('favicon.ico', title, text);
         ui.notification = notification;
         $(notification)
@@ -734,5 +764,12 @@ UI.prototype.notify = function(title, text) {
                 delete ui.notification;
             });
         notification.show();
+    }
+}
+
+UI.prototype.cancelNotification = function() {
+    if (this.notification) {
+        this.notification.cancel();
+        delete this.notification;
     }
 }
