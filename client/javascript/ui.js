@@ -97,21 +97,41 @@ function UI(game) {
         }
 
         function displayEndMessage(endMessage) {
-            console.log('displayEndMessage', endMessage);
             var winners;
             for (var i in ui.players) {
                 var player = ui.players[i];
-                player.score = endMessage.players[i].score;
+                var endPlayer = endMessage.players[i];
+                player.score = endPlayer.score;
+                player.tallyScore = endPlayer.tallyScore;
+                player.rack = endPlayer.rack;
+                if (player.tallyScore > 0) {
+                    $('#log').append(DIV({ 'class': 'gameEndScore' },
+                                         player.name + ' gained ' + player.tallyScore + ' points from racks of the other players'));
+                } else {
+                    $('#log').append(DIV({ 'class': 'gameEndScore' },
+                                         player.name + ' lost ' + -player.tallyScore + ' points for his rack containing the letters '
+                                         + _.without(player.rack.squares.map(function (square) {
+                                             if (square.tile) {
+                                                 return square.tile.letter;
+                                             }
+                                         }), undefined)));
+                }
                 $(player.scoreElement).text(player.score);
                 if (!winners || player.score > winners[0].score) {
-                    winners = [ player.name ];
+                    winners = [ player ];
                 } else if (player.score == winners[0].score) {
-                    winners.push(player.name);
+                    winners.push(player);
                 }
             }
+            var you = ui.players[ui.playerNumber];
+            var youHaveWon = _.contains(winners, you);
             $('#whosturn').empty();
             $('#log').append(DIV({ 'class': 'gameEnded' },
-                                 'Game has ended, ' + joinProse(winners) + ((winners.length == 1) ? ' has ' : ' have ') + 'won'))
+                                 'Game has ended, '
+                                 + joinProse(winners.map(function (player) {
+                                     return (player == you) ? 'you' : player.name
+                                 }))
+                                 + (((winners.length == 1) && !youHaveWon) ? ' has ' : ' have ') + 'won'))
         }
 
         function placeTurnTiles(turn) {
@@ -122,7 +142,6 @@ function UI(game) {
         }
 
         function displayWhosTurn(playerNumber) {
-            console.log('playerNumber', playerNumber, 'players', ui.players);
             if (playerNumber == ui.playerNumber) {
                 $('#whosturn').empty().text("Your turn");
             } else if (typeof playerNumber == 'number') {
@@ -184,6 +203,7 @@ function UI(game) {
             .on('gameEnded', function (endMessage) {
                 endMessage = thaw(endMessage, PrototypeMap);
                 displayEndMessage(endMessage);
+                ui.notify('Game over!', 'Your game is over...');
             });
         $(document)
             .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
@@ -600,7 +620,6 @@ UI.prototype.serverCommand = function(command, args, success) {
 
 UI.prototype.boardLocked = function(newVal) {
     if (arguments.length > 0) {
-        console.log('boardLocked', newVal);
         if (newVal) {
             $('#turnButtons button').attr('disabled', 'disabled');
         } else {
