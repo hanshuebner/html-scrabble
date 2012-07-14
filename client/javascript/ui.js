@@ -64,13 +64,17 @@ function UI(game) {
                     .empty()
                     .append(DIV(null, "The letterbag is empty"));
             }
+            if (count < 7) {
+                $('#swapRack')
+                    .empty();
+            }
         }
-
-        displayRemainingTileCount(gameData.remainingTileCount);
 
         ui.drawBoard();
         ui.drawRack();
         ui.drawSwapRack();
+
+        displayRemainingTileCount(gameData.remainingTileCount);
 
         function scrollLogToEnd(speed) {
             $('#log').animate({ scrollTop: $('#log').prop('scrollHeight') }, speed);
@@ -82,12 +86,22 @@ function UI(game) {
                           DIV({ 'class': 'score' },
                               SPAN({ 'class': 'playerName' }, player.name),
                               SPAN({ 'class': 'score' }, turn.score)));
-            if (turn.move) {
+            switch (turn.type) {
+            case 'move':
                 turn.move.words.forEach(function (word) {
-                    $(div).append(DIV({ 'class': 'wordScore' },
+                    $(div).append(DIV({ 'class': 'moveDetail' },
                                       SPAN({ 'class': 'word' }, word.word),
                                       SPAN({ 'class': 'score' }, word.score)));
                 });
+                break;
+            case 'pass':
+                $(div).append(DIV({ 'class': 'moveDetail' }, "Passed"));
+                break;
+            case 'swap':
+                $(div).append(DIV({ 'class': 'moveDetail' }, "Swapped " + turn.count + " tile" + ((turn.count > 1) ? "s" : "")));
+                break;
+            default:
+                $(div).append(DIV({ 'class': 'moveDetail' }, "unknown move type " + turn.type));
             }
             $('#log').append(div);
         }
@@ -183,14 +197,12 @@ function UI(game) {
                 console.log('turn', turn);
                 appendTurnToLog(turn);
                 scrollLogToEnd(300);
-                if (turn.type == 'move') {
-                    processMoveScore(turn);
-                    // If this has been a move by another player, place tiles on board
-                    if (turn.player != ui.playerNumber) {
-                        placeTurnTiles(turn);
+                processMoveScore(turn);
+                // If this has been a move by another player, place tiles on board
+                if (turn.type == 'move' && turn.player != ui.playerNumber) {
+                    placeTurnTiles(turn);
                 }
-                    displayRemainingTileCount(turn.remainingTileCount);
-                }
+                displayRemainingTileCount(turn.remainingTileCount);
                 if (turn.whosTurn == ui.playerNumber) {
                     ui.playAudio("yourturn");
                     ui.boardLocked(false);

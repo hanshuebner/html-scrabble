@@ -271,15 +271,15 @@ Game.prototype.swapTiles = function(player, letters) {
 
     // The swap is legal.  First get new tiles, then return the old ones to the letter bag
     var newTiles = game.letterBag.getRandomTiles(letters.length);
-
+    var lettersTaken = letters.slice();
     game.letterBag.returnTiles(_.reduce(player.rack.squares,
                                         function(accu, square) {
                                             if (square.tile
-                                                && _.find(letters,
+                                                && _.find(lettersTaken,
                                                           function(letter) {
                                                               return letter == square.tile.letter;
                                                           })) {
-                                                letters = _.without(letters, square.tile.letter);
+                                                lettersTaken = _.without(lettersTaken, square.tile.letter);
                                                 accu.push(square.tile);
                                                 square.placeTile(null);
                                             }
@@ -297,6 +297,7 @@ Game.prototype.swapTiles = function(player, letters) {
     return [ newTiles,
              { type: 'swap',
                score: 0,
+               count: letters.length,
                player: player.index } ];
 }
 
