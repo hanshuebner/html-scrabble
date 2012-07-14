@@ -707,22 +707,38 @@ UI.prototype.Pass = function() {
 UI.prototype.SwapTiles = function() {
     var ui = this;
     ui.endMove();
+    var letters = ui.swapRack.letters();
+    ui.swapRack.squares.forEach(function(square) {
+        square.placeTile(null);
+    });
     ui.sendMoveToServer('swap',
-                        ui.swapRack.letters(),
+                        letters,
                         bind(this.processMoveResponse, ui));
 }
 
 UI.prototype.TakeBackTiles = function() {
     var ui = this;
     var freeRackSquares = filter(function (square) { return !square.tile }, ui.rack.squares);
+    function putBackToRack(tile) {
+        var square = freeRackSquares.pop();
+        square.tile = tile;
+        ui.updateRackSquare(square);
+    }
+        
     ui.board.forAllSquares(function(boardSquare) {
         if (boardSquare.tile && !boardSquare.tileLocked) {
-            freeRackSquares.pop().tile = boardSquare.tile;
+            putBackToRack(boardSquare.tile);
             boardSquare.tile = null;
             ui.updateBoardSquare(boardSquare);
         }
     });
-    ui.refreshRack();
+    ui.swapRack.squares.forEach(function(swapRackSquare) {
+        if (swapRackSquare.tile) {
+            putBackToRack(swapRackSquare.tile);
+            swapRackSquare.tile = null;
+            ui.updateRackSquare(swapRackSquare);
+        }
+    });
 }
 
 UI.prototype.Shuffle = function() {
