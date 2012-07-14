@@ -507,14 +507,22 @@ function calculateMove(squares)
         return { error: 'not touching old tile ' + topLeftX + '/' + topLeftY };
     }
 
-    // Check whether there are any unconnected other placements 
+    // Check whether there are any unconnected other placements, count total tiles on board
+    var totalTiles = 0;
     for (var x = 0; x < 15; x++) {
         for (var y = 0; y < 15; y++) {
             var square = squares[x][y];
-            if (square.tile && !square.tileLocked && !legalPlacements[x][y]) {
-                return { error: 'unconnected placement' };
+            if (square.tile) {
+                totalTiles++;
+                if (!square.tileLocked && !legalPlacements[x][y]) {
+                    return { error: 'unconnected placement' };
+                }
             }
         }
+    }
+
+    if (totalTiles == 1) {
+        return { error: 'first word must consist of at least two letters' };
     }
 
     var move = { words: [] };

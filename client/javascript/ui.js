@@ -12,7 +12,7 @@ function joinProse(array)
     case 1:
         return array[0];
     default:
-        return _.reduce(array.slice(1, length - 1), function (word, accu) { return word + ", " + accu }, array[0]) + " and " + array[length - 1];
+        return _.reduce(array.slice(1, length - 1), function (accu, word) { return accu + ", " + word }, array[0]) + " and " + array[length - 1];
     }
 }
 
@@ -36,7 +36,9 @@ function UI(game) {
         console.log('gameData', gameData);
 
         ui.swapRack = new Rack(7);
+        ui.swapRack.tileCount = 0;
         ui.board = gameData.board;
+        ui.board.tileCount = 0;
         ui.players = gameData.players;
         var playerNumber = 0;
         $('#scoreboard')
@@ -44,6 +46,14 @@ function UI(game) {
                           gameData.players.map(function(player) {
                               if (player.rack) {
                                   ui.rack = player.rack;
+                                  ui.rack.tileCount = _.reduce(player.rack.squares,
+                                                               function(accu, square) {
+                                                                   if (square.tile) {
+                                                                       accu++;
+                                                                   }
+                                                                   return accu;
+                                                               },
+                                                               0);
                                   ui.playerNumber = playerNumber;
                               }
                               playerNumber++;
@@ -160,11 +170,14 @@ function UI(game) {
         function displayWhosTurn(playerNumber) {
             if (playerNumber == ui.playerNumber) {
                 $('#whosturn').empty().text("Your turn");
+                $('#turnControls').css('display', 'block');
             } else if (typeof playerNumber == 'number') {
                 var name = ui.players[playerNumber].name;
                 $('#whosturn').empty().text(name + "'" + ((name.charAt(name.length - 1) == 's') ? '' : 's') + " turn");
+                $('#turnControls').css('display', 'none');
             } else {
                 $('#whosturn').empty();
+                $('#turnControls').css('display', 'none');
             }
         }
 
@@ -213,6 +226,7 @@ function UI(game) {
                         ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
                     }
                 }
+                ui.updateGameStatus();
             })
             .on('gameEnded', function (endMessage) {
                 endMessage = thaw(endMessage, PrototypeMap);
@@ -226,11 +240,9 @@ function UI(game) {
             .bind('RefreshBoard', ui.eventCallback(ui.refreshBoard));
 
     });
-    ['CommitMove', 'Pass', 'SwapTiles'].forEach(function (action) {
-        var button = BUTTON({ id: action, disabled: 'disabled' }, action)
-        $(button).bind('click', ui.eventCallback(ui[action]));
-        $('#turnButtons').append(button);
-    });
+    var button = BUTTON({ id: 'turnButton', action: 'pass' }, 'Pass')
+    $(button).bind('click', ui.eventCallback(ui.makeMove));
+    $('#turnButtons').append(button);
 }
 
 UI.prototype.eventCallback = function(f) {
@@ -591,27 +603,42 @@ UI.prototype.selectSquare = function(square) {
 UI.prototype.moveTile = function(fromSquare, toSquare) {
     var tile = fromSquare.tile;
     fromSquare.placeTile(null);
+    fromSquare.owner.tileCount--;
     toSquare.placeTile(tile);
+    toSquare.owner.tileCount++;
     if (!this.boardLocked()) {
         setTimeout(function () { ui.updateGameStatus() }, 100);
     }
 }
 
 UI.prototype.updateGameStatus = function() {
-    var move = calculateMove(this.board.squares);
-    $('#move').empty();
-    if (move.error) {
-        $('#move')
-            .append(move.error);
-        $('#CommitMove').attr('disabled', 'disabled');
-    } else {
-        $('#move')
-            .append(DIV(null, "score: " + move.score));
-        move.words.forEach(function (word) {
+    if (this.board.tileCount > 0) {
+        this.setMoveAction('commitMove', 'Make move');
+        var move = calculateMove(this.board.squares);
+        $('#move').empty();
+        if (move.error) {
             $('#move')
-                .append(DIV(null, word.word + " " + word.score));
-        });
-        $('#CommitMove').removeAttr('disabled');
+                .append(move.error);
+            $('#turnButton').attr('disabled', 'disabled');
+        } else {
+            $('#move')
+                .append(DIV(null, "score: " + move.score));
+            move.words.forEach(function (word) {
+                $('#move')
+                    .append(DIV(null, word.word + " " + word.score));
+            });
+            $('#turnButton').removeAttr('disabled');
+        }
+        $('#swapRack').css('display', 'none');
+    } else if (this.swapRack.tileCount > 0) {
+        this.setMoveAction('swapTiles', 'Swap tiles');
+        $('#board .ui-droppable').droppable('disable');
+        $('#turnButton').removeAttr('disabled');
+    } else {
+        this.setMoveAction('pass', 'Pass');
+        $('#board .ui-droppable').droppable('enable');
+        $('#swapRack').css('display', 'block');
+        $('#turnButton').removeAttr('disabled');
     }
 }
 
@@ -653,10 +680,9 @@ UI.prototype.sendMoveToServer = function(command, args, success) {
 UI.prototype.boardLocked = function(newVal) {
     if (arguments.length > 0) {
         if (newVal) {
-            $('#turnButtons button').attr('disabled', 'disabled');
+            $('#turnButton').attr('disabled', 'disabled');
         } else {
-            $('#turnButtons button').removeAttr('disabled');
-            $('#CommitMove').attr('disabled', 'disabled');
+            $('#turnButton').removeAttr('disabled');
         }
         this.board.locked = newVal;
         this.refreshBoard();
@@ -666,7 +692,6 @@ UI.prototype.boardLocked = function(newVal) {
 
 UI.prototype.endMove = function() {
     $('#move').empty();
-    $('#turnButtons button').attr('disabled', 'disabled');
     this.boardLocked(true);
 }
 
@@ -681,13 +706,14 @@ UI.prototype.processMoveResponse = function(data) {
         if (data.newTiles.length) {
             if (!square.tile) {
                 square.placeTile(data.newTiles.pop());
+                ui.rack.tileCount++;
                 ui.updateRackSquare(square);
             }
         }
     });
 }
 
-UI.prototype.CommitMove = function() {
+UI.prototype.commitMove = function() {
     var ui = this;
     var move = calculateMove(this.board.squares);
     if (move.error) {
@@ -709,23 +735,37 @@ UI.prototype.CommitMove = function() {
     ui.enableNotifications();
 }
 
-UI.prototype.Pass = function() {
+UI.prototype.pass = function() {
     var ui = this;
     ui.TakeBackTiles();
     ui.endMove();
     ui.sendMoveToServer('pass')
 }
 
-UI.prototype.SwapTiles = function() {
+UI.prototype.swapTiles = function() {
     var ui = this;
     ui.endMove();
     var letters = ui.swapRack.letters();
     ui.swapRack.squares.forEach(function(square) {
         square.placeTile(null);
+        ui.swapRack.tileCount--;
     });
     ui.sendMoveToServer('swap',
                         letters,
                         bind(this.processMoveResponse, ui));
+}
+
+UI.prototype.setMoveAction = function(action, title) {
+    $('#turnButton')
+        .attr('action', action)
+        .empty()
+        .append(title);
+}
+
+UI.prototype.makeMove = function() {
+    var action = $('#turnButton').attr('action');
+    console.log('makeMove =>', action);
+    this[action]();
 }
 
 UI.prototype.TakeBackTiles = function() {
@@ -734,6 +774,7 @@ UI.prototype.TakeBackTiles = function() {
     function putBackToRack(tile) {
         var square = freeRackSquares.pop();
         square.tile = tile;
+        ui.rack.tileCount++;
         ui.updateRackSquare(square);
     }
         
@@ -741,6 +782,7 @@ UI.prototype.TakeBackTiles = function() {
         if (boardSquare.tile && !boardSquare.tileLocked) {
             putBackToRack(boardSquare.tile);
             boardSquare.tile = null;
+            ui.board.tileCount--;
             ui.updateBoardSquare(boardSquare);
         }
     });
@@ -748,9 +790,11 @@ UI.prototype.TakeBackTiles = function() {
         if (swapRackSquare.tile) {
             putBackToRack(swapRackSquare.tile);
             swapRackSquare.tile = null;
+            ui.swapRack.tileCount--;
             ui.updateRackSquare(swapRackSquare);
         }
     });
+    ui.updateGameStatus();
 }
 
 UI.prototype.Shuffle = function() {
