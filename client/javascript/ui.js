@@ -182,11 +182,12 @@ function UI(game) {
         }
 
         gameData.turns.map(appendTurnToLog);
-        scrollLogToEnd(0);
 
         if (gameData.endMessage) {
             displayEndMessage(gameData.endMessage);
         }
+
+        scrollLogToEnd(0);
 
         displayWhosTurn(gameData.whosTurn);
         ui.boardLocked(ui.playerNumber != gameData.whosTurn);
@@ -612,10 +613,10 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
 }
 
 UI.prototype.updateGameStatus = function() {
+    $('#move').empty();
     if (this.board.tileCount > 0) {
         this.setMoveAction('commitMove', 'Make move');
         var move = calculateMove(this.board.squares);
-        $('#move').empty();
         if (move.error) {
             $('#move')
                 .append(move.error);
@@ -727,6 +728,7 @@ UI.prototype.commitMove = function() {
         square.tileLocked = true;
         ui.updateBoardSquare(square);
     }
+    ui.board.tileCount = 0;
     console.log(move.tilesPlaced);
     ui.sendMoveToServer('makeMove',
                         move.tilesPlaced,
