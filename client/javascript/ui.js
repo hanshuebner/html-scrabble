@@ -246,6 +246,120 @@ function UI(game) {
     var button = BUTTON({ id: 'turnButton', action: 'pass' }, 'Pass')
     $(button).bind('click', ui.eventCallback(ui.makeMove));
     $('#turnButtons').append(button);
+    $('#turnButtons').append(BUTTON({ id: 'dummyInput' }, ""));
+
+    $('#dummyInput')
+        .on('keypress', function(event) {
+            var letter = String.fromCharCode(event.charCode).toUpperCase();
+            console.log('dummy input key pressed:', letter);
+            if (ui.cursor && ui.legalLetters.indexOf(letter) != -1) {
+                var rackSquare = ui.rack.findLetterSquare(letter, true);
+                if (rackSquare) {
+                    if (rackSquare.tile.isBlank()) {
+                        rackSquare.tile.letter = letter;
+                    }
+                    ui.moveTile(rackSquare, ui.cursor.square);
+                    var newCursorSquare;
+                    if (ui.cursor.direction == 'horizontal') {
+                        for (var x = ui.cursor.square.x; x < 15; x++) {
+                            var boardSquare = ui.board.squares[x][ui.cursor.square.y];
+                            if (!boardSquare.tile) {
+                                newCursorSquare = boardSquare;
+                                break;
+                            }
+                        }
+                    } else {
+                        for (var y = ui.cursor.square.y; y < 15; y++) {
+                            var boardSquare = ui.board.squares[ui.cursor.square.x][y];
+                            if (!boardSquare.tile) {
+                                newCursorSquare = boardSquare;
+                                break;
+                            }
+                        }
+                    }
+                    if (newCursorSquare) {
+                        ui.cursor.square = newCursorSquare;
+                        ui.updateBoardSquare(newCursorSquare);
+                    } else {
+                        delete ui.cursor;
+                    }
+                }
+            }
+        })
+        .on('keydown', function(event) {
+            console.log('keydown', event);
+
+            function handled() {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            function move(dx, dy) {
+                var x = ui.cursor.square.x;
+                var y = ui.cursor.square.y;
+                console.log('move cursor, x', x, 'y', y, 'dx', dx, 'dy', dy);
+                if (ui.cursor) {
+                    if (dx > 0) {
+                        for (x++; x < 15 && ui.board.squares[x][y].tile; x++);
+                    }
+                    if (dx < 0) {
+                        for (x--; x >= 0 && ui.board.squares[x][y].tile; x--);
+                    }
+                    if (dy > 0) {
+                        for (y++; y < 15 && ui.board.squares[x][y].tile; y++);
+                    }
+                    if (dy < 0) {
+                        for (y--; y >= 0 && ui.board.squares[x][y].tile; y--);
+                    }
+                    console.log('new position, x', x, 'y', y, 'cursor.x', ui.cursor.square.x, 'cursor.y', ui.cursor.square.y);
+                    if (x >= 0 && x < 15
+                        && y >= 0 && y < 15
+                        && (x != ui.cursor.square.x || y != ui.cursor.square.y)) {
+                        console.log('moving cursor');
+                        var oldCursorSquare = ui.cursor.square;
+                        ui.cursor.square = ui.board.squares[x][y];
+                        ui.updateBoardSquare(oldCursorSquare);
+                        ui.updateBoardSquare(ui.cursor.square);
+                    }
+                }
+                handled();
+            }
+
+            function turnCursor() {
+                if (ui.cursor) {
+                    ui.cursor.direction = (ui.cursor.direction == 'horizontal') ? 'vertical' : 'horizontal';
+                    ui.updateBoardSquare(ui.cursor.square);
+                }
+                handled();
+            }
+
+            function deleteLast() {
+                // Not yet implemented
+                handled();
+            }
+
+            switch (event.keyCode) {
+            case $.ui.keyCode.UP:
+                move(0, -1);
+                break;
+            case $.ui.keyCode.DOWN:
+                move(0, 1);
+                break;
+            case $.ui.keyCode.LEFT:
+                move(-1, 0);
+                break;
+            case $.ui.keyCode.RIGHT:
+                move(1, 0);
+                break;
+            case $.ui.keyCode.SPACE:
+                turnCursor();
+                break;
+            case $.ui.keyCode.BACKSPACE:
+            case $.ui.keyCode.DELETE:
+                deleteLast();
+                break;
+            }
+        });
 }
 
 UI.prototype.eventCallback = function(f) {
@@ -350,14 +464,11 @@ UI.prototype.updateBoardSquare = function(square) {
 		        ui.selectSquare(null);
 		    } else {
                         function placeCursor() {
-                            ui.cursor = { x: square.x,
-                                          y: square.y,
+                            ui.cursor = { square: square,
                                           direction: 'horizontal' };
-                            $(div).addClass('Cursor');
                         }
                         if (ui.cursor) {
-                            if (ui.cursor.x == square.x
-                                && ui.cursor.y == square.y) {
+                            if (ui.cursor.square == square) {
                                 // clicked on cursor to change direction
                                 if (ui.cursor.direction == 'horizontal') {
                                     ui.cursor.direction = 'vertical';
@@ -368,7 +479,7 @@ UI.prototype.updateBoardSquare = function(square) {
                                 // clicked on other square to move cursor
                                 var oldCursor = ui.cursor;
                                 delete ui.cursor;
-                                ui.updateBoardSquare(ui.board.squares[oldCursor.x][oldCursor.y]);
+                                ui.updateBoardSquare(oldCursor.square);
                                 placeCursor();
                             }
                         } else {
@@ -380,16 +491,17 @@ UI.prototype.updateBoardSquare = function(square) {
                 .droppable({
 	            hoverClass: "dropActive",
 	            drop: function(event, jui) {
+                        ui.deleteCursor();
                         ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	            }
 	        });
         }
 
         var text = ' ';
-        if (ui.cursor
-            && ui.cursor.x == square.x
-            && ui.cursor.y == square.y) {
+        if (ui.cursor && ui.cursor.square == square) {
             text = (ui.cursor.direction == 'horizontal') ? '\u21d2' : '\u21d3';
+            $(div).addClass('Cursor');
+            $('#dummyInput').focus();
         } else {
 	    switch (square.type) {
 	    case 'DoubleWord':
@@ -522,6 +634,7 @@ UI.prototype.updateRackSquare = function(square) {
 	$(div).droppable({
 	    hoverClass: "dropActive",
 	    drop: function(event, jui) {
+                ui.deleteCursor();
                 ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
@@ -532,11 +645,12 @@ UI.prototype.drawRack = function() {
     var rack = this.rack;
 
     $('#rack')
-        .append(TABLE(null,
+        .append(DIV({ id: 'rackButtons' },
+                    BUTTON({ id: 'Shuffle' }, "Shuffle"),
+                    BR(),
+                    BUTTON({ id: 'TakeBackTiles' }, "TakeBackTiles")),
+                TABLE(null,
                       TR(null,
-                         BUTTON({ id: 'Shuffle' }, "Shuffle"),
-                         BR(),
-                         BUTTON({ id: 'TakeBackTiles' }, "TakeBackTiles"),
                          map(function (x) {
                              var id = 'Rack_' + x;
                              rack.squares[x].id = id;
@@ -616,11 +730,10 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     var ui = this;
     fromSquare.placeTile(null);
     fromSquare.owner.tileCount--;
-    if (tile.isBlank()) {
+    if (tile.isBlank() && !tile.letter) {
         if (fromSquare.owner != this.board && toSquare.owner == this.board) {
             $('#blankLetterRequester button')
                 .on('keypress', function (event) {
-                    console.log('event', event);
                     var letter = String.fromCharCode(event.charCode);
                     if (letter != '') {
                         letter = letter.toUpperCase();
@@ -629,6 +742,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
                             tile.letter = letter;
                             $.unblockUI();
                             ui.updateSquare(toSquare);
+                            $('#dummyInput').focus();
                         }
                     }
                 });
@@ -663,15 +777,18 @@ UI.prototype.updateGameStatus = function() {
             $('#turnButton').removeAttr('disabled');
         }
         $('#swapRack').css('display', 'none');
+        $('#TakeBackTiles').css('visibility', 'inherit');
     } else if (this.swapRack.tileCount > 0) {
         this.setMoveAction('swapTiles', 'Swap tiles');
         $('#board .ui-droppable').droppable('disable');
         $('#turnButton').removeAttr('disabled');
+        $('#TakeBackTiles').css('visibility', 'inherit');
     } else {
         this.setMoveAction('pass', 'Pass');
         $('#board .ui-droppable').droppable('enable');
         $('#swapRack').css('display', 'block');
         $('#turnButton').removeAttr('disabled');
+        $('#TakeBackTiles').css('visibility', 'hidden');
     }
 }
 
@@ -799,7 +916,16 @@ UI.prototype.setMoveAction = function(action, title) {
 UI.prototype.makeMove = function() {
     var action = $('#turnButton').attr('action');
     console.log('makeMove =>', action);
+    this.deleteCursor();
     this[action]();
+}
+
+UI.prototype.deleteCursor = function() {
+    if (ui.cursor) {
+        var cursorSquare = ui.cursor.square;
+        delete ui.cursor;
+        ui.updateBoardSquare(cursorSquare);
+    }
 }
 
 UI.prototype.TakeBackTiles = function() {
@@ -831,6 +957,7 @@ UI.prototype.TakeBackTiles = function() {
             ui.updateRackSquare(swapRackSquare);
         }
     });
+    this.deleteCursor();
     ui.updateGameStatus();
 }
 

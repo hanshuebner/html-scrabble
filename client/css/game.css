@@ -115,8 +115,41 @@ div#blankLetterRequester {
     font-size: 2em;
 }
 
+button {
+    font-size: 1em;
+}
+
+#rackButtons {
+    margin-right: 0.5em;
+}
+
+#rack button {
+    font-size: 0.9em;
+}
+
+#TakeBackTiles {
+    visibility: hidden;
+}
+
+button#dummyInput {
+    /* The hidden dummy input button has the focus to capture keyboard events.  This is a hack. */
+    color: transparent;
+    background-color: transparent;
+    border-color: transparent;
+    cursor: default;
+    outline: 0;
+    width: 0px;
+    height: 0px;
+}
+
 div#blankLetterRequester button {
     font-size: 1em;
+}
+
+div#rackButtons {
+    float: left;
+    clear: left;
+    horizontal-align: right;
 }
 
 div#boardWrap
@@ -137,7 +170,6 @@ div.tableDivWrap table
 
     margin-top: 1em;
     margin-bottom: 1em;
-    margin-left: auto;
     margin-right: auto;
 
     padding: 0.2em;
@@ -460,9 +492,9 @@ div.tableDivWrap td div.Tile a span.Score
     padding-left: 0.2em;
 }
 
-span#Cursor
+div.tableDivWrap td div.Cursor a
 {
-    line-height: 1.2em;
+    line-height: 1.0em;
     font-size: 2.0em;
     font-weight: normal;
     color: #54534A;

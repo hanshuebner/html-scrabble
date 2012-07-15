@@ -367,6 +367,27 @@ Rack.prototype.letters = function() {
                     []);
 }
 
+Rack.prototype.findLetterSquare = function(letter, includingBlank) {
+    var blankSquare = null;
+    var square = _.find(this.squares,
+                        function(square) {
+                            if (square.tile) {
+                                if (square.tile.isBlank() && !blankSquare) {
+                                    blankSquare = square;
+                                } else if (square.tile.letter == letter) {
+                                    return true;
+                                }
+                            }
+                        });
+    if (square) {
+        return square;
+    } else if (includingBlank) {
+        return blankSquare;
+    } else {
+        return null;
+    }
+}
+
 function LetterBag()
 {
 }
