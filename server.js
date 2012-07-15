@@ -22,8 +22,13 @@ var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
 
 // //////////////////////////////////////////////////////////////////////
 
-var baseUrl = 'http://localhost:9093/';
-var mailSender = "Scrabble Server <scrabble@netzhansa.com>";
+var defaultConfig = {
+    baseUrl: 'http://localhost:9093/',
+    mailSender: "Scrabble Server <scrabble@netzhansa.com>"
+};
+
+var config = fs.existsSync('config.js') ? require('./config.js') : {};
+config.__proto__ = defaultConfig;
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -99,7 +104,7 @@ Game.create = function(language, players) {
 
 Game.prototype.makeLink = function(player)
 {
-    var url = baseUrl + "game/" + this.key;
+    var url = config.baseUrl + "game/" + this.key;
     if (player) {
         url += "/" + player.key;
     }
@@ -121,7 +126,7 @@ function joinProse(array)
 
 Game.prototype.sendInvitation = function(player)
 {
-    smtp.sendMail({ from: mailSender,
+    smtp.sendMail({ from: config.mailSender,
                     to: [ player.email ],
                     subject: 'You have been invited to play Scrabble with ' + joinProse(_.pluck(_.without(this.players, player), 'name')),
                     text: 'Use this link to play:\n\n' + this.makeLink(player),
@@ -524,3 +529,4 @@ var repl = repl.start({
 repl.context.db = db;
 repl.context.Game = Game;
 repl.context.DB = DB;
+repl.context.config = config;
