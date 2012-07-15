@@ -102,6 +102,19 @@ div#whosturn {
     height: 1em;
 }
 
+div#turnControls {
+    display: none;
+}
+
+div#blankLetterRequester {
+    display: none;
+    font-size: 2em;
+}
+
+div#blankLetterRequester input {
+    font-size: 3em;
+}
+
 div#boardWrap
 {
     margin-top: 1em;
@@ -420,7 +433,7 @@ div.tableDivWrap td div.Tile a span.Letter,
 div.tableDivWrap td div.Tile a span.BlankLetter
 {
     font-size: 1.2em;
-    font-weight: bold;
+    font-weight: normal;
 
     line-height: 1.6em;
 
