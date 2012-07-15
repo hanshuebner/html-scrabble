@@ -102,6 +102,10 @@ div#whosturn {
     height: 1em;
 }
 
+div#move {
+    margin-bottom: 0.5em;
+}
+
 div#turnControls {
     display: none;
 }
@@ -111,8 +115,8 @@ div#blankLetterRequester {
     font-size: 2em;
 }
 
-div#blankLetterRequester input {
-    font-size: 3em;
+div#blankLetterRequester button {
+    font-size: 1em;
 }
 
 div#boardWrap

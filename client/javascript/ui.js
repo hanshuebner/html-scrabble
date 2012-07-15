@@ -593,18 +593,17 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     if (tile.isBlank()) {
         if (fromSquare.owner != this.board && toSquare.owner == this.board) {
             $('#blankLetterRequester')
-                .on('keyup', function () {
-                    var letter = $('#blankLetterRequester input').val();
-                    $('#blankLetterRequester input').val('');
+                .on('keypress', function (event) {
+                    console.log('event', event);
+                    var letter = String.fromCharCode(event.charCode);
                     if (letter != '') {
                         letter = letter.toUpperCase();
                         if (ui.legalLetters.indexOf(letter) != -1) {
-                            $(this).off('keyup');
+                            $(this).off('keypress');
                             tile.letter = letter;
                             $.unblockUI();
                             ui.updateSquare(toSquare);
                         }
-                        $('#blankLetterRequester input').val('');
                     }
                 });
             $.blockUI({ message: $('#blankLetterRequester') });
