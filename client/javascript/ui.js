@@ -39,6 +39,7 @@ function UI(game) {
         ui.swapRack.tileCount = 0;
         ui.board = gameData.board;
         ui.board.tileCount = 0;
+        ui.legalLetters = gameData.legalLetters;
         ui.players = gameData.players;
         var playerNumber = 0;
         $('#scoreboard')
@@ -269,24 +270,6 @@ UI.prototype.idToSquare = function(id) {
         }
     } else {
         throw "cannot parse id " + id;
-    }
-}
-
-UI.prototype.updateSquareState = function(board, square, state) {
-    var id = 'Board_' + square.x + "x" + square.y;
-    var td = document.getElementById(id).parentNode;
-    $(td).removeClass("Invalid Valid ValidButWrongPlacement");
-
-    switch (state) {
-    case 0:
-	$(td).addClass("Valid");
-        break;
-    case 1:
-	$(td).addClass("Invalid");
-        break;
-    case 2:
-	$(td).addClass("ValidButWrongPlacement");
-        break;
     }
 }
 
@@ -604,8 +587,31 @@ UI.prototype.selectSquare = function(square) {
 
 UI.prototype.moveTile = function(fromSquare, toSquare) {
     var tile = fromSquare.tile;
+    var ui = this;
     fromSquare.placeTile(null);
     fromSquare.owner.tileCount--;
+    if (tile.isBlank()) {
+        if (fromSquare.owner != this.board && toSquare.owner == this.board) {
+            $('#blankLetterRequester')
+                .on('keyup', function () {
+                    var letter = $('#blankLetterRequester input').val();
+                    $('#blankLetterRequester input').val('');
+                    if (letter != '') {
+                        letter = letter.toUpperCase();
+                        if (ui.legalLetters.indexOf(letter) != -1) {
+                            $(this).off('keyup');
+                            tile.letter = letter;
+                            $.unblockUI();
+                            ui.updateSquare(toSquare);
+                        }
+                        $('#blankLetterRequester input').val('');
+                    }
+                });
+            $.blockUI({ message: $('#blankLetterRequester') });
+        } else if (toSquare.owner == ui.rack || toSquare.owner == ui.swapRack) {
+            tile.letter = ' ';
+        }
+    }
     toSquare.placeTile(tile);
     toSquare.owner.tileCount++;
     if (!this.boardLocked()) {
@@ -775,6 +781,9 @@ UI.prototype.TakeBackTiles = function() {
     var ui = this;
     var freeRackSquares = filter(function (square) { return !square.tile }, ui.rack.squares);
     function putBackToRack(tile) {
+        if (tile.isBlank()) {
+            tile.letter = ' ';
+        }
         var square = freeRackSquares.pop();
         square.tile = tile;
         ui.rack.tileCount++;

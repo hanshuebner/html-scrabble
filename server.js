@@ -189,7 +189,12 @@ Game.prototype.makeMove = function(player, placementList) {
         var fromSquare = null;
         for (var i = 0; i < rackSquares.length; i++) {
             var square = rackSquares[i];
-            if (square && square.tile && square.tile.letter == placement.letter) {
+            if (square && square.tile &&
+                (square.tile.letter == placement.letter
+                 || (square.tile.isBlank() && placement.blank))) {
+                if (placement.blank) {
+                    square.tile.letter = placement.letter;
+                }
                 fromSquare = square;
                 delete rackSquares[i];
                 break;
@@ -455,6 +460,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
                              turns: game.turns,
                              whosTurn: game.whosTurn,
                              remainingTileCount: game.letterBag.remainingTileCount(),
+                             legalLetters: game.letterBag.legalLetters,
                              players: [] }
             var thisPlayer = game.lookupPlayer(req);
             for (var i = 0; i < game.players.length; i++) {

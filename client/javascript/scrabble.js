@@ -375,18 +375,22 @@ LetterBag.create = function(language) {
     var letterBag = new LetterBag;
 
     letterBag.tiles = [];
+    letterBag.legalLetters = '';
 
-    var data = letterDistributions[language];
-    if (!data) {
+    var letterDistribution = letterDistributions[language];
+    if (!letterDistribution) {
         throw 'unsupported language: ' + language;
     }
-    for (var i = 0; i < data.length; ++i) {
-	var item = data[i];
+    for (var i = 0; i < letterDistribution.length; ++i) {
+	var letterDefinition = letterDistribution[i];
 	
-	var tile = new Tile(item.letter || " ", item.score);
+	var tile = new Tile(item.letter || " ", letterDefinition.score);
+        if (item.letter) {
+            letterBag.legalLetters += item.letter;
+        }
 	
-	for (var n = 0; n < item.count; ++n) {
-	    var tile = new Tile(item.letter || " ", item.score);
+	for (var n = 0; n < letterDefinition.count; ++n) {
+	    var tile = new Tile(letterDefinition.letter || " ", letterDefinition.score);
 	    letterBag.tiles.push(tile);
 	}
     }
@@ -589,7 +593,8 @@ function calculateMove(squares)
             if (square.tile && !square.tileLocked) {
                 tilesPlaced.push({ letter: square.tile.letter,
                                    x: x,
-                                   y: y });
+                                   y: y,
+                                   blank: square.tile.isBlank() });
             }
         }
     }
