@@ -338,23 +338,44 @@ UI.prototype.updateBoardSquare = function(square) {
 	    });
 	}
 
-        div.appendChild(A(null,
-                          SPAN({ 'class': 'Letter' }, square.tile.letter ? square.tile.letter : ''),
-                          SPAN({ 'class': 'Score' }, square.tile.score ? square.tile.score : '')));
+        $(div).append(A(null,
+                        SPAN({ 'class': 'Letter' }, square.tile.letter ? square.tile.letter : ''),
+                        SPAN({ 'class': 'Score' }, square.tile.score ? square.tile.score : '0')));
     } else {
-	if (square.x == 7 && square.y == 7) {
-	    div.setAttribute('class', "CenterStart");
-	} else {
-	    div.setAttribute('class', 'Empty');
-	}
-
         if (!ui.boardLocked()) {
 	    $(div)
                 .click(function () {
 		    if (ui.currentlySelectedSquare) {
                         ui.moveTile(ui.currentlySelectedSquare, square);
 		        ui.selectSquare(null);
-		    }
+		    } else {
+                        function placeCursor() {
+                            ui.cursor = { x: square.x,
+                                          y: square.y,
+                                          direction: 'horizontal' };
+                            $(div).addClass('Cursor');
+                        }
+                        if (ui.cursor) {
+                            if (ui.cursor.x == square.x
+                                && ui.cursor.y == square.y) {
+                                // clicked on cursor to change direction
+                                if (ui.cursor.direction == 'horizontal') {
+                                    ui.cursor.direction = 'vertical';
+                                } else {
+                                    delete ui.cursor;
+                                }
+                            } else {
+                                // clicked on other square to move cursor
+                                var oldCursor = ui.cursor;
+                                delete ui.cursor;
+                                ui.updateBoardSquare(ui.board.squares[oldCursor.x][oldCursor.y]);
+                                placeCursor();
+                            }
+                        } else {
+                            placeCursor();
+                        }
+                        ui.updateSquare(square);
+                    }
 	        })
                 .droppable({
 	            hoverClass: "dropActive",
@@ -363,27 +384,34 @@ UI.prototype.updateBoardSquare = function(square) {
 	            }
 	        });
         }
-	
-	switch (square.type) {
-	case 'Normal':
-            div.appendChild(A(null, SPAN(null, " ")));
-	    break;
-	case 'DoubleWord':
-	    if (square.x == 7 && square.y == 7) {
-                div.appendChild(A(null, SPAN(null, '\u2605')));
-	    } else {
-                div.appendChild(A(null, SPAN(null, "DOUBLE WORD SCORE")));
+
+        var text = ' ';
+        if (ui.cursor
+            && ui.cursor.x == square.x
+            && ui.cursor.y == square.y) {
+            text = (ui.cursor.direction == 'horizontal') ? '\u21d2' : '\u21d3';
+        } else {
+	    switch (square.type) {
+	    case 'DoubleWord':
+	        if (square.x == 7 && square.y == 7) {
+                    text = '\u2605';
+	        } else {
+                    text = "DOUBLE WORD SCORE";
+	        }
+	        break;
+	    case 'TripleWord':
+                text = "TRIPLE WORD SCORE";
+	        break;
+	    case 'DoubleLetter':
+                text = "DOUBLE LETTER SCORE";
+	        break;
+	    case 'TripleLetter':
+                text = "TRIPLE LETTER SCORE";
 	    }
-	    break;
-	case 'TripleWord':
-            div.appendChild(A(null, SPAN(null, "TRIPLE WORD SCORE")));
-	    break;
-	case 'DoubleLetter':
-            div.appendChild(A(null, SPAN(null, "DOUBLE LETTER SCORE")));
-	    break;
-	case 'TripleLetter':
-            div.appendChild(A(null, SPAN(null, "TRIPLE LETTER SCORE")));
-	}
+        }
+        $(div)
+            .addClass('Empty')
+            .append(A(null, text));
     }
 
     $('#' + square.id)
@@ -402,7 +430,13 @@ UI.prototype.drawBoard = function() {
 	                                       var square = board.squares[x][y];
 	                                       var id = 'Board_' + x + "x" + y;
                                                square.id = id;
-                                               return TD({ 'class': square.type },
+                                               var tdClass = square.type;
+                                               if (x == 7 && y == 7) {
+                                                   tdClass += ' StartField';
+                                               } else if (square.type != 'Normal') {
+                                                   tdClass += ' SpecialField';
+                                               }
+                                               return TD({ 'class': tdClass },
 	                                                 DIV({ id: id },
                                                              A()));
                                            }, range(board.Dimension)));
@@ -491,14 +525,6 @@ UI.prototype.updateRackSquare = function(square) {
                 ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
 	    }
 	});
-	
-	switch (square.type) {
-	case 'Normal':
-	    a.appendChild(SPAN(null, " "));
-	    break;
-	default:
-	    break;
-	}
     }
 }
 
@@ -592,7 +618,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     fromSquare.owner.tileCount--;
     if (tile.isBlank()) {
         if (fromSquare.owner != this.board && toSquare.owner == this.board) {
-            $('#blankLetterRequester')
+            $('#blankLetterRequester button')
                 .on('keypress', function (event) {
                     console.log('event', event);
                     var letter = String.fromCharCode(event.charCode);

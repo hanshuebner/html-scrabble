@@ -285,54 +285,55 @@ div.tableDivWrap td div a
 div.tableDivWrap td.DoubleWord div
 {
     background-color: #FBBBB9;
-
     border-color: #FBBBB9;
-
     color: #F75D59;
 }
 
 div.tableDivWrap td.TripleWord div
 {
     background-color: #F75D59;
-
     border-color: #F75D59;
-
     color: #8B0000;
 }
 
 div.tableDivWrap td.Normal div
 {
     background-color: #BEB9A6;
-
     border-color: #BEB9A6;
 }
 
 div.tableDivWrap td.DoubleLetter div
 {
     background-color: #A0CFEC;
-
     border-color: #A0CFEC;
-
     color: #157DEC;
 }
 
 div.tableDivWrap td.TripleLetter div
 {
     background-color: #157DEC;
-
     border-color: #157DEC;
-
     color: #000080;
+}
+
+div.tableDivWrap td.SpecialField div.Empty a
+{
+    font-size: 0.50em;
+    padding-top: 0.0em;
+    line-height: 1.4em;
+    letter-spacing: 0.0em;
+}
+
+div.tableDivWrap td.StartField div.Empty a
+{
+    font-size: 1.3em;
 }
 
 div.tableDivWrap td div.Tile
 {
     cursor: move;
-
     background-color: #F7F7E3;
-
     border-color: #DCDCC6;
-
     border-style: solid;
 	
     -webkit-border-radius: 0.2em;
@@ -368,7 +369,6 @@ div.tableDivWrap td div.Temp:hover
 
     border-color: #FF9900;
 }
-
 
 div.tableDivWrap td div.Selected,
 .dragBorder
@@ -460,16 +460,12 @@ div.tableDivWrap td div.Tile a span.Score
     padding-left: 0.2em;
 }
 
-div.tableDivWrap td.DoubleWord div.Empty a,
-div.tableDivWrap td.TripleWord div.Empty a,
-div.tableDivWrap td.DoubleLetter div.Empty a,
-div.tableDivWrap td.TripleLetter div.Empty a,
-div.tableDivWrap td.Normal div.Empty a span
+span#Cursor
 {
-    font-size: 0.50em;
-    padding-top: 0.0em;
-    line-height: 1.4em;
-    letter-spacing: 0.0em;
+    line-height: 1.2em;
+    font-size: 2.0em;
+    font-weight: normal;
+    color: #54534A;
 }
 
 div.tableDivWrap td div.CenterStart a
