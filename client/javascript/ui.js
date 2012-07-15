@@ -198,7 +198,7 @@ function UI(game) {
             .on('connect', function(data) {
                 console.log('socket connected');
                 if (ui.wasConnected) {
-                    this.cancelNotification();
+                    ui.cancelNotification();
                     window.location = window.location;
                 } else {
                     ui.wasConnected = true;
