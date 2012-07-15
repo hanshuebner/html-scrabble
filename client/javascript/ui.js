@@ -560,7 +560,7 @@ UI.prototype.drawSwapRack = function() {
 
 UI.prototype.refreshRack = function() {
     var rack = this.rack;
-    for (var x = 0; x < rack.Dimension; x++) {
+    for (var x = 0; x < rack.squares.length; x++) {
 	this.updateRackSquare(rack.squares[x]);
     }
 }
