@@ -159,6 +159,12 @@ Game.load = function(key) {
     return this.games[key];
 }
 
+Game.prototype.notifyListeners = function(message, data) {
+    this.connections.forEach(function (socket) {
+        socket.emit(message, data);
+    });
+}
+
 Game.prototype.lookupPlayer = function(req) {
     var playerKey = req.cookies[this.key];
     for (var i in this.players) {
@@ -333,9 +339,7 @@ Game.prototype.finishTurn = function(player, newTiles, turn) {
 
     // notify listeners
     turn.remainingTileCount = game.letterBag.remainingTileCount();
-    game.connections.forEach(function (socket) {
-        socket.emit('turn', turn);
-    });
+    game.notifyListeners('turn', turn);
 
     // if the game has ended, send extra notification with final scores
     if (game.ended()) {
@@ -346,6 +350,27 @@ Game.prototype.finishTurn = function(player, newTiles, turn) {
     }
 
     return { newTiles: newTiles };
+}
+
+Game.prototype.createFollowonGame = function(startPlayer) {
+    if (this.nextGameKey) {
+        throw 'followon game already created: old ' + this.key + ' new ' + this.nextGameKey;
+    }
+    var oldGame = this;
+    var playerCount = oldGame.players.length;
+    var newPlayers = [];
+    for (var i = 0; i < playerCount; i++) {
+        var oldPlayer = oldGame.players[(i + startPlayer.index) % playerCount];
+        newPlayers.push({ name: oldPlayer.name,
+                          email: oldPlayer.email,
+                          key: oldPlayer.key });
+    }
+    var newGame = Game.create(oldGame.language, newPlayers);
+    oldGame.endMessage.nextGameKey = newGame.key;
+    oldGame.save();
+    newGame.save();
+
+    oldGame.notifyListeners('nextGame', newGame.key);
 }
 
 Game.prototype.finish = function(reason) {
@@ -451,7 +476,6 @@ function playerHandler(handler) {
         handler(player, game, req, res);
     });
 }
-        
 
 app.get("/game/:gameKey/:playerKey", gameHandler(function (game, req, res) {
     res.cookie(req.params.gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
@@ -488,25 +512,32 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
 app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
     var body = icebox.thaw(req.body);
     console.log('put', game.key, 'player', player.name, 'command', body.command, 'arguments', req.body.arguments);
-    game.ensurePlayerAndGame(player);
     var tilesAndTurn;
     switch (req.body.command) {
     case 'makeMove':
+        game.ensurePlayerAndGame(player);
         tilesAndTurn = game.makeMove(player, body.arguments);
         break;
     case 'pass':
+        game.ensurePlayerAndGame(player);
         tilesAndTurn = game.pass(player);
         break;
     case 'swap':
+        game.ensurePlayerAndGame(player);
         tilesAndTurn = game.swapTiles(player, body.arguments);
+        break;
+    case 'newGame':
+        game.createFollowonGame(player);
         break;
     default:
         throw 'unrecognized game PUT command: ' + body.command;
     }
-    var tiles = tilesAndTurn[0];
-    var turn = tilesAndTurn[1];
-    var result = game.finishTurn(player, tiles, turn);
-    res.send(icebox.freeze(result));
+    if (tilesAndTurn) {
+        var tiles = tilesAndTurn[0];
+        var turn = tilesAndTurn[1];
+        var result = game.finishTurn(player, tiles, turn);
+        res.send(icebox.freeze(result));
+    }
 }));
 
 io.sockets.on('connection', function (socket) {

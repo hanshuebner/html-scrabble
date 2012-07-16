@@ -123,6 +123,24 @@ function UI(game) {
             $(player.scoreElement).text(player.score);
         }
 
+        function displayNextGameMessage(nextGameKey) {
+            if (nextGameKey) {
+                $('#log')
+                    .append(DIV({ 'class': 'nextGame' },
+                                A({ href: '/game/' + nextGameKey + '/' + $.cookie(ui.gameKey)}, "next game")));
+                $('#makeNextGame').remove();
+            } else {
+                var makeNextGameButton = BUTTON(null, "Make new game");
+                $(makeNextGameButton)
+                    .on('click', function() {
+                        ui.sendMoveToServer('newGame', null);
+                    });
+                $('#log')
+                    .append(DIV({ 'id': 'makeNextGame' },
+                                makeNextGameButton));
+            }
+        }
+
         function displayEndMessage(endMessage) {
             var winners;
             for (var i in ui.players) {
@@ -153,12 +171,14 @@ function UI(game) {
             var you = ui.players[ui.playerNumber];
             var youHaveWon = _.contains(winners, you);
             $('#whosturn').empty();
-            $('#log').append(DIV({ 'class': 'gameEnded' },
-                                 'Game has ended, '
-                                 + joinProse(winners.map(function (player) {
-                                     return (player == you) ? 'you' : player.name
-                                 }))
-                                 + (((winners.length == 1) && !youHaveWon) ? ' has ' : ' have ') + 'won'))
+            $('#log')
+                .append(DIV({ 'class': 'gameEnded' },
+                            'Game has ended, '
+                            + joinProse(winners.map(function (player) {
+                                return (player == you) ? 'you' : player.name
+                            }))
+                            + (((winners.length == 1) && !youHaveWon) ? ' has ' : ' have ') + 'won'));
+            displayNextGameMessage(endMessage.nextGameKey);
         }
 
         function placeTurnTiles(turn) {
@@ -235,6 +255,9 @@ function UI(game) {
                 endMessage = thaw(endMessage, PrototypeMap);
                 displayEndMessage(endMessage);
                 ui.notify('Game over!', 'Your game is over...');
+            })
+            .on('nextGame', function (nextGameKey) {
+                displayNextGameMessage(nextGameKey);
             });
         $(document)
             .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
