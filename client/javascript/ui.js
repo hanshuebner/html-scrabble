@@ -82,7 +82,7 @@ function UI(game) {
         }
 
         ui.drawBoard();
-        if (this.rack) {
+        if (ui.rack) {
             ui.drawRack();
             ui.drawSwapRack();
         }
@@ -139,7 +139,7 @@ function UI(game) {
                     });
                 $('#log')
                     .append(DIV({ 'id': 'makeNextGame' },
-                                makeNextGameButton));
+                                'Click ', makeNextGameButton, ' if you want to play the same language and opponents again'));
             }
         }
 
