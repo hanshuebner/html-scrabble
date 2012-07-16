@@ -166,14 +166,16 @@ Game.prototype.notifyListeners = function(message, data) {
     });
 }
 
-Game.prototype.lookupPlayer = function(req) {
+Game.prototype.lookupPlayer = function(req, suppressException) {
     var playerKey = req.cookies[this.key];
     for (var i in this.players) {
         if (this.players[i].key == playerKey) {
             return this.players[i];
         }
     }
-    throw "invalid player key " + playerKey + " for game " + this.key;
+    if (!suppressException) {
+        throw "invalid player key " + playerKey + " for game " + this.key;
+    }
 }
 
 Game.prototype.ensurePlayerAndGame = function(player) {
@@ -488,7 +490,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
                              remainingTileCount: game.letterBag.remainingTileCount(),
                              legalLetters: game.letterBag.legalLetters,
                              players: [] }
-            var thisPlayer = game.lookupPlayer(req);
+            var thisPlayer = game.lookupPlayer(req, true);
             for (var i = 0; i < game.players.length; i++) {
                 var player = game.players[i];
                 response.players.push({ name: player.name,
