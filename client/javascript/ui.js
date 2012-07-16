@@ -753,7 +753,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     var ui = this;
     fromSquare.placeTile(null);
     fromSquare.owner.tileCount--;
-    if (tile.isBlank() && !tile.letter) {
+    if (tile.isBlank() && !tile.letter || (tile.letter == ' ')) {
         if (fromSquare.owner != this.board && toSquare.owner == this.board) {
             $('#blankLetterRequester button')
                 .on('keypress', function (event) {
