@@ -6,42 +6,63 @@
 
     <title>Create new game</title>
 
+    <!-- link rel="stylesheet" href="css/common.css" media="all" / -->
+    <style type="text/css" media="all">
+      @import "css/common.css";
+    </style>
     <!-- link rel="stylesheet" href="css/page.css" media="all" / -->
     <style type="text/css" media="all">
       @import "css/page.css";
     </style>
 
-    <script type="text/javascript" src="/javascript/MochiKit/MochiKit.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.8.21/themes/base/jquery-ui.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
+
+    <script type="text/javascript" src="javascript/MochiKit/MochiKit.js"></script>
     <script type="text/javascript" src="javascript/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="javascript/jquery-ui-1.8.21.custom.min.js"></script>
+    <script type="text/javascript" src="javascript/make-game.js"></script>
   </head>
   <body id="body">
     <form id="create-game" action="game" method="POST">
       <fieldset>
-         <legend>Language</legend>
-         <select name="language">
-           <option>German</option>
-           <option>Test</option>
-           <option>English</option>
-           <option>French</option>
-         </select>
+        <h1>Create a new game</h1>
+        <p>
+          Please enter the names and email addresses for the players.
+          All players will receive an invitation email with a personal
+          link to the game.  The first player will start.
+        </p>
+        <fieldset>
+          <legend>Language</legend>
+          <select name="language">
+            <option>German</option>
+            <option>Test</option>
+            <option>English</option>
+            <option>French</option>
+          </select>
+        </fieldset>
+        <fieldset>
+          <legend>Player 1</legend>
+          <label for="name1">Name</label><input class="name" name="name1"/><br/>
+          <label for="email1">Email</label><input name="email1"/>
+        </fieldset>
+        <fieldset>
+          <legend>Player 2</legend>
+          <label for="name2">Name</label><input class="name" name="name2"/><br/>
+          <label for="email2">Email</label><input name="email2"/>
+        </fieldset>
+        <fieldset>
+          <legend>Player 3</legend>
+          <label for="name3">Name</label><input class="name" name="name3"/><br/>
+          <label for="email3">Email</label><input name="email3"/>
+        </fieldset>
+        <fieldset>
+          <legend>Player 4</legend>
+          <label for="name4">Name</label><input class="name" name="name4"/><br/>
+          <label for="email4">Email</label><input name="email4"/>
+        </fieldset>
+        <button name="create" type="submit">Create new game</button>
       </fieldset>
-      <fieldset>
-        <legend>Player 1</legend>
-        <label for="name1">Name</label><input name="name1"/> <label for="email1">Email</label><input name="email1"/>
-      </fieldset>
-      <fieldset>
-        <legend>Player 2</legend>
-        <label for="name2">Name</label><input name="name2"/> <label for="email2">Email</label><input name="email2"/>
-      </fieldset>
-      <fieldset>
-        <legend>Player 3</legend>
-        <label for="name3">Name</label><input name="name3"/> <label for="email3">Email</label><input name="email3"/>
-      </fieldset>
-      <fieldset>
-        <legend>Player 4</legend>
-        <label for="name4">Name</label><input name="name4"/> <label for="email4">Email</label><input name="email4"/>
-      </fieldset>
-      <button name="create" type="submit">Create new game</button>
     </form>
   </body>
 </html>

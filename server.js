@@ -452,6 +452,10 @@ app.post("/game", function(req, res) {
         }
     });
 
+    if (players.length < 2) {
+        throw 'at least two players must participate in a game';
+    }
+
     console.log(players.length, 'players');
     var game = Game.create(req.body.language || 'German', players);
 

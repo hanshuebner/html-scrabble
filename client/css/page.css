@@ -1,2 +1,33 @@
 body {
+    width: 45em;
+}
+
+p {
+    margin-left: 3em;
+    margin-right: 3em;
+}
+
+fieldset {
+    background-color:rgba(255,255,255,0.5);
+    margin: 1em;
+}
+
+legend {
+    background-color:rgba(255,255,255,0.5);
+}
+
+label, input, button {
+    font-size: 1.5em;
+}
+
+label, input {
+    display: inline-block;
+    width: 20em;
+}
+
+label {
+    width: 4em;
+}
+
+input {
 }
