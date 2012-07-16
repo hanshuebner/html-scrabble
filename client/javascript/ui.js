@@ -82,8 +82,10 @@ function UI(game) {
         }
 
         ui.drawBoard();
-        ui.drawRack();
-        ui.drawSwapRack();
+        if (this.rack) {
+            ui.drawRack();
+            ui.drawSwapRack();
+        }
 
         displayRemainingTileCount(gameData.remainingTileCount);
 
