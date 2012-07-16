@@ -23,6 +23,7 @@ var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
 // //////////////////////////////////////////////////////////////////////
 
 var defaultConfig = {
+    port: 9093,
     baseUrl: 'http://localhost:9093/',
     mailSender: "Scrabble Server <scrabble@netzhansa.com>"
 };
@@ -53,7 +54,7 @@ app.get("/", function(req, res) {
 db.on('load', function() {
     console.log('database loaded');
 
-    app.listen(9093);
+    app.listen(config.port);
 });
 
 db.registerObject(scrabble.Tile);
