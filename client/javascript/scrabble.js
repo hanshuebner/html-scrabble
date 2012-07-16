@@ -405,9 +405,9 @@ LetterBag.create = function(language) {
     for (var i = 0; i < letterDistribution.length; ++i) {
 	var letterDefinition = letterDistribution[i];
 	
-	var tile = new Tile(item.letter || " ", letterDefinition.score);
-        if (item.letter) {
-            letterBag.legalLetters += item.letter;
+	var tile = new Tile(letterDefinition.letter || " ", letterDefinition.score);
+        if (letterDefinition.letter) {
+            letterBag.legalLetters += letterDefinition.letter;
         }
 	
 	for (var n = 0; n < letterDefinition.count; ++n) {
