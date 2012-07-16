@@ -8,3 +8,5 @@ $ npm install socket.io express express-negotiate dirty underscore nodemailer
 $ node server.js
 
 Open your web browser on http://localhost:9093/game
+
+Issue tracker on http://bknr.net:3000/projects/scrabble
