@@ -277,10 +277,10 @@ Game.prototype.swapTiles = function(player, letters) {
         throw 'cannot swap, letterbag contains only ' + game.letterBag.remainingTileCount() + ' tiles';
     }
     game.passes++;
-    var rackLetters = player.rack.letters();
+    var rackLetters = new scrabble.Bag(player.rack.letters());
     letters.forEach(function (letter) {
-        if (_.contains(rackLetters, letter)) {
-            rackLetters = _.without(rackLetters, letter);
+        if (rackLetters.contains(letter)) {
+            rackLetters.remove(letter);
         } else {
             throw 'cannot swap, rack does not contain letter "' + letter + '"';
         }
@@ -288,15 +288,11 @@ Game.prototype.swapTiles = function(player, letters) {
 
     // The swap is legal.  First get new tiles, then return the old ones to the letter bag
     var newTiles = game.letterBag.getRandomTiles(letters.length);
-    var lettersTaken = letters.slice();
+    var lettersReturned = new scrabble.Bag(letters);
     game.letterBag.returnTiles(_.reduce(player.rack.squares,
                                         function(accu, square) {
-                                            if (square.tile
-                                                && _.find(lettersTaken,
-                                                          function(letter) {
-                                                              return letter == square.tile.letter;
-                                                          })) {
-                                                lettersTaken = _.without(lettersTaken, square.tile.letter);
+                                            if (square.tile && lettersReturned.contains(square.tile.letter)) {
+                                                lettersReturned.remove(square.tile.letter);
                                                 accu.push(square.tile);
                                                 square.placeTile(null);
                                             }

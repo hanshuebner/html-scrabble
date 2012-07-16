@@ -46,6 +46,26 @@ if (typeof triggerEvent == 'undefined') {
     }
 }
 
+function Bag(contents)
+{
+    this.contents = contents ? contents.slice() : [];
+}
+
+Bag.prototype.add = function(element) {
+    this.contents.push(element);
+}
+
+Bag.prototype.remove = function(element) {
+    var index = this.contents.indexOf(element);
+    if (index != -1) {
+        return this.contents.splice(index, 1)[0];
+    }
+}
+
+Bag.prototype.contains = function(element) {
+    return this.contents.indexOf(element) != -1;
+}
+
 function MakeBoardArray()
 {
     var retval = new Array(15);
@@ -635,4 +655,5 @@ if (typeof exports == 'object') {
     exports.Board = Board;
     exports.calculateMove = calculateMove;
     exports.LetterBag = LetterBag;
+    exports.Bag = Bag;
 }
