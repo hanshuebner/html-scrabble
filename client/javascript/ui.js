@@ -204,6 +204,8 @@ function UI(game) {
             }
         }
 
+        $('#log').append(DIV({ 'class': 'gameStart' },
+                             gameData.language + ' game started'));
         gameData.turns.map(appendTurnToLog);
 
         if (gameData.endMessage) {

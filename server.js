@@ -486,6 +486,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
         'application/json': function () {
             var response = { board: game.board,
                              turns: game.turns,
+                             language: game.language,
                              whosTurn: game.whosTurn,
                              remainingTileCount: game.letterBag.remainingTileCount(),
                              legalLetters: game.letterBag.legalLetters,
