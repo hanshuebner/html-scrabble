@@ -290,11 +290,11 @@ Game.prototype.swapTiles = function(player, letters) {
 
     // The swap is legal.  First get new tiles, then return the old ones to the letter bag
     var newTiles = game.letterBag.getRandomTiles(letters.length);
-    var lettersReturned = new scrabble.Bag(letters);
+    var lettersToReturn = new scrabble.Bag(letters);
     game.letterBag.returnTiles(_.reduce(player.rack.squares,
                                         function(accu, square) {
-                                            if (square.tile && lettersReturned.contains(square.tile.letter)) {
-                                                lettersReturned.remove(square.tile.letter);
+                                            if (square.tile && lettersToReturn.contains(square.tile.letter)) {
+                                                lettersToReturn.remove(square.tile.letter);
                                                 accu.push(square.tile);
                                                 square.placeTile(null);
                                             }
