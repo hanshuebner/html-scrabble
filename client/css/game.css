@@ -40,7 +40,7 @@ div.bottomShade table
 div#container
 {
     overflow: auto;
-    width: 76em;
+    width: 58em;
 }
 
 div#letterbagStatus > div
@@ -53,7 +53,7 @@ div#controls
     float: left;
     margin: 1em;
     margin-top: 2em;
-    width: 24em;
+    width: 18.6em;
 }
 
 div#controls > div
@@ -156,7 +156,7 @@ div#boardWrap
 {
     margin-top: 1em;
     float: right;
-    width: 50em;
+    width: 37em;
 }
 
 div.tableDivWrap table
@@ -170,7 +170,6 @@ div.tableDivWrap table
 
     margin-top: 1em;
     margin-bottom: 1em;
-    margin-right: auto;
 
     padding: 0.2em;
 
