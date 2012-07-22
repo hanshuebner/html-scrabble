@@ -41,6 +41,7 @@ function UI(game) {
         ui.board.tileCount = 0;
         ui.legalLetters = gameData.legalLetters;
         ui.players = gameData.players;
+        ui.keyboardPlacements = [];
         var playerNumber = 0;
         $('#scoreboard')
             .append(TABLE(null,
@@ -294,8 +295,9 @@ function UI(game) {
     });
     var button = BUTTON({ id: 'turnButton', action: 'pass' }, 'Pass')
     $(button).bind('click', ui.eventCallback(ui.makeMove));
-    $('#turnButtons').append(button);
-    $('#turnButtons').append(BUTTON({ id: 'dummyInput' }, ""));
+    $('#turnButtons')
+        .append(button)
+        .append(BUTTON({ id: 'dummyInput' }, ""));
 
     $('#dummyInput')
         .on('keypress', function(event) {
@@ -307,6 +309,7 @@ function UI(game) {
                     if (rackSquare.tile.isBlank()) {
                         rackSquare.tile.letter = letter;
                     }
+                    ui.keyboardPlacements.push([rackSquare, ui.cursor.square]);
                     ui.moveTile(rackSquare, ui.cursor.square);
                     var newCursorSquare;
                     if (ui.cursor.direction == 'horizontal') {
@@ -327,10 +330,9 @@ function UI(game) {
                         }
                     }
                     if (newCursorSquare) {
-                        ui.cursor.square = newCursorSquare;
-                        ui.updateBoardSquare(newCursorSquare);
+                        ui.setCursor(newCursorSquare);
                     } else {
-                        delete ui.cursor;
+                        ui.deleteCursor();
                     }
                 }
             }
@@ -383,7 +385,17 @@ function UI(game) {
             }
 
             function deleteLast() {
-                // Not yet implemented
+                if (ui.keyboardPlacements.length) {
+                    var lastPlacement = ui.keyboardPlacements.pop();
+                    var rackSquare = lastPlacement[0];
+                    var boardSquare = lastPlacement[1];
+                    if (!rackSquare.tile && boardSquare.tile) {
+                        ui.moveTile(boardSquare, rackSquare);
+                        ui.setCursor(boardSquare);
+                    } else {
+                        ui.keyboardPlacements = [];         // user has moved stuff around, forget keyboard entry
+                    }
+                }
                 handled();
             }
 
@@ -921,6 +933,7 @@ UI.prototype.processMoveResponse = function(data) {
 
 UI.prototype.commitMove = function() {
     var ui = this;
+    ui.keyboardPlacements = [];
     var move = calculateMove(this.board.squares);
     if (move.error) {
         alert(move.error);
@@ -985,6 +998,13 @@ UI.prototype.deleteCursor = function() {
         delete ui.cursor;
         ui.updateBoardSquare(cursorSquare);
     }
+}
+
+UI.prototype.setCursor = function(square) {
+    var oldCursorSquare = ui.cursor.square;
+    ui.cursor.square = square;
+    ui.updateBoardSquare(square);
+    ui.updateBoardSquare(oldCursorSquare);
 }
 
 UI.prototype.TakeBackTiles = function() {
