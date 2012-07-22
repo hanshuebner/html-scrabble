@@ -47,7 +47,8 @@ $(document).ready(function() {
         var valid = true;
         var playerCount = 0;
         var firstEmptyPath;
-        [1, 2, 3, 4].forEach(function(index) {
+        var playerNames = [];
+        for (var index = 0; index < 4; index++) {
             var namePath = 'input[name=name' + index +']';
             var name = $(namePath).val();
             var emailPath = 'input[name=email' + index +']';
@@ -67,8 +68,12 @@ $(document).ready(function() {
             } else if (name && email) {
                 setName(addressBook, name, email);
                 playerCount++;
+                if (_.contains(playerNames, name)) {
+                    return false;
+                }
+                playerNames.push(name);
             }
-        });
+        }
         saveAddressBook(addressBook);
         return playerCount >= 2;
     });
