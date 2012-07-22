@@ -277,6 +277,7 @@ function UI(game) {
         $('input[name=message]')
             .bind('focus', function() {
                 console.log('message focus');
+                ui.clearCursor();
             })
             .bind('change', function() {
                 console.log('message change');
@@ -446,6 +447,15 @@ UI.prototype.updateSquare = function(square) {
     }
 }
 
+UI.prototype.clearCursor = function() {
+    var ui = this;
+    var cursor = ui.cursor;
+    if (cursor) {
+        delete ui.cursor;
+        ui.updateBoardSquare(cursor.square);
+    }
+}
+
 UI.prototype.updateBoardSquare = function(square) {
     var div = DIV({ id: square.id });
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
@@ -525,9 +535,7 @@ UI.prototype.updateBoardSquare = function(square) {
                                 }
                             } else {
                                 // clicked on other square to move cursor
-                                var oldCursor = ui.cursor;
-                                delete ui.cursor;
-                                ui.updateBoardSquare(oldCursor.square);
+                                ui.clearCursor();
                                 placeCursor();
                             }
                         } else {
