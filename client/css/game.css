@@ -83,6 +83,28 @@ div#move {
     margin-bottom: 0.5em;
 }
 
+div#chat {
+    height: 6em;
+}
+
+div#chatLog {
+    font-size: 0.8em;
+    overflow: auto;
+    margin-left: 5%:
+    border-width: 1em;
+    width: 98%;
+    height: 4em;
+}
+
+div#messageInput {
+    margin-top: 1em;
+    width: 100%;
+}
+
+div#messageInput input {
+    width: 95%;
+}
+
 div#turnControls {
     display: none;
 }

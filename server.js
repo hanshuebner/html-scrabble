@@ -127,16 +127,21 @@ function joinProse(array)
 
 Game.prototype.sendInvitation = function(player)
 {
-    smtp.sendMail({ from: config.mailSender,
-                    to: [ player.email ],
-                    subject: 'You have been invited to play Scrabble with ' + joinProse(_.pluck(_.without(this.players, player), 'name')),
-                    text: 'Use this link to play:\n\n' + this.makeLink(player),
-                    html: 'Click <a href="' + this.makeLink(player) + '">here</a> to play.' },
-                  function (err) {
-                      if (err) {
-                          console.log('sending mail failed', err);
-                      }
-                  });
+    try {
+        smtp.sendMail({ from: config.mailSender,
+                        to: [ player.email ],
+                        subject: 'You have been invited to play Scrabble with ' + joinProse(_.pluck(_.without(this.players, player), 'name')),
+                        text: 'Use this link to play:\n\n' + this.makeLink(player),
+                        html: 'Click <a href="' + this.makeLink(player) + '">here</a> to play.' },
+                      function (err) {
+                          if (err) {
+                              console.log('sending mail failed', err);
+                          }
+                      });
+    }
+    catch (e) {
+        console.log('cannot send mail:', e);
+    }
 }
 
 Game.prototype.save = function(key) {
@@ -427,6 +432,7 @@ Game.prototype.newConnection = function(socket) {
         game.connections = [];
     }
     game.connections.push(socket);
+    socket.game = game;
     socket.on('disconnect', function () {
         game.connections = _.without(game.connections, this);
     });
@@ -545,14 +551,18 @@ app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
 }));
 
 io.sockets.on('connection', function (socket) {
-    socket.on('join', function (data) {
-        var game = Game.load(data.gameKey);
-        if (!game) {
-            console.log("game " + data.gameKey + " not found");
-        } else {
-            game.newConnection(this);
-        }
-    });
+    socket
+        .on('join', function(data) {
+            var game = Game.load(data.gameKey);
+            if (!game) {
+                console.log("game " + data.gameKey + " not found");
+            } else {
+                game.newConnection(this);
+            }
+        })
+        .on('message', function(message) {
+            this.game.notifyListeners('message', message);
+        });
 });
 
 var repl = repl.start({

@@ -47,6 +47,8 @@ function UI(game) {
                           gameData.players.map(function(player) {
                               if (player.rack) {
                                   ui.rack = player.rack;
+                                  ui.playerNumber = playerNumber;
+                                  ui.thisPlayer = player;
                                   ui.rack.tileCount = _.reduce(player.rack.squares,
                                                                function(accu, square) {
                                                                    if (square.tile) {
@@ -55,7 +57,6 @@ function UI(game) {
                                                                    return accu;
                                                                },
                                                                0);
-                                  ui.playerNumber = playerNumber;
                               }
                               playerNumber++;
                               return TR(null,
@@ -170,8 +171,7 @@ function UI(game) {
                     winners.push(player);
                 }
             }
-            var you = ui.players[ui.playerNumber];
-            var youHaveWon = _.contains(winners, you);
+            var youHaveWon = _.contains(winners, ui.thisPlayer);
             $('#whosturn').empty();
             $('#log')
                 .append(DIV({ 'class': 'gameEnded' },
@@ -262,6 +262,27 @@ function UI(game) {
             })
             .on('nextGame', function (nextGameKey) {
                 displayNextGameMessage(nextGameKey);
+            })
+            .on('message', function (message) {
+                $('#chatLog')
+                    .append(DIV(null,
+                                SPAN({ 'class': 'name' }, message.name),
+                                ': ',
+                                message.text))
+                    .animate({ scrollTop: $('#log').prop('scrollHeight') }, 100);
+                if (message.name != ui.thisPlayer.name) {
+                    ui.notify(message.name + " says", message.text);
+                }
+            });
+        $('input[name=message]')
+            .bind('focus', function() {
+                console.log('message focus');
+            })
+            .bind('change', function() {
+                console.log('message change');
+                ui.socket.emit('message', { name: ui.thisPlayer.name,
+                                            text: $(this).val() });
+                $(this).val('');
             });
         $(document)
             .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
