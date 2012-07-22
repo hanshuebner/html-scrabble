@@ -108,6 +108,11 @@ function UI(game) {
                                       SPAN({ 'class': 'word' }, word.word),
                                       SPAN({ 'class': 'score' }, word.score)));
                 });
+                if (turn.move.allTilesBonus) {
+                    $(div).append(DIV({ 'class': 'moveDetail' },
+                                      SPAN({ 'class': 'word' }, "All tiles placed bonus"),
+                                      SPAN({ 'class': 'score' }, 50)));
+                }
                 break;
             case 'pass':
                 $(div).append(DIV({ 'class': 'moveDetail' }, "Passed"));
@@ -277,11 +282,9 @@ function UI(game) {
             });
         $('input[name=message]')
             .bind('focus', function() {
-                console.log('message focus');
                 ui.clearCursor();
             })
             .bind('change', function() {
-                console.log('message change');
                 ui.socket.emit('message', { name: ui.thisPlayer.name,
                                             text: $(this).val() });
                 $(this).val('');
@@ -302,7 +305,6 @@ function UI(game) {
     $('#dummyInput')
         .on('keypress', function(event) {
             var letter = String.fromCharCode(event.charCode).toUpperCase();
-            console.log('dummy input key pressed:', letter);
             if (ui.cursor && ui.legalLetters.indexOf(letter) != -1) {
                 var rackSquare = ui.rack.findLetterSquare(letter, true);
                 if (rackSquare) {
@@ -338,8 +340,6 @@ function UI(game) {
             }
         })
         .on('keydown', function(event) {
-            console.log('keydown', event);
-
             function handled() {
                 event.stopPropagation();
                 event.preventDefault();
@@ -348,7 +348,6 @@ function UI(game) {
             function move(dx, dy) {
                 var x = ui.cursor.square.x;
                 var y = ui.cursor.square.y;
-                console.log('move cursor, x', x, 'y', y, 'dx', dx, 'dy', dy);
                 if (ui.cursor) {
                     if (dx > 0) {
                         for (x++; x < 15 && ui.board.squares[x][y].tile; x++);
@@ -362,11 +361,9 @@ function UI(game) {
                     if (dy < 0) {
                         for (y--; y >= 0 && ui.board.squares[x][y].tile; y--);
                     }
-                    console.log('new position, x', x, 'y', y, 'cursor.x', ui.cursor.square.x, 'cursor.y', ui.cursor.square.y);
                     if (x >= 0 && x < 15
                         && y >= 0 && y < 15
                         && (x != ui.cursor.square.x || y != ui.cursor.square.y)) {
-                        console.log('moving cursor');
                         var oldCursorSquare = ui.cursor.square;
                         ui.cursor.square = ui.board.squares[x][y];
                         ui.updateBoardSquare(oldCursorSquare);
@@ -950,7 +947,6 @@ UI.prototype.commitMove = function() {
         ui.updateBoardSquare(square);
     }
     ui.board.tileCount = 0;
-    console.log(move.tilesPlaced);
     ui.sendMoveToServer('makeMove',
                         move.tilesPlaced,
                         bind(this.processMoveResponse, ui));
