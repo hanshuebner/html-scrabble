@@ -919,6 +919,9 @@ UI.prototype.commitMove = function() {
         return;
     }
     this.endMove();
+    if (move.tilesPlaced.length == 7) {
+        ui.playAudio("applause");
+    }
     for (var i = 0; i < move.tilesPlaced.length; i++) {
         var tilePlaced = move.tilesPlaced[i];
         var square = ui.board.squares[tilePlaced.x][tilePlaced.y];
