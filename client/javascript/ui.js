@@ -602,9 +602,9 @@ UI.prototype.drawBoard = function() {
     var board = this.board;
 
     $('#board').append(TABLE(null,
-                             map(function (y) {
+                             _.range(board.Dimension).map(function (y) {
                                  return TR(null,
-                                           map(function (x) {
+                                           _.range(board.Dimension).map(function (x) {
 	                                       var square = board.squares[x][y];
 	                                       var id = 'Board_' + x + "x" + y;
                                                square.id = id;
@@ -617,8 +617,8 @@ UI.prototype.drawBoard = function() {
                                                return TD({ 'class': tdClass },
 	                                                 DIV({ id: id },
                                                              A()));
-                                           }, range(board.Dimension)));
-                             }, range(board.Dimension))));
+                                           }));
+                             })));
     this.refreshBoard();
 }
 
@@ -717,12 +717,12 @@ UI.prototype.drawRack = function() {
                     BUTTON({ id: 'TakeBackTiles' }, "TakeBackTiles")),
                 TABLE(null,
                       TR(null,
-                         map(function (x) {
+                         _.range(8).map(function (x) {
                              var id = 'Rack_' + x;
                              rack.squares[x].id = id;
                              return TD({ 'class': 'Normal' },
                                        DIV({ id: id }, A()));
-                         }, range(8)))));
+                         }))));
     var ui = this;
     ['Shuffle', 'TakeBackTiles'].forEach(function (action) {
         $('#' + action).bind('click', ui.eventCallback(action));
@@ -737,12 +737,12 @@ UI.prototype.drawSwapRack = function() {
     $('#swapRack')
         .append(TABLE(null,
                       TR(null,
-                         map(function (x) {
+                         _.range(7).map(function (x) {
                              var id = 'SwapRack_' + x;
                              swapRack.squares[x].id = id;
                              return TD({ 'class': 'Normal' },
                                        DIV({ id: id }, A()));
-                         }, range(7)))));
+                         }))));
     forEach(range(7), function (x) {
 	ui.updateRackSquare(swapRack.squares[x]);
     });
