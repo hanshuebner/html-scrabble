@@ -311,7 +311,7 @@ function UI(game) {
                     if (rackSquare.tile.isBlank()) {
                         rackSquare.tile.letter = letter;
                     }
-                    ui.keyboardPlacements.push([rackSquare, ui.cursor.square]);
+                    ui.keyboardPlacements.push([rackSquare, ui.cursor.square, ui.cursor.direction]);
                     ui.moveTile(rackSquare, ui.cursor.square);
                     var newCursorSquare;
                     if (ui.cursor.direction == 'horizontal') {
@@ -386,9 +386,10 @@ function UI(game) {
                     var lastPlacement = ui.keyboardPlacements.pop();
                     var rackSquare = lastPlacement[0];
                     var boardSquare = lastPlacement[1];
+                    var cursorDirection = lastPlacement[2];
                     if (!rackSquare.tile && boardSquare.tile) {
                         ui.moveTile(boardSquare, rackSquare);
-                        ui.setCursor(boardSquare);
+                        ui.setCursor(boardSquare, cursorDirection);
                     } else {
                         ui.keyboardPlacements = [];         // user has moved stuff around, forget keyboard entry
                     }
@@ -996,11 +997,16 @@ UI.prototype.deleteCursor = function() {
     }
 }
 
-UI.prototype.setCursor = function(square) {
-    var oldCursorSquare = ui.cursor.square;
-    ui.cursor.square = square;
+UI.prototype.setCursor = function(square, direction) {
+    if (ui.cursor) {
+        var oldCursorSquare = ui.cursor.square;
+        ui.cursor.square = square;
+        ui.updateBoardSquare(oldCursorSquare);
+    } else {
+        ui.cursor = { square: square,
+                      direction: (direction || 'horizontal') };
+    }
     ui.updateBoardSquare(square);
-    ui.updateBoardSquare(oldCursorSquare);
 }
 
 UI.prototype.TakeBackTiles = function() {
