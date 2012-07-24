@@ -257,6 +257,10 @@ Game.prototype.makeMove = function(player, placementList) {
         placements[i][0].placeTile(newTiles[i]);
     }
 
+    game.previousMove = { placements: placements,
+                          newTiles: newTiles,
+                          score: move.score,
+                          player: player };
     game.passes = 0;
 
     return [ newTiles,
@@ -267,8 +271,42 @@ Game.prototype.makeMove = function(player, placementList) {
                placements: placementList } ];
 }
 
+Game.prototype.challengeMove = function(player) {
+    game = this;
+    if (!game.previousMove) {
+        throw 'cannot challenge move - no previous move in game';
+    }
+    console.log('previous move', game.previousMove);
+    var returnLetters = [];
+    game.previousMove.placements.map(function(placement) {
+        var rackSquare = placement[0];
+        var boardSquare = placement[1];
+        if (rackSquare.tile) {
+            returnLetters.push(rackSquare.tile.letter);
+            game.letterBag.returnTile(rackSquare.tile);
+            rackSquare.placeTile(null);
+        }
+        rackSquare.placeTile(boardSquare.tile);
+        boardSquare.placeTile(null);
+    });
+    var previousMove = game.previousMove;
+    delete game.previousMove;
+    return [ [],
+             { type: 'challenge',
+               challenger: player.index,
+               player: previousMove.player.index,
+               score: -previousMove.score,
+               whosTurn: game.whosTurn,
+               placements: previousMove.placements.map(function(placement) {
+                   return { x: placement[1].x,
+                            y: placement[1].y }
+               }),
+               returnLetters: returnLetters } ];
+}
+
 Game.prototype.pass = function(player) {
     var game = this;
+    delete game.previousMove;
     game.passes++;
 
     return [ [],
@@ -277,12 +315,32 @@ Game.prototype.pass = function(player) {
                player: player.index } ];
 }
 
+Game.prototype.returnPlayerLetters = function(player, letters) {
+    var game = this;
+    // return letter squares from the player's rack
+    var lettersToReturn = new scrabble.Bag(letters);
+    game.letterBag.returnTiles(_.reduce(player.rack.squares,
+                                        function(accu, square) {
+                                            if (square.tile && lettersToReturn.contains(square.tile.letter)) {
+                                                lettersToReturn.remove(square.tile.letter);
+                                                accu.push(square.tile);
+                                                square.placeTile(null);
+                                            }
+                                            return accu;
+                                        },
+                                        []));
+    if (lettersToReturn.contents.length) {
+        throw "could not find letters " + lettersToReturn.contents + " to return on player " + player + "'s rack";
+    }
+}
+
 Game.prototype.swapTiles = function(player, letters) {
     var game = this;
 
     if (game.letterBag.remainingTileCount() < 7) {
         throw 'cannot swap, letterbag contains only ' + game.letterBag.remainingTileCount() + ' tiles';
     }
+    delete game.previousMove;
     game.passes++;
     var rackLetters = new scrabble.Bag(player.rack.letters());
     letters.forEach(function (letter) {
@@ -295,17 +353,7 @@ Game.prototype.swapTiles = function(player, letters) {
 
     // The swap is legal.  First get new tiles, then return the old ones to the letter bag
     var newTiles = game.letterBag.getRandomTiles(letters.length);
-    var lettersToReturn = new scrabble.Bag(letters);
-    game.letterBag.returnTiles(_.reduce(player.rack.squares,
-                                        function(accu, square) {
-                                            if (square.tile && lettersToReturn.contains(square.tile.letter)) {
-                                                lettersToReturn.remove(square.tile.letter);
-                                                accu.push(square.tile);
-                                                square.placeTile(null);
-                                            }
-                                            return accu;
-                                        },
-                                        []));
+    game.returnPlayerLetters(player, letters);
 
     var tmpNewTiles = newTiles.slice();
     player.rack.squares.forEach(function(square) {
@@ -332,7 +380,7 @@ Game.prototype.finishTurn = function(player, newTiles, turn) {
         game.finish('all players passed two times');
     } else if (_.every(player.rack.squares, function(square) { return !square.tile; })) {
         game.finish('player ' + game.whosTurn + ' ended the game');
-    } else {
+    } else if (turn.type != 'challenge') {
         // determine who's turn it is now
         game.whosTurn = (game.whosTurn + 1) % game.players.length;
         turn.whosTurn = game.whosTurn;
@@ -535,6 +583,9 @@ app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
     case 'swap':
         game.ensurePlayerAndGame(player);
         tilesAndTurn = game.swapTiles(player, body.arguments);
+        break;
+    case 'challenge':
+        tilesAndTurn = game.challengeMove(player);
         break;
     case 'newGame':
         game.createFollowonGame(player);

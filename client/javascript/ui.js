@@ -120,6 +120,9 @@ function UI(game) {
             case 'swap':
                 $(div).append(DIV({ 'class': 'moveDetail' }, "Swapped " + turn.count + " tile" + ((turn.count > 1) ? "s" : "")));
                 break;
+            case 'challenge':
+                $(div).append(DIV({ 'class': 'moveDetail' }, "Challenged previous move"));
+                break;
             default:
                 $(div).append(DIV({ 'class': 'moveDetail' }, "unknown move type " + turn.type));
             }
@@ -220,8 +223,13 @@ function UI(game) {
 
         scrollLogToEnd(0);
 
+        var yourTurn = gameData.whosTurn == ui.playerNumber;
         displayWhosTurn(gameData.whosTurn);
-        ui.boardLocked(ui.playerNumber != gameData.whosTurn);
+        ui.boardLocked(!yourTurn);
+
+        if (yourTurn && gameData.turns.length && gameData.turns[gameData.turns.length - 1].type == 'move') {
+            ui.addChallengeButton();
+        }
 
         ui.socket = io.connect();
         ui.socket
@@ -248,6 +256,25 @@ function UI(game) {
                 if (turn.type == 'move' && turn.player != ui.playerNumber) {
                     placeTurnTiles(turn);
                 }
+                if (turn.type == 'challenge') {
+                    var tilesTakenBack = [];
+                    turn.placements.map(function(placement) {
+                        var square = ui.board.squares[placement.x][placement.y];
+                        tilesTakenBack.push(square.tile);
+                        square.placeTile(null);
+                    });
+                    if (turn.player == ui.playerNumber) {
+                        var lettersToReturn = new Bag(turn.returnLetters);
+                        ui.rack.squares.map(function(square) {
+                            if (square.tile && lettersToReturn.contains(square.tile.letter)) {
+                                lettersToReturn.remove(square.tile.letter);
+                                square.placeTile(null);
+                                square.placeTile(tilesTakenBack.pop());
+                            }
+                        });
+                        ui.refreshRack();
+                    }
+                }
                 displayRemainingTileCount(turn.remainingTileCount);
                 if (turn.whosTurn == ui.playerNumber) {
                     ui.playAudio("yourturn");
@@ -257,6 +284,9 @@ function UI(game) {
                     displayWhosTurn(turn.whosTurn);
                     if (turn.whosTurn == ui.playerNumber) {
                         ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
+                        if (turn.type == 'move') {
+                            ui.addChallengeButton();
+                        }
                     }
                 }
                 ui.updateGameStatus();
@@ -955,6 +985,27 @@ UI.prototype.commitMove = function() {
     ui.enableNotifications();
 }
 
+UI.prototype.addChallengeButton = function() {
+    var ui = this;
+    var button = BUTTON({ id: 'challenge' }, "Challenge");
+    $(button).click(function() {
+        ui.challenge();
+    });
+    $('#log div.moveScore div.score').last().append(button);
+}
+
+UI.prototype.removeChallengeButton = function() {
+    $('button#challenge').remove()
+}
+
+UI.prototype.challenge = function() {
+    var ui = this;
+    ui.TakeBackTiles();
+    ui.removeChallengeButton();
+    ui.endMove();
+    ui.sendMoveToServer('challenge');
+}
+
 UI.prototype.pass = function() {
     var ui = this;
     ui.TakeBackTiles();
@@ -986,6 +1037,7 @@ UI.prototype.makeMove = function() {
     var action = $('#turnButton').attr('action');
     console.log('makeMove =>', action);
     this.deleteCursor();
+    this.removeChallengeButton();
     this[action]();
 }
 
