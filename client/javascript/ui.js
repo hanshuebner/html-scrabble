@@ -260,7 +260,7 @@ function UI(game) {
                     var tilesTakenBack = [];
                     turn.placements.map(function(placement) {
                         var square = ui.board.squares[placement.x][placement.y];
-                        tilesTakenBack.push(square.tile);
+                        tilesTakenBack.unshift(square.tile);
                         square.placeTile(null);
                     });
                     if (turn.player == ui.playerNumber) {
@@ -269,7 +269,7 @@ function UI(game) {
                             if (square.tile && lettersToReturn.contains(square.tile.letter)) {
                                 lettersToReturn.remove(square.tile.letter);
                                 square.placeTile(null);
-                                square.placeTile(tilesTakenBack.unshift());
+                                square.placeTile(tilesTakenBack.pop());
                             }
                         });
                         ui.refreshRack();
