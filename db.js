@@ -27,4 +27,12 @@ DB.prototype.set = function(key, object) {
     this.dirty.set(key, icebox.freeze(object));
 }
 
+DB.prototype.all = function() {
+    var retval = [];
+    this.dirty.forEach(function(key, value) {
+        retval.push(value);
+    });
+    return retval;
+}
+
 exports.DB = DB;

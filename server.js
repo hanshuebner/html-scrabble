@@ -488,6 +488,16 @@ Game.prototype.newConnection = function(socket) {
 
 // Handlers //////////////////////////////////////////////////////////////////
 
+app.get("/games", function(req, res) {
+    res.send(db.all().map(function(game) {
+        return { key: game.key,
+                 players: game.players.map(function(player) {
+                     return { name: player.name,
+                              key: player.key };
+                 })};
+    }));
+});
+
 app.get("/game", function(req, res) {
     res.sendfile(__dirname + '/client/make-game.html');
 });
