@@ -32,6 +32,7 @@ function setName(addressBook, name, email) {
 
 $(document).ready(function() {
     var addressBook = loadAddressBook();
+    $('input').attr('autocomplete', 'off');
     $('input.name')
         .autocomplete({
             source: addressBook.map(function(entry) { return entry.name; })
