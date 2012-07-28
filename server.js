@@ -291,6 +291,7 @@ Game.prototype.challengeMove = function(player) {
     });
     var previousMove = game.previousMove;
     delete game.previousMove;
+    previousMove.player.score -= previousMove.score;
     return [ [],
              { type: 'challenge',
                challenger: player.index,
