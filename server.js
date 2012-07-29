@@ -276,9 +276,12 @@ Game.prototype.challengeMove = function(player) {
     if (!game.previousMove) {
         throw 'cannot challenge move - no previous move in game';
     }
-    console.log('previous move', game.previousMove);
+    var previousMove = game.previousMove;
+    delete game.previousMove;
+
+    console.log('previous move', previousMove);
     var returnLetters = [];
-    game.previousMove.placements.map(function(placement) {
+    previousMove.placements.map(function(placement) {
         var rackSquare = placement[0];
         var boardSquare = placement[1];
         if (rackSquare.tile) {
@@ -289,9 +292,8 @@ Game.prototype.challengeMove = function(player) {
         rackSquare.placeTile(boardSquare.tile);
         boardSquare.placeTile(null);
     });
-    var previousMove = game.previousMove;
-    delete game.previousMove;
     previousMove.player.score -= previousMove.score;
+
     return [ [],
              { type: 'challenge',
                challenger: player.index,
