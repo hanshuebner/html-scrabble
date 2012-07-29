@@ -262,6 +262,9 @@ function UI(game) {
                     var tilesTakenBack = [];
                     turn.placements.map(function(placement) {
                         var square = ui.board.squares[placement.x][placement.y];
+                        if (square.tile.isBlank()) {
+                            square.tile.letter = ' ';
+                        }
                         tilesTakenBack.unshift(square.tile);
                         square.placeTile(null);
                     });
