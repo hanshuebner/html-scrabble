@@ -23,6 +23,23 @@ also owe an apology for ripping his code apart and removing the
 dictionary functionality, as we are playing without a dictionary and
 want to keep it that way.
 
+## Features
+
+* Two to four players
+* German, English and French letter sets
+* Written in JavaScript, runs in browser
+* Scalable user interface
+* Desktop notification support
+* Moderate sound effects
+* Tile placement by clicking, drag&drop or keyboard entry
+* Chat
+* Standard Scrabble rules including "Challenge" with simple penalty
+* No dictionary enforced
+* Player online status display
+* Participation in multiple games from one browser possible
+* Uses node.js on the server
+* No database required, no deployment complexities
+
 ## Limitations
 
 * Human players only.  No computer players are available.
