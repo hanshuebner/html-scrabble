@@ -372,6 +372,22 @@ Game.prototype.swapTiles = function(player, letters) {
                player: player.index } ];
 }
 
+Game.prototype.remainingTileCounts = function() {
+    var game = this;
+
+    return { letterBag: game.letterBag.remainingTileCount(),
+             players: game.players.map(function(player) {
+                 var count = 0;
+                 player.rack.squares.forEach(function(square) {
+                     if (square.tile) {
+                         count++;
+                     }
+                 });
+                 return count;
+             })
+           };
+}
+
 Game.prototype.finishTurn = function(player, newTiles, turn) {
     var game = this;
 
@@ -393,7 +409,7 @@ Game.prototype.finishTurn = function(player, newTiles, turn) {
     game.save();
 
     // notify listeners
-    turn.remainingTileCount = game.letterBag.remainingTileCount();
+    turn.remainingTileCounts = game.remainingTileCounts();
     game.notifyListeners('turn', turn);
 
     // if the game has ended, send extra notification with final scores
@@ -566,7 +582,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
                              turns: game.turns,
                              language: game.language,
                              whosTurn: game.whosTurn,
-                             remainingTileCount: game.letterBag.remainingTileCount(),
+                             remainingTileCounts: game.remainingTileCounts(),
                              legalLetters: game.letterBag.legalLetters,
                              players: [] }
             var thisPlayer = game.lookupPlayer(req, true);

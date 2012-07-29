@@ -42,6 +42,8 @@ function UI(game) {
         ui.legalLetters = gameData.legalLetters;
         ui.players = gameData.players;
         ui.keyboardPlacements = [];
+        ui.remainingTileCounts  = gameData.remainingTileCounts;
+
         var playerNumber = 0;
         $('#scoreboard')
             .append(TABLE(null,
@@ -62,36 +64,17 @@ function UI(game) {
                               playerNumber++;
                               return TR({ 'class': 'player' + (playerNumber - 1) }, /* ieh */
                                         TD({ 'class': 'name' }, player.rack ? "You" : player.name),
+                                        TD({ 'class': 'remainingTiles' }, ''),
                                         TD({ 'class': 'status offline' }, '\u25cf'),
                                         player.scoreElement = TD({ 'class': 'score' }, player.score));
                           })))
             .append(DIV({ id: 'letterbagStatus' }));
-
-        function displayRemainingTileCount(count) {
-            if (count > 0) {
-                $('#letterbagStatus')
-                    .empty()
-                    .append(DIV(null, SPAN({ id: 'remainingTileCount' }, count),
-                                " remaining tiles"));
-            } else {
-                $('#letterbagStatus')
-                    .empty()
-                    .append(DIV(null, "The letterbag is empty"));
-            }
-            if (count < 7) {
-                $('#swapRack').hide();
-            } else {
-                $('#swapRack').show();
-            }
-        }
 
         ui.drawBoard();
         if (ui.rack) {
             ui.drawRack();
             ui.drawSwapRack();
         }
-
-        displayRemainingTileCount(gameData.remainingTileCount);
 
         function scrollLogToEnd(speed) {
             $('#log').animate({ scrollTop: $('#log').prop('scrollHeight') }, speed);
@@ -229,6 +212,8 @@ function UI(game) {
         displayWhosTurn(gameData.whosTurn);
         ui.boardLocked(!yourTurn);
 
+        ui.updateGameStatus();
+
         if (yourTurn && gameData.turns.length && gameData.turns[gameData.turns.length - 1].type == 'move') {
             ui.addChallengeButton();
         }
@@ -279,14 +264,17 @@ function UI(game) {
                             }
                         });
                         ui.refreshRack();
+                        ui.notify('Challenged!',
+                                  ui.players[turn.challenger].name + ' has challenged your move.  You have lost the '
+                                  + (-turn.score) + ' points you have scored and the tiles you had placed are back on your rack');
                     }
                 }
-                displayRemainingTileCount(turn.remainingTileCount);
+                ui.remainingTileCounts = turn.remainingTileCounts;
                 if (turn.whosTurn == ui.playerNumber) {
                     ui.playAudio("yourturn");
                     ui.boardLocked(false);
                 }
-                if (typeof turn.whosTurn == 'number') {
+                if (typeof turn.whosTurn == 'number' && turn.type != 'challenge') {
                     displayWhosTurn(turn.whosTurn);
                     if (turn.whosTurn == ui.playerNumber) {
                         ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
@@ -465,6 +453,33 @@ function UI(game) {
                 break;
             }
         });
+}
+
+UI.prototype.displayRemainingTileCounts = function() {
+    var counts = this.remainingTileCounts;
+    if (counts.letterBag > 0) {
+        $('#letterbagStatus')
+            .empty()
+            .append(DIV(null, SPAN({ id: 'remainingTileCount' }, counts.letterBag),
+                        " remaining tiles"));
+        $('#scoreboard td.remainingTiles').empty();
+    } else {
+        $('#letterbagStatus')
+            .empty()
+            .append(DIV(null, "The letterbag is empty"));
+        var countElements = $('#scoreboard td.remainingTiles');
+        for (var i = 0; i < counts.players.length; i++) {
+            var count = counts.players[i];
+            $(countElements[i])
+                .empty()
+                .append('(' + count + ')');
+        }
+    }
+    if (counts.letterBag < 7) {
+        $('#swapRack').hide();
+    } else {
+        $('#swapRack').show();
+    }
 }
 
 UI.prototype.eventCallback = function(f) {
@@ -872,6 +887,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
 
 UI.prototype.updateGameStatus = function() {
     $('#move').empty();
+    this.displayRemainingTileCounts();
     if (this.board.tileCount > 0) {
         this.setMoveAction('commitMove', 'Make move');
         var move = calculateMove(this.board.squares);
@@ -888,8 +904,8 @@ UI.prototype.updateGameStatus = function() {
             });
             $('#turnButton').removeAttr('disabled');
         }
-        $('#swapRack').css('display', 'none');
         $('#TakeBackTiles').css('visibility', 'inherit');
+        $('#swapRack').hide();
     } else if (this.swapRack.tileCount > 0) {
         this.setMoveAction('swapTiles', 'Swap tiles');
         $('#board .ui-droppable').droppable('disable');
@@ -898,7 +914,6 @@ UI.prototype.updateGameStatus = function() {
     } else {
         this.setMoveAction('pass', 'Pass');
         $('#board .ui-droppable').droppable('enable');
-        $('#swapRack').css('display', 'block');
         $('#turnButton').removeAttr('disabled');
         $('#TakeBackTiles').css('visibility', 'hidden');
     }
