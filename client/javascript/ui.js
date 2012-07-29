@@ -459,6 +459,9 @@ function UI(game) {
             case $.ui.keyCode.DELETE:
                 deleteLast();
                 break;
+            case $.ui.keyCode.TAB:
+                handled();
+                break;
             }
         });
 }
