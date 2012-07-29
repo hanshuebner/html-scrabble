@@ -79,8 +79,9 @@ function UI(game) {
                     .append(DIV(null, "The letterbag is empty"));
             }
             if (count < 7) {
-                $('#swapRack')
-                    .empty();
+                $('#swapRack').hide();
+            } else {
+                $('#swapRack').show();
             }
         }
 
