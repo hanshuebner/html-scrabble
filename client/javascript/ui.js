@@ -263,6 +263,14 @@ function UI(game) {
                                 square.placeTile(tilesTakenBack.pop());
                             }
                         });
+                        // Return any tiles to rack that have not been
+                        // replaced by tiles from the letterBag
+                        // (i.e. when it run empty)
+                        ui.rack.squares.map(function(square) {
+                            if (!square.tile && tilesTakenBack.length) {
+                                square.placeTile(tilesTakenBack.pop());
+                            }
+                        });
                         ui.refreshRack();
                         ui.notify('Challenged!',
                                   ui.players[turn.challenger].name + ' has challenged your move.  You have lost the '
