@@ -60,8 +60,9 @@ function UI(game) {
                                                                0);
                               }
                               playerNumber++;
-                              return TR(null,
+                              return TR({ 'class': 'player' + (playerNumber - 1) }, /* ieh */
                                         TD({ 'class': 'name' }, player.rack ? "You" : player.name),
+                                        TD({ 'class': 'status offline' }, '\u25cf'),
                                         player.scoreElement = TD({ 'class': 'score' }, player.score));
                           })))
             .append(DIV({ id: 'letterbagStatus' }));
@@ -186,7 +187,7 @@ function UI(game) {
                 .append(DIV({ 'class': 'gameEnded' },
                             'Game has ended, '
                             + joinProse(winners.map(function (player) {
-                                return (player == you) ? 'you' : player.name
+                                return youHaveWon ? 'you' : player.name
                             }))
                             + (((winners.length == 1) && !youHaveWon) ? ' has ' : ' have ') + 'won'));
             displayNextGameMessage(endMessage.nextGameKey);
@@ -240,7 +241,8 @@ function UI(game) {
                     window.location = window.location;
                 } else {
                     ui.wasConnected = true;
-                    ui.socket.emit('join', { gameKey: ui.gameKey });
+                    ui.socket.emit('join', { gameKey: ui.gameKey,
+                                             playerKey: ui.playerKey });
                 }
             })
             .on('disconnect', function(data) {
@@ -309,6 +311,16 @@ function UI(game) {
                 if (message.name != ui.thisPlayer.name) {
                     ui.notify(message.name + " says", message.text);
                 }
+            })
+            .on('join', function(playerNumber) {
+                $('tr.player' + playerNumber + ' td.status')
+                    .removeClass('offline')
+                    .addClass('online');
+            })
+            .on('leave', function(playerNumber) {
+                $('tr.player' + playerNumber + ' td.status')
+                    .removeClass('online')
+                    .addClass('offline');
             });
         $('input[name=message]')
             .bind('focus', function() {

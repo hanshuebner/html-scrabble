@@ -477,15 +477,22 @@ Game.prototype.ended = function() {
     return this.endMessage;
 }
 
-Game.prototype.newConnection = function(socket) {
+Game.prototype.newConnection = function(socket, player) {
     var game = this;
     if (!game.connections) {
         game.connections = [];
     }
     game.connections.push(socket);
     socket.game = game;
+    if (player) {
+        socket.player = player;
+        game.notifyListeners('join', player.index);
+    }
     socket.on('disconnect', function () {
         game.connections = _.without(game.connections, this);
+        if (player) {
+            game.notifyListeners('leave', player.index);
+        }
     });
 }
 
@@ -617,11 +624,25 @@ app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
 io.sockets.on('connection', function (socket) {
     socket
         .on('join', function(data) {
+            var socket = this;
             var game = Game.load(data.gameKey);
             if (!game) {
                 console.log("game " + data.gameKey + " not found");
             } else {
-                game.newConnection(this);
+                var player;
+                game.players.map(function(player_) {
+                    if (player_.key == data.playerKey) {
+                        player = player_;
+                    } else {
+                        if (_.find(game.connections, function(connection) { return connection.player == player_ })) {
+                            socket.emit('join', player_.index);
+                        }
+                    }
+                });
+                if (data.playerKey && !player) {
+                    console.log('player ' + data.playerKey + ' not found');
+                }
+                game.newConnection(socket, player);
             }
         })
         .on('message', function(message) {

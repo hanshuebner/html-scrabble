@@ -75,6 +75,14 @@ div#scoreboard {
     min-height: 4em;
 }
 
+div#scoreboard td.online {
+    color: green;
+}
+
+div#scoreboard td.offline {
+    color: red;
+}
+
 div#whosturn {
     height: 1em;
 }
