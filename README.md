@@ -60,6 +60,7 @@ want to keep it that way.
   hack this code, expect a high WTF rate.
 * Ugly UI.  Daniel's original work was very nice-looking, and my additions
   to the user interface can't compete with what he did.
+* UI not translated.  The user interface is available in English, only.
 * Simple database.  All game data is kept in memory and serialized to a JSON
   log using the node-dirty database system.  This works well, but has limited
   capacity and the database file grows without bounds.
