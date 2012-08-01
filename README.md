@@ -88,11 +88,11 @@ to deal with the legal aspects, let me know.
 The game uses node.js as server and depends on some npm packages:
 
 ```
-$ npm install socket.io express express-negotiate dirty underscore nodemailer
+$ npm install socket.io express express-negotiate dirty underscore nodemailer optimist
 $ node server.js
 ```
 
-Open your web browser on http://<hostname>:9093/new-game.html to
+Open your web browser on http://[hostname]:9093/new-game.html to
 create a new game.
 
 If you have trouble getting the server to run, feel free to contact

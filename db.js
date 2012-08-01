@@ -8,6 +8,7 @@ var EventEmitter = require('events').EventEmitter;
 function DB(path) {
     this.prototypeMap = {};
     EventEmitter.call(this);
+    console.log('opening database', path);
     this.dirty = dirty(path);
     var db = this;
     this.dirty.on('load', function () { db.emit('load', 0); });

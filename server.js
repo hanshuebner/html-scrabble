@@ -8,6 +8,17 @@ var nodemailer = require('nodemailer');
 var express = require('express');
 var crypto = require('crypto');
 var negotiate = require('express-negotiate');
+var argv = require('optimist')
+    .options('d', {
+        alias: 'database',
+        'default': 'data.db'
+    })
+    .options('c', {
+        alias: 'config'
+    })
+    .argv;
+
+
 var scrabble = require('./client/javascript/scrabble.js');
 var icebox = require('./client/javascript/icebox.js');
 var DB = require('./db.js');
@@ -16,7 +27,7 @@ var EventEmitter = require('events').EventEmitter;
 
 var app = express.createServer();
 var io = io.listen(app);
-var db = new DB.DB('data.db');
+var db = new DB.DB(argv.database);
 
 var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
 
@@ -28,8 +39,27 @@ var defaultConfig = {
     mailSender: "Scrabble Server <scrabble@netzhansa.com>"
 };
 
-var config = fs.existsSync('config.js') ? require('./config.js') : {};
-config.__proto__ = defaultConfig;
+function maybeLoadConfig() {
+    if (argv.config) {
+        var fileName = argv.config;
+        if (!fileName.match(/^\//)) {
+            fileName = './' + fileName;
+        }
+        if (!fs.existsSync(fileName)) {
+            console.log('cannot find configuration file', fileName);
+            process.exit(1);
+        }
+        console.log('loading configuration file', fileName);
+        config = require(fileName);
+    } else {
+        config = {};
+    }
+    config.__proto__ = defaultConfig;
+    return config;
+}
+
+var config = maybeLoadConfig();
+console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
 
