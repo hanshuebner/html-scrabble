@@ -271,7 +271,7 @@ Game.prototype.makeMove = function(player, placementList) {
                placements: placementList } ];
 }
 
-Game.prototype.challengeMove = function(player) {
+Game.prototype.challengeOrTakeBackMove = function(type, player) {
     game = this;
     if (!game.previousMove) {
         throw 'cannot challenge move - no previous move in game';
@@ -279,7 +279,6 @@ Game.prototype.challengeMove = function(player) {
     var previousMove = game.previousMove;
     delete game.previousMove;
 
-    console.log('previous move', previousMove);
     var returnLetters = [];
     previousMove.placements.map(function(placement) {
         var rackSquare = placement[0];
@@ -295,11 +294,11 @@ Game.prototype.challengeMove = function(player) {
     previousMove.player.score -= previousMove.score;
 
     return [ [],
-             { type: 'challenge',
+             { type: type,
                challenger: player.index,
                player: previousMove.player.index,
                score: -previousMove.score,
-               whosTurn: game.whosTurn,
+               whosTurn: ((type == 'challenge') ? game.whosTurn : previousMove.player.index),
                placements: previousMove.placements.map(function(placement) {
                    return { x: placement[1].x,
                             y: placement[1].y }
@@ -621,7 +620,8 @@ app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
         tilesAndTurn = game.swapTiles(player, body.arguments);
         break;
     case 'challenge':
-        tilesAndTurn = game.challengeMove(player);
+    case 'takeBack':
+        tilesAndTurn = game.challengeOrTakeBackMove(req.body.command, player);
         break;
     case 'newGame':
         game.createFollowonGame(player);

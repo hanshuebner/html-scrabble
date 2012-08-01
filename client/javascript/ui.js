@@ -108,6 +108,9 @@ function UI(game) {
             case 'challenge':
                 $(div).append(DIV({ 'class': 'moveDetail' }, "Challenged previous move"));
                 break;
+            case 'takeBack':
+                $(div).append(DIV({ 'class': 'moveDetail' }, "Took back previous move"));
+                break;
             default:
                 $(div).append(DIV({ 'class': 'moveDetail' }, "unknown move type " + turn.type));
             }
@@ -214,8 +217,14 @@ function UI(game) {
 
         ui.updateGameStatus();
 
-        if (yourTurn && gameData.turns.length && gameData.turns[gameData.turns.length - 1].type == 'move') {
-            ui.addChallengeButton();
+        var lastTurn = gameData.turns.length && gameData.turns[gameData.turns.length - 1];
+
+        if (lastTurn && (lastTurn.type == 'move')) {
+            if (yourTurn) {
+                ui.addChallengeButton();
+            } else if (lastTurn.player == ui.playerNumber) {
+                ui.addTakeBackMoveButton();
+            }
         }
 
         ui.socket = io.connect();
@@ -244,7 +253,7 @@ function UI(game) {
                 if (turn.type == 'move' && turn.player != ui.playerNumber) {
                     placeTurnTiles(turn);
                 }
-                if (turn.type == 'challenge') {
+                if (turn.type == 'challenge' || turn.type == 'takeBack') {
                     var tilesTakenBack = [];
                     turn.placements.map(function(placement) {
                         var square = ui.board.squares[placement.x][placement.y];
@@ -272,19 +281,29 @@ function UI(game) {
                             }
                         });
                         ui.refreshRack();
-                        ui.notify('Challenged!',
-                                  ui.players[turn.challenger].name + ' has challenged your move.  You have lost the '
-                                  + (-turn.score) + ' points you have scored and the tiles you had placed are back on your rack');
+                        if (turn.type == 'challenge') {
+                            ui.notify('Challenged!',
+                                      ui.players[turn.challenger].name + ' has challenged your move.  You have lost the '
+                                      + (-turn.score) + ' points you have scored and the tiles you had placed are back on your rack');
+                        }
+                    }
+                    if (turn.type == 'takeBack') {
+                        ui.notify('Move retracted',
+                                  ui.players[turn.challenger].name + ' has taken back his/her move.');
                     }
                 }
                 ui.remainingTileCounts = turn.remainingTileCounts;
                 if (turn.whosTurn == ui.playerNumber) {
                     ui.playAudio("yourturn");
-                    ui.boardLocked(false);
                 }
+                ui.boardLocked(turn.whosTurn != ui.playerNumber);
+                ui.removeMoveEditButtons();
                 if (typeof turn.whosTurn == 'number' && turn.type != 'challenge') {
                     displayWhosTurn(turn.whosTurn);
-                    if (turn.whosTurn == ui.playerNumber) {
+                    if (turn.type == 'move' && turn.player == ui.playerNumber) {
+                        ui.addTakeBackMoveButton();
+                    }
+                    if (turn.whosTurn == ui.playerNumber && turn.type != 'takeBack') {
                         ui.notify('Your turn!', ui.players[turn.player].name + ' has made a move and now it is your turn.');
                         if (turn.type == 'move') {
                             ui.addChallengeButton();
@@ -979,6 +998,7 @@ UI.prototype.boardLocked = function(newVal) {
 }
 
 UI.prototype.endMove = function() {
+    this.removeMoveEditButtons();
     $('#move').empty();
     this.boardLocked(true);
 }
@@ -1027,25 +1047,40 @@ UI.prototype.commitMove = function() {
     ui.enableNotifications();
 }
 
-UI.prototype.addChallengeButton = function() {
+UI.prototype.addLastMoveActionButton = function(action, label) {
     var ui = this;
-    var button = BUTTON({ id: 'challenge' }, "Challenge");
+    var button = BUTTON({ id: action }, label);
     $(button).click(function() {
-        ui.challenge();
+        ui[action]();
     });
     $('#log div.moveScore div.score').last().append(button);
 }
 
-UI.prototype.removeChallengeButton = function() {
+UI.prototype.addChallengeButton = function() {
+    this.addLastMoveActionButton('challenge', 'Challenge');
+}
+
+UI.prototype.addTakeBackMoveButton = function() {
+    this.addLastMoveActionButton('takeBackMove', 'Take back move');
+}
+
+UI.prototype.removeMoveEditButtons = function() {
     $('button#challenge').remove()
+    $('button#takeBackMove').remove()
 }
 
 UI.prototype.challenge = function() {
     var ui = this;
     ui.TakeBackTiles();
-    ui.removeChallengeButton();
     ui.endMove();
     ui.sendMoveToServer('challenge');
+}
+
+UI.prototype.takeBackMove = function() {
+    var ui = this;
+    ui.TakeBackTiles();
+    ui.endMove();
+    ui.sendMoveToServer('takeBack');
 }
 
 UI.prototype.pass = function() {
@@ -1079,7 +1114,6 @@ UI.prototype.makeMove = function() {
     var action = $('#turnButton').attr('action');
     console.log('makeMove =>', action);
     this.deleteCursor();
-    this.removeChallengeButton();
     this[action]();
 }
 
