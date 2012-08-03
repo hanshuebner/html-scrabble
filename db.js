@@ -1,3 +1,4 @@
+var fs = require('fs');
 var dirty = require('dirty');
 var util = require('util');
 var icebox = require('./client/javascript/icebox.js');
@@ -34,6 +35,19 @@ DB.prototype.all = function() {
         retval.push(value);
     });
     return retval;
+}
+
+DB.prototype.snapshot = function(filename) {
+    var db = this;
+    if (fs.existsSync(filename)) {
+        throw 'snapshot cannot overwrite existing file ' + filename;
+    }
+    var snapshot = dirty(filename);
+    snapshot.on('load', function() {
+        db.dirty.forEach(function(key, value) {
+            snapshot.set(key, value);
+        });
+    });
 }
 
 exports.DB = DB;
