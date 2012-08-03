@@ -11,23 +11,28 @@ function thaw(object, prototypeMap) {
                     throw "invalid reference to id " + _object._ref;
                 }
             } else {
-                var thawed = (typeof object.length == 'undefined') ? {} : [];
-                if (object.hasOwnProperty('_constructorName')) {
-                    var constructor = prototypeMap[object._constructorName];
-                    if (constructor) {
-                        thawed.__proto__ = constructor['prototype'];
-                    } else {
-                        console.log('no prototype for ' + object._constructorName);
+                var thawed;
+                if (object._constructorName == 'Date') {
+                    thawed = new Date(object._isoString);
+                } else {
+                    thawed = (typeof object.length == 'undefined') ? {} : [];
+                    if (object.hasOwnProperty('_constructorName')) {
+                        var constructor = prototypeMap[object._constructorName];
+                        if (constructor) {
+                            thawed.__proto__ = constructor['prototype'];
+                        } else {
+                            console.log('no prototype for ' + object._constructorName);
+                        }
                     }
-                }
-                if (object.hasOwnProperty('_id')) {
-                    objectsThawed[object._id] = thawed;
-                }
-                for (var prop in object) {
-                    if (object.hasOwnProperty(prop)
-                        && prop != '_constructorName'
-                        && prop != '_id') {
-                        thawed[prop] = thawTree(object[prop]);
+                    if (object.hasOwnProperty('_id')) {
+                        objectsThawed[object._id] = thawed;
+                    }
+                    for (var prop in object) {
+                        if (object.hasOwnProperty(prop)
+                            && prop != '_constructorName'
+                            && prop != '_id') {
+                            thawed[prop] = thawTree(object[prop]);
+                        }
                     }
                 }
                 return thawed;
@@ -59,12 +64,16 @@ function freeze(object) {
                 return { _ref: object._frozen._id };
             } else {
                 var frozen = freezeObject(object);
-                if (!object.constructor.name.match(/^(Date|Array|Object)$/)) {
+                if (!object.constructor.name.match(/^(Array|Object)$/)) {
                     frozen._constructorName = object.constructor.name;
                 }
-                for (var prop in object) {
-                    if (object.hasOwnProperty(prop) && prop != '_constructorName') {
-                        frozen[prop] = freezeTree(object[prop]);
+                if (object.constructor.name == 'Date') {
+                    frozen._isoString = object.toISOString();
+                } else {
+                    for (var prop in object) {
+                        if (object.hasOwnProperty(prop) && prop != '_constructorName') {
+                            frozen[prop] = freezeTree(object[prop]);
+                        }
                     }
                 }
                 return frozen;
