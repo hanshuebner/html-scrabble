@@ -4,7 +4,7 @@ exports.testDatePreserved = function(test) {
     var timestamp = new Date();
     var original = { timestamp: timestamp };
     var frozen = icebox.freeze(original);
-    var thawed = icebox.thaw(frozen, { Date: Date });
+    var thawed = icebox.thaw(frozen);
     test.equal(timestamp.getTime(), thawed.timestamp.getTime(), 'Date object could not be restored');
     test.done();
 }
