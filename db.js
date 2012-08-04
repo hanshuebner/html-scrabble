@@ -10,6 +10,7 @@ function DB(path) {
     this.prototypeMap = {};
     EventEmitter.call(this);
     console.log('opening database', path);
+    this.path = path;
     this.dirty = dirty(path);
     var db = this;
     this.dirty.on('load', function () { db.emit('load', 0); });
@@ -37,8 +38,9 @@ DB.prototype.all = function() {
     return retval;
 }
 
-DB.prototype.snapshot = function(filename) {
+DB.prototype.snapshot = function() {
     var db = this;
+    var filename = this.path + '.tmp';
     if (fs.existsSync(filename)) {
         throw 'snapshot cannot overwrite existing file ' + filename;
     }
@@ -47,6 +49,12 @@ DB.prototype.snapshot = function(filename) {
         db.dirty.forEach(function(key, value) {
             snapshot.set(key, value);
         });
+    });
+    snapshot.on('drain', function() {
+        fs.renameSync(db.path, db.path + '.old');
+        fs.renameSync(filename, db.path);
+        db.dirty = dirty(db.path);
+        console.log('DB snapshot finished');
     });
 }
 
