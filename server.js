@@ -516,6 +516,8 @@ Game.prototype.finish = function(reason) {
                        })
                      };
     game.endMessage = endMessage;
+
+    db.snapshot();
 }
 
 Game.prototype.ended = function() {
