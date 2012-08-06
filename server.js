@@ -1,6 +1,7 @@
 
 var _ = require('underscore');
 var repl = require('repl');
+var http = require('http');
 var util = require('util');
 var fs = require('fs');
 var io = require('socket.io');
@@ -24,10 +25,6 @@ var icebox = require('./client/javascript/icebox.js');
 var DB = require('./db.js');
 
 var EventEmitter = require('events').EventEmitter;
-
-var app = express.createServer();
-var io = io.listen(app);
-var db = new DB.DB(argv.database);
 
 var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
 
@@ -63,6 +60,11 @@ console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
 
+var app = express();
+var server = app.listen(config.port)
+var io = io.listen(server);
+var db = new DB.DB(argv.database);
+
 io.set('log level', 1);
 
 app.configure(function() {
@@ -83,8 +85,6 @@ app.get("/", function(req, res) {
 
 db.on('load', function() {
     console.log('database loaded');
-
-    app.listen(config.port);
 });
 
 db.registerObject(scrabble.Tile);
