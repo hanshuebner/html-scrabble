@@ -2,6 +2,13 @@
 function thaw(object, prototypeMap) {
     var objectsThawed = [];
 
+    if (prototypeMap.length) {
+        // convert to hash map
+        var newPrototypeMap = {};
+        prototypeMap.forEach(function(constructor) { newPrototypeMap[constructor.name] = constructor; });
+        prototypeMap = newPrototypeMap
+    }
+
     function thawTree(object) {
         if (object && (typeof object == 'object')) {
             if (object._ref) {
