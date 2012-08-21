@@ -1,3 +1,4 @@
 config.js
 node_modules
-data.db
+*.db
+*.db.old
