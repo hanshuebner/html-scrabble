@@ -1,0 +1,30 @@
+{
+    "name": "html-scrabble",
+    "description": "Multi user Scrabble game",
+    "version": "0.1.0",
+    "author": {
+        "name": "Hans Hübner",
+        "email": "hans.huebner@gmail.com",
+        "url": "https://github.com/hanshuebner"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/hanshuebner/html-scrabble.git"
+    },
+    "main": "server",
+    "engines": {
+        "node": ">=0.8.0"
+    },
+    "license": "MIT/X11",
+    "dependencies": {
+        "dirty": ">=0.9.6",
+        "express-negotiate": ">=0.0.5",
+        "express": ">=3.0.0",
+        "nodemailer": ">=0.3.22",
+        "nodeunit": ">=0.7.4",
+        "optimist": ">=0.3.4",
+        "socket.io": ">=0.9.9",
+        "underscore": ">=1.3.3"
+    },
+    "devDependencies": {}
+}
