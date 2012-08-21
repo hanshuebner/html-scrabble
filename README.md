@@ -88,7 +88,7 @@ to deal with the legal aspects, let me know.
 The game uses node.js as server and depends on some npm packages:
 
 ```
-$ npm install socket.io express express-negotiate dirty underscore nodemailer optimist nodeunit
+$ npm install
 $ node server.js
 ```
 
