@@ -2,7 +2,7 @@
 function thaw(object, prototypeMap) {
     var objectsThawed = [];
 
-    if (prototypeMap.length) {
+    if (prototypeMap && prototypeMap.length) {
         // convert to hash map
         var newPrototypeMap = {};
         prototypeMap.forEach(function(constructor) { newPrototypeMap[constructor.name] = constructor; });
