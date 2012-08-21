@@ -227,7 +227,12 @@ function UI(game) {
             }
         }
 
-        ui.socket = io.connect();
+        var transports = ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'];
+        if (BrowserDetect.browser == 'Firefox' && BrowserDetect.version < 14) {
+            transports = ['htmlfile', 'xhr-polling', 'jsonp-polling'];
+        }
+        
+        ui.socket = io.connect(null, { transports: transports });
         ui.socket
             .on('connect', function(data) {
                 console.log('socket connected');
