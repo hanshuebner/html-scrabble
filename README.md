@@ -85,11 +85,12 @@ to deal with the legal aspects, let me know.
 
 ## Running the game server
 
-The game uses node.js as server and depends on some npm packages:
+The game uses node.js as server and depends on some npm packages.  It can
+itself be installed using npm:
 
 ```
-$ npm install
-$ node server.js
+$ npm install html-scrabble
+$ npm start
 ```
 
 Open your web browser on http://[hostname]:9093/new-game.html to
