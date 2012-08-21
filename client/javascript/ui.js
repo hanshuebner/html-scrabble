@@ -335,13 +335,11 @@ function UI(game) {
                 $('tr.player' + playerNumber + ' td.status')
                     .removeClass('offline')
                     .addClass('online');
-                ui.playAudio("player-in");
             })
             .on('leave', function(playerNumber) {
                 $('tr.player' + playerNumber + ' td.status')
                     .removeClass('online')
                     .addClass('offline');
-                ui.playAudio("player-out");
             });
         $('input[name=message]')
             .bind('focus', function() {
