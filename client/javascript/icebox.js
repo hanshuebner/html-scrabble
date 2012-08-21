@@ -11,7 +11,7 @@ function thaw(object, prototypeMap) {
 
     function thawTree(object) {
         if (object && (typeof object == 'object')) {
-            if (object._ref) {
+            if (object._ref !== undefined) {
                 if (objectsThawed[object._ref]) {
                     return objectsThawed[object._ref];
                 } else {
