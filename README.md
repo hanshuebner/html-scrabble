@@ -97,7 +97,7 @@ $ npm install html-scrabble
 Settings can be be changed by the way of a configuration file which
 must be named 'config.js' and placed in the main html-scrabble
 directory.  The default configuration file is included as
-[config-default.json](config-default.json). It can be copied to
+[config-default.json](html-scrabble/config-default.json). It can be copied to
 config.js and then edited.
 
 By default, the server starts on port 9093 and uses the smtp server
