@@ -92,7 +92,7 @@ itself be installed using npm:
 $ npm install html-scrabble
 ```
 
-## Running
+## Configuration
 
 Settings can be be changed by the way of a configuration file which
 must be named 'config.js' and placed in the main html-scrabble
@@ -111,6 +111,26 @@ SMTP server on your server, you need to set the
 ```mailTransportConfig``` appropriately.  Please refer to [nodemailer
 documentation](http://documentup.com/andris9/nodemailer/#setting-up-a-transport-method)
 for information on how to configure nodemailer.
+
+### Protecting the game list
+
+If you deploy your Scrabble server in the Internet, you may want to
+protect your game list so that pranksters can't mess up your games.
+You can do so by adding a ```gameListLogin``` property to your
+configuration like so:
+
+```
+    "gameListLogin": {
+        "username": "foo",
+        "password": "bar"
+    }
+```
+
+Note that this is meant as a light protective measure.  Do not use a
+password that you use elsewhere.  Thank you for observing all safety
+measures.
+
+## Running
 
 Once you're satisfied with the configuration, you can start the game
 server using

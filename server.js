@@ -552,9 +552,19 @@ Game.prototype.newConnection = function(socket, player) {
     });
 }
 
+// Authentication for game list///////////////////////////////////////////////
+
+var gameListAuth = express.basicAuth(function(username, password) {
+    if (config.gameListLogin) {
+        return username == config.gameListLogin.username && password == config.gameListLogin.password;
+    } else {
+        return true;
+    }
+}, "Enter game list access login");
+
 // Handlers //////////////////////////////////////////////////////////////////
 
-app.get("/games", function(req, res) {
+app.get("/games", config.gameListLogin ? gameListAuth : function (req, res, next) { next(); }, function(req, res) {
     res.send(db.all().map(function(game) {
         return { key: game.key,
                  players: game.players.map(function(player) {
