@@ -3,6 +3,7 @@ var _ = require('underscore');
 var repl = require('repl');
 var http = require('http');
 var util = require('util');
+var os = require('os');
 var fs = require('fs');
 var io = require('socket.io');
 var nodemailer = require('nodemailer');
@@ -26,14 +27,13 @@ var DB = require('./db.js');
 
 var EventEmitter = require('events').EventEmitter;
 
-var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
-
 // //////////////////////////////////////////////////////////////////////
 
 var defaultConfig = {
     port: 9093,
-    baseUrl: 'http://localhost:9093/',
-    mailSender: "Scrabble Server <scrabble@netzhansa.com>"
+    baseUrl: 'http://' + os.hostname() + ':9093/',
+    mailSender: "Scrabble Server <scrabble@netzhansa.com>",
+    mailTransportConfig: { hostname: 'localhost' }
 };
 
 function maybeLoadConfig() {
@@ -59,6 +59,8 @@ var config = maybeLoadConfig();
 console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
+
+var smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
 
 var app = express();
 var server = app.listen(config.port)
