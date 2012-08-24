@@ -82,7 +82,7 @@ app.configure(function() {
 });
 
 app.get("/", function(req, res) {
-  res.redirect("/index.html");
+  res.redirect("/games.html");
 });
 
 db.on('load', function() {
@@ -631,7 +631,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
             res.send(icebox.freeze(response));
         },
         'html': function () {
-            res.sendfile(__dirname + '/client/index.html');
+            res.sendfile(__dirname + '/client/game.html');
         }
     });
 }));
