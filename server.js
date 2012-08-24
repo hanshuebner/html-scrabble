@@ -29,27 +29,34 @@ var EventEmitter = require('events').EventEmitter;
 
 // //////////////////////////////////////////////////////////////////////
 
-var defaultConfig = {
-    port: 9093,
-    baseUrl: 'http://' + os.hostname() + ':9093/',
-    mailSender: "Scrabble Server <scrabble@netzhansa.com>",
-    mailTransportConfig: { hostname: 'localhost' }
-};
-
 function maybeLoadConfig() {
+
+    var config = {};
+
+    function readConfig(filename) {
+        try {
+            return JSON.parse(fs.readFileSync(filename));
+        }
+        catch (e) {
+            console.log('error reading configuration:\n' + e);
+            process.exit(1);
+        }            
+    }
+
+    var defaultConfig = readConfig(__dirname + "/config-default.json");
+
     if (argv.config) {
         var fileName = argv.config;
         if (!fileName.match(/^\//)) {
-            fileName = './' + fileName;
+            fileName = __dirname + '/' + fileName;
         }
         if (!fs.existsSync(fileName)) {
             console.log('cannot find configuration file', fileName);
             process.exit(1);
         }
-        console.log('loading configuration file', fileName);
-        config = require(fileName);
-    } else {
-        config = {};
+        config = readConfig(fileName);
+    } else if (fs.existsSync(__dirname + "/config.json")) {
+        config = readConfig(__dirname + "/config.json");
     }
     config.__proto__ = defaultConfig;
     return config;
