@@ -1,4 +1,5 @@
-config.js
+config.json
+npm-debug.log
 node_modules
 *.db
 *.db.old

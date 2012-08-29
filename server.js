@@ -3,6 +3,7 @@ var _ = require('underscore');
 var repl = require('repl');
 var http = require('http');
 var util = require('util');
+var os = require('os');
 var fs = require('fs');
 var io = require('socket.io');
 var nodemailer = require('nodemailer');
@@ -26,30 +27,36 @@ var DB = require('./db.js');
 
 var EventEmitter = require('events').EventEmitter;
 
-var smtp = nodemailer.createTransport('SMTP', { hostname: 'localhost' });
-
 // //////////////////////////////////////////////////////////////////////
 
-var defaultConfig = {
-    port: 9093,
-    baseUrl: 'http://localhost:9093/',
-    mailSender: "Scrabble Server <scrabble@netzhansa.com>"
-};
-
 function maybeLoadConfig() {
+
+    var config = {};
+
+    function readConfig(filename) {
+        try {
+            return JSON.parse(fs.readFileSync(filename));
+        }
+        catch (e) {
+            console.log('error reading configuration:\n' + e);
+            process.exit(1);
+        }            
+    }
+
+    var defaultConfig = readConfig(__dirname + "/config-default.json");
+
     if (argv.config) {
         var fileName = argv.config;
         if (!fileName.match(/^\//)) {
-            fileName = './' + fileName;
+            fileName = __dirname + '/' + fileName;
         }
         if (!fs.existsSync(fileName)) {
             console.log('cannot find configuration file', fileName);
             process.exit(1);
         }
-        console.log('loading configuration file', fileName);
-        config = require(fileName);
-    } else {
-        config = {};
+        config = readConfig(fileName);
+    } else if (fs.existsSync(__dirname + "/config.json")) {
+        config = readConfig(__dirname + "/config.json");
     }
     config.__proto__ = defaultConfig;
     return config;
@@ -59,6 +66,8 @@ var config = maybeLoadConfig();
 console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
+
+var smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
 
 var app = express();
 var server = app.listen(config.port)
@@ -80,7 +89,7 @@ app.configure(function() {
 });
 
 app.get("/", function(req, res) {
-  res.redirect("/index.html");
+  res.redirect("/games.html");
 });
 
 db.on('load', function() {
@@ -543,9 +552,19 @@ Game.prototype.newConnection = function(socket, player) {
     });
 }
 
+// Authentication for game list///////////////////////////////////////////////
+
+var gameListAuth = express.basicAuth(function(username, password) {
+    if (config.gameListLogin) {
+        return username == config.gameListLogin.username && password == config.gameListLogin.password;
+    } else {
+        return true;
+    }
+}, "Enter game list access login");
+
 // Handlers //////////////////////////////////////////////////////////////////
 
-app.get("/games", function(req, res) {
+app.get("/games", config.gameListLogin ? gameListAuth : function (req, res, next) { next(); }, function(req, res) {
     res.send(db.all().map(function(game) {
         return { key: game.key,
                  players: game.players.map(function(player) {
@@ -629,7 +648,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
             res.send(icebox.freeze(response));
         },
         'html': function () {
-            res.sendfile(__dirname + '/client/index.html');
+            res.sendfile(__dirname + '/client/game.html');
         }
     });
 }));

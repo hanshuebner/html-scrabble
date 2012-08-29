@@ -83,18 +83,63 @@ there is a lot of work left towards that goal, and I don't intend to
 make such an effort given the uncertain licensing issues.  If you want
 to deal with the legal aspects, let me know.
 
-## Running the game server
+## Installing
 
 The game uses node.js as server and depends on some npm packages.  It can
 itself be installed using npm:
 
 ```
 $ npm install html-scrabble
-$ npm start
 ```
 
-Open your web browser on http://[hostname]:9093/new-game.html to
-create a new game.
+## Configuration
+
+Settings can be be changed by the way of a configuration file which
+must be named 'config.js' and placed in the main html-scrabble
+directory.  The default configuration file is included as
+[config-default.json](html-scrabble/blob/master/config-default.json). It
+can be copied to config.js and then edited.
+
+By default, the server starts on port 9093 and uses the smtp server
+running on the local host to send out game invitation emails.  The
+invitation emails contain the "localhost" in the URL, so they will
+only work for a browser running on the same machine as the server.
+
+As a minimum, the ```baseUrl``` and ```mailSender``` configuration
+properties should be changed.  Furthermore, if you are not running an
+SMTP server on your server, you need to set the
+```mailTransportConfig``` appropriately.  Please refer to [nodemailer
+documentation](http://documentup.com/andris9/nodemailer/#setting-up-a-transport-method)
+for information on how to configure nodemailer.
+
+### Protecting the game list
+
+If you deploy your Scrabble server in the Internet, you may want to
+protect your game list so that pranksters can't mess up your games.
+You can do so by adding a ```gameListLogin``` property to your
+configuration like so:
+
+```
+    "gameListLogin": {
+        "username": "foo",
+        "password": "bar"
+    }
+```
+
+Note that this is meant as a light protective measure.  Do not use a
+password that you use elsewhere.  Thank you for observing all safety
+measures.
+
+## Running
+
+Once you're satisfied with the configuration, you can start the game
+server using
+
+```
+$ npm start html-scrabble
+```
+
+Open your web browser on the configured game URL to create a new game.
 
 If you have trouble getting the server to run, feel free to contact
 me.  Be aware, though, that you will need a machine to run the server
