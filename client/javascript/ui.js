@@ -1031,29 +1031,34 @@ UI.prototype.processMoveResponse = function(data) {
 }
 
 UI.prototype.commitMove = function() {
-    var ui = this;
-    ui.keyboardPlacements = [];
-    var move = calculateMove(this.board.squares);
-    if (move.error) {
-        alert(move.error);
-        return;
-    }
-    this.endMove();
-    if (move.tilesPlaced.length == 7) {
-        ui.playAudio("applause");
-    }
-    for (var i = 0; i < move.tilesPlaced.length; i++) {
-        var tilePlaced = move.tilesPlaced[i];
-        var square = ui.board.squares[tilePlaced.x][tilePlaced.y];
-        square.tileLocked = true;
-        ui.updateBoardSquare(square);
-    }
-    ui.board.tileCount = 0;
-    ui.sendMoveToServer('makeMove',
-                        move.tilesPlaced,
-                        bind(this.processMoveResponse, ui));
+    try {
+        var ui = this;
+        ui.keyboardPlacements = [];
+        var move = calculateMove(this.board.squares);
+        if (move.error) {
+            alert(move.error);
+            return;
+        }
+        this.endMove();
+        if (move.tilesPlaced.length == 7) {
+            ui.playAudio("applause");
+        }
+        for (var i = 0; i < move.tilesPlaced.length; i++) {
+            var tilePlaced = move.tilesPlaced[i];
+            var square = ui.board.squares[tilePlaced.x][tilePlaced.y];
+            square.tileLocked = true;
+            ui.updateBoardSquare(square);
+        }
+        ui.board.tileCount = 0;
+        ui.sendMoveToServer('makeMove',
+                            move.tilesPlaced,
+                            bind(this.processMoveResponse, ui));
 
-    ui.enableNotifications();
+        ui.enableNotifications();
+    }
+    catch (e) {
+        alert('error in commitMove: ' + e);
+    }
 }
 
 UI.prototype.addLastMoveActionButton = function(action, label) {
