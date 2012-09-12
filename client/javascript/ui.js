@@ -986,7 +986,11 @@ UI.prototype.sendMoveToServer = function(command, args, success) {
         contentType: 'application/json',
         data: JSON.stringify({ command: command,
                                arguments: args }),
-        success: success });
+        success: success,
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('PUT request returned error: ' + textStatus + ' (' + errorThrown + ')');
+        }
+    });
 }
 
 UI.prototype.boardLocked = function(newVal) {
