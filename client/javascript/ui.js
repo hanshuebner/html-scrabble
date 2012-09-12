@@ -228,7 +228,7 @@ function UI(game) {
         }
 
         var transports = ['websocket', 'flashsocket', 'htmlfile', 'xhr-multipart', 'xhr-polling', 'jsonp-polling'];
-        if (BrowserDetect.browser == 'Firefox' && BrowserDetect.version < 14) {
+        if (BrowserDetect.browser == 'Firefox') {
             transports = ['htmlfile', 'xhr-polling', 'jsonp-polling'];
         }
         
