@@ -85,11 +85,11 @@ to deal with the legal aspects, let me know.
 
 ## Installing
 
-The game uses node.js as server and depends on some npm packages.  It can
-itself be installed using npm:
+The game uses node.js as server and depends on some npm packages.  To install
+dependencies:
 
 ```
-$ npm install html-scrabble
+$ npm install
 ```
 
 ## Configuration
@@ -136,7 +136,7 @@ Once you're satisfied with the configuration, you can start the game
 server using
 
 ```
-$ npm start html-scrabble
+$ node server.js
 ```
 
 Open your web browser on the configured game URL to create a new game.
