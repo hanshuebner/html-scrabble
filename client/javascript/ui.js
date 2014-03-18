@@ -981,7 +981,7 @@ UI.prototype.playAudio = function(id) {
 UI.prototype.sendMoveToServer = function(command, args, success) {
     this.cancelNotification();
     $.ajax({
-        type: 'PUT',
+        type: 'POST',
         url: '/game/' + this.gameKey,
         contentType: 'application/json',
         data: JSON.stringify({ command: command,

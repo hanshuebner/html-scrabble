@@ -653,7 +653,7 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
     });
 }));
 
-app.put("/game/:gameKey", playerHandler(function(player, game, req, res) {
+app.post("/game/:gameKey", playerHandler(function(player, game, req, res) {
     var body = icebox.thaw(req.body);
     console.log('put', game.key, 'player', player.name, 'command', body.command, 'arguments', req.body.arguments);
     var tilesAndTurn;
