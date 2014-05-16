@@ -98,7 +98,7 @@ Settings can be be changed by the way of a configuration file which
 must be named 'config.js' and placed in the main html-scrabble
 directory.  The default configuration file is included as
 [config-default.json](html-scrabble/blob/master/config-default.json). It
-can be copied to config.js and then edited.
+can be copied to config.json and then edited.
 
 By default, the server starts on port 9093 and uses the smtp server
 running on the local host to send out game invitation emails.  The
