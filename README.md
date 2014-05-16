@@ -95,7 +95,7 @@ $ npm install
 ## Configuration
 
 Settings can be be changed by the way of a configuration file which
-must be named 'config.js' and placed in the main html-scrabble
+must be named 'config.json' and placed in the main html-scrabble
 directory.  The default configuration file is included as
 [config-default.json](html-scrabble/blob/master/config-default.json). It
 can be copied to config.json and then edited.
