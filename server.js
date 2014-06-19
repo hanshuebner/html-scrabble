@@ -8,6 +8,11 @@ var fs = require('fs');
 var io = require('socket.io');
 var nodemailer = require('nodemailer');
 var express = require('express');
+var methodOverride = require('method-override');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var errorhandler = require('errorhandler');
+var basicAuth = require('basic-auth-connect');
 var crypto = require('crypto');
 var negotiate = require('express-negotiate');
 var argv = require('optimist')
@@ -76,17 +81,14 @@ var db = new DB.DB(argv.database);
 
 io.set('log level', 1);
 
-app.configure(function() {
-    app.use(express.methodOverride());
-    app.use(express.bodyParser());
-    app.use(express.cookieParser());
-    app.use(express.static(__dirname + '/client'));
-    app.use(express.errorHandler({
-        dumpExceptions: true, 
-        showStack: true
-    }));
-    app.use(app.router);
-});
+app.use(methodOverride());
+app.use(bodyParser());
+app.use(cookieParser());
+app.use(express.static(__dirname + '/client'));
+app.use(errorhandler({
+    dumpExceptions: true, 
+    showStack: true
+}));
 
 app.get("/", function(req, res) {
   res.redirect("/games.html");
@@ -554,7 +556,7 @@ Game.prototype.newConnection = function(socket, player) {
 
 // Authentication for game list///////////////////////////////////////////////
 
-var gameListAuth = express.basicAuth(function(username, password) {
+var gameListAuth = basicAuth(function(username, password) {
     if (config.gameListLogin) {
         return username == config.gameListLogin.username && password == config.gameListLogin.password;
     } else {
