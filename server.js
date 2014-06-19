@@ -74,8 +74,6 @@ var server = app.listen(config.port)
 var io = io.listen(server);
 var db = new DB.DB(argv.database);
 
-io.set('log level', 1);
-
 app.configure(function() {
     app.use(express.methodOverride());
     app.use(express.bodyParser());
