@@ -79,8 +79,6 @@ var server = app.listen(config.port)
 var io = io.listen(server);
 var db = new DB.DB(argv.database);
 
-io.set('log level', 1);
-
 app.use(methodOverride());
 app.use(bodyParser());
 app.use(cookieParser());
