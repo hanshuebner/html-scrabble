@@ -53,18 +53,18 @@ function Bag(contents)
 
 Bag.prototype.add = function(element) {
     this.contents.push(element);
-}
+};
 
 Bag.prototype.remove = function(element) {
     var index = this.contents.indexOf(element);
     if (index != -1) {
         return this.contents.splice(index, 1)[0];
     }
-}
+};
 
 Bag.prototype.contains = function(element) {
     return this.contents.indexOf(element) != -1;
-}
+};
 
 function MakeBoardArray()
 {
@@ -77,7 +77,7 @@ function MakeBoardArray()
 
 var letterDistributions = {
     'English':  [ { score: 0, count: 2},
-		  
+
 		  { letter: "E", score: 1, count: 12},
 		  { letter: "A", score: 1, count: 9},
 		  { letter: "I", score: 1, count: 9},
@@ -88,30 +88,30 @@ var letterDistributions = {
 		  { letter: "L", score: 1, count: 4},
 		  { letter: "S", score: 1, count: 4},
 		  { letter: "U", score: 1, count: 4},
-		  
+
 		  { letter: "D", score: 2, count: 4},
 		  { letter: "G", score: 2, count: 3},
-		  
+
 		  { letter: "B", score: 3, count: 2},
 		  { letter: "C", score: 3, count: 2},
 		  { letter: "M", score: 3, count: 2},
 		  { letter: "P", score: 3, count: 2},
-		  
+
 		  { letter: "F", score: 4, count: 2},
 		  { letter: "H", score: 4, count: 2},
 		  { letter: "V", score: 4, count: 2},
 		  { letter: "W", score: 4, count: 2},
 		  { letter: "Y", score: 4, count: 2},
-		  
+
 		  { letter: "K", score: 5, count: 1},
-		  
+
 		  { letter: "J", score: 8, count: 1},
 		  { letter: "X", score: 8, count: 1},
-		  
+
 		  { letter: "Q", score: 10, count: 1},
 		  { letter: "Z", score: 10, count: 1}],
     'Czech':  [ { score: 0, count: 2},
-		  
+
 		  { letter: "A", score: 1, count: 5},
 		  { letter: "Á", score: 2, count: 2},
 		  { letter: "B", score: 3, count: 2},
@@ -128,18 +128,18 @@ var letterDistributions = {
 		  { letter: "I", score: 1, count: 4},
 		  { letter: "Í", score: 2, count: 3},
 		  { letter: "J", score: 2, count: 2},
-		  
+
 		  { letter: "K", score: 1, count: 3},
 		  { letter: "L", score: 1, count: 3},
 		  { letter: "M", score: 2, count: 3},
 		  { letter: "N", score: 1, count: 5},
 		  { letter: "Ň", score: 6, count: 1},
-		  
+
 		  { letter: "O", score: 1, count: 6},
-		  
+
 		  { letter: "Ó", score: 7, count: 1},
 		  { letter: "P", score: 1, count: 3},
-		  
+
 		  { letter: "R", score: 1, count: 3},
 		  { letter: "Ř", score: 4, count: 2},
 		  { letter: "S", score: 1, count: 4},
@@ -156,7 +156,7 @@ var letterDistributions = {
 		  { letter: "Z", score: 2, count: 2},
 		  { letter: "Ž", score: 4, count: 1}],
     'French': [ { score: 0, count: 2},
-		
+
 		{ letter: "E", score: 1, count: 15},
 		{ letter: "A", score: 1, count: 9},
 		{ letter: "I", score: 1, count: 8},
@@ -167,19 +167,19 @@ var letterDistributions = {
 		{ letter: "T", score: 1, count: 6},
 		{ letter: "U", score: 1, count: 6},
 		{ letter: "L", score: 1, count: 5},
-		
+
 		{ letter: "D", score: 2, count: 3},
 		{ letter: "G", score: 2, count: 2},
 		{ letter: "M", score: 3, count: 3},
-		
+
 		{ letter: "B", score: 3, count: 2},
 		{ letter: "C", score: 3, count: 2},
 		{ letter: "P", score: 3, count: 2},
-		
+
 		{ letter: "F", score: 4, count: 2},
 		{ letter: "H", score: 4, count: 2},
 		{ letter: "V", score: 4, count: 2},
-		
+
 		{ letter: "J", score: 8, count: 1},
 		{ letter: "Q", score: 8, count: 1},
 
@@ -190,7 +190,7 @@ var letterDistributions = {
 		{ letter: "Z", score: 10, count: 1}
 	      ],
     'German': [ { score: 0, count: 2},
-		
+
 		{ letter: "E", score: 1, count: 15},
 		{ letter: "N", score: 1, count: 9},
 		{ letter: "S", score: 1, count: 7},
@@ -200,7 +200,7 @@ var letterDistributions = {
 		{ letter: "U", score: 1, count: 6},
 		{ letter: "A", score: 1, count: 5},
 		{ letter: "D", score: 1, count: 4},
-		
+
 		{ letter: "H", score: 2, count: 4},
 		{ letter: "G", score: 2, count: 3},
 		{ letter: "L", score: 2, count: 3},
@@ -210,12 +210,12 @@ var letterDistributions = {
 		{ letter: "B", score: 3, count: 2},
 		{ letter: "W", score: 3, count: 1},
 		{ letter: "Z", score: 3, count: 1},
-		
+
 		{ letter: "C", score: 4, count: 2},
 		{ letter: "F", score: 4, count: 2},
 		{ letter: "K", score: 4, count: 2},
 		{ letter: "P", score: 4, count: 1},
-		
+
 		{ letter: "Ä", score: 6, count: 1},
 		{ letter: "J", score: 6, count: 1},
 		{ letter: "Ü", score: 6, count: 1},
@@ -226,41 +226,85 @@ var letterDistributions = {
 
 		{ letter: "Q", score: 10, count: 1},
 		{ letter: "Y", score: 10, count: 1}],
-    'Test': [ { score: 0, count: 1},
-	      
-	      { letter: "E", score: 1, count: 1},
-	      { letter: "N", score: 1, count: 1},
-	      { letter: "S", score: 1, count: 1},
-	      { letter: "I", score: 1, count: 1},
-	      { letter: "R", score: 1, count: 1},
-	      { letter: "T", score: 1, count: 1},
-	      { letter: "U", score: 1, count: 1},
-	      { letter: "A", score: 1, count: 1},
-	      { letter: "D", score: 1, count: 1},
-	      
-	      { letter: "H", score: 2, count: 1},
-	      { letter: "G", score: 2, count: 1},
-	      { letter: "L", score: 2, count: 1},
-	      { letter: "O", score: 2, count: 1},
+    'Hungarian': [ { score: 0, count: 2},
 
-	      { letter: "M", score: 3, count: 1},
-	      { letter: "B", score: 3, count: 1},
-	      { letter: "W", score: 3, count: 1},
-	      { letter: "Z", score: 3, count: 1},
-	      
-	      { letter: "C", score: 4, count: 1},
-	      { letter: "F", score: 4, count: 1},
-	      { letter: "K", score: 4, count: 1}
+        { letter: "A", score: 1, count: 6},
+        { letter: "E", score: 1, count: 6},
+        { letter: "K", score: 1, count: 6},
+        { letter: "T", score: 1, count: 5},
+        { letter: "Á", score: 1, count: 4},
+        { letter: "L", score: 1, count: 4},
+        { letter: "N", score: 1, count: 4},
+        { letter: "R", score: 1, count: 4},
+        { letter: "I", score: 1, count: 3},
+        { letter: "M", score: 1, count: 3},
+        { letter: "O", score: 1, count: 3},
+        { letter: "S", score: 1, count: 3},
+        { letter: "B", score: 2, count: 3},
+        { letter: "D", score: 2, count: 3},
+        { letter: "G", score: 2, count: 3},
+        { letter: "Ó", score: 2, count: 3},
+        { letter: "É", score: 3, count: 3},
+        { letter: "H", score: 3, count: 2},
+        { letter: "SZ", score: 3, count: 2},
+        { letter: "V", score: 3, count: 2},
+        { letter: "F", score: 4, count: 2},
+        { letter: "GY", score: 4, count: 2},
+        { letter: "J", score: 4, count: 2},
+        { letter: "Ö", score: 4, count: 2},
+        { letter: "P", score: 4, count: 2},
+        { letter: "U", score: 4, count: 2},
+        { letter: "Ü", score: 4, count: 2},
+        { letter: "Z", score: 4, count: 2},
+        { letter: "C", score: 5, count: 1},
+        { letter: "Í", score: 5, count: 1},
+        { letter: "NY", score: 5, count: 1},
+        { letter: "CS", score: 7, count: 1},
+        { letter: "Ő", score: 7, count: 1},
+        { letter: "Ő", score: 7, count: 1},
+        { letter: "Ú", score: 7, count: 1},
+        { letter: "Ű", score: 7, count: 1},
+        { letter: "LY", score: 8, count: 1},
+        { letter: "ZS", score: 8, count: 1},
+        { letter: "TY", score: 10, count: 1}
+        ],
+    'Test': [ { score: 0, count: 1},
+
+          { letter: "E", score: 1, count: 1},
+          { letter: "N", score: 1, count: 1},
+          { letter: "S", score: 1, count: 1},
+          { letter: "I", score: 1, count: 1},
+          { letter: "R", score: 1, count: 1},
+          { letter: "T", score: 1, count: 1},
+          { letter: "U", score: 1, count: 1},
+          { letter: "A", score: 1, count: 1},
+          { letter: "D", score: 1, count: 1},
+
+          { letter: "H", score: 2, count: 1},
+          { letter: "G", score: 2, count: 1},
+          { letter: "L", score: 2, count: 1},
+          { letter: "O", score: 2, count: 1},
+
+          { letter: "M", score: 3, count: 1},
+          { letter: "B", score: 3, count: 1},
+          { letter: "W", score: 3, count: 1},
+          { letter: "Z", score: 3, count: 1},
+
+          { letter: "C", score: 4, count: 1},
+          { letter: "F", score: 4, count: 1},
+          { letter: "K", score: 4, count: 1}
             ]};
 
 function type_of(obj) {
-    if (typeof(obj) == 'object')
-	if (typeof obj.length == "undefined" || !obj.length)
-	    return 'object';
-    else
-	return 'array';
-    else
-	return typeof(obj);
+    if (typeof(obj) == 'object') {
+        if (typeof obj.length == "undefined" || !obj.length) {
+            return 'object';
+        }
+        else {
+            return 'array';
+        }
+    }
+    return typeof(obj);
 }
 
 function Tile(letter, score)
@@ -271,11 +315,11 @@ function Tile(letter, score)
 
 Tile.prototype.isBlank = function() {
     return this.score == 0;
-}
+};
 
 Tile.prototype.toString = function() {
     return "Tile: [" + (this.isBlank() ? "blank" : this.letter) + "] --> " + this.score;
-}
+};
 
 function Square(type, owner) {
     this.type = type;
@@ -299,7 +343,7 @@ Square.prototype.placeTile = function(tile, locked) {
     }
 
     triggerEvent('SquareChanged', [ this ]);
-}
+};
 
 Square.prototype.toString = function() {
     var string =  'Square type ' + this.type + ' x: ' + this.x;
@@ -313,7 +357,7 @@ Square.prototype.toString = function() {
         }
     }
     return string;
-}
+};
 
 function Board() {
     this.squares = MakeBoardArray();
@@ -374,7 +418,7 @@ Board.fromServerData = function(data) {
     }
     console.log('fromServerData done');
     return data;
-}
+};
 
 Board.prototype.Dimension = 15;
 
@@ -384,26 +428,26 @@ Board.prototype.forAllSquares = function(f) {
             f(this.squares[x][y]);
         }
     }
-}
+};
 
 Board.prototype.emptyTiles = function() {
     this.forAllSquares(function (square) {
         square.placeTile(null);
     });
-}
+};
 
 Board.prototype.toString = function() {
     return "Board " + this.Dimension + " x " + this.Dimension;
-}
+};
 
 function Rack(size) {
     this.squares = [];
 
     for (var x = 0; x < size; x++) {
-	var square = new Square('Normal', this);
-	square.x = x;
-	square.y = -1;
-	this.squares[x] = square;
+        var square = new Square('Normal', this);
+        square.x = x;
+        square.y = -1;
+        this.squares[x] = square;
     }
 
     triggerEvent('RackReady', [ this ]);
@@ -415,11 +459,11 @@ Rack.prototype.emptyTiles = function() {
 	
 	square.placeTile(null);
     }
-}
+};
 
 Rack.prototype.toString = function() {
     return "Rack " + this.squares.length;
-}
+};
 
 Rack.prototype.letters = function() {
     return _.reduce(this.squares,
@@ -430,7 +474,7 @@ Rack.prototype.letters = function() {
                         return accu;
                     },
                     []);
-}
+};
 
 Rack.prototype.findLetterSquare = function(letter, includingBlank) {
     var blankSquare = null;
@@ -451,7 +495,7 @@ Rack.prototype.findLetterSquare = function(letter, includingBlank) {
     } else {
         return null;
     }
-}
+};
 
 function LetterBag()
 {
@@ -482,7 +526,7 @@ LetterBag.create = function(language) {
     }
     
     return letterBag;
-}
+};
 
 LetterBag.prototype.shake = function()
 {
@@ -494,14 +538,14 @@ LetterBag.prototype.shake = function()
         this.tiles[b] = this.tiles[a];
         this.tiles[a] = tmp;
     }
-}
+};
 
 LetterBag.prototype.getRandomTile = function()
 {
     this.shake();
 
     return this.tiles.pop();
-}
+};
 
 LetterBag.prototype.getRandomTiles = function(count)
 {
@@ -512,22 +556,22 @@ LetterBag.prototype.getRandomTiles = function(count)
         retval.push(this.tiles.pop());
     }
     return retval;
-}
+};
 
 LetterBag.prototype.returnTile = function(tile)
 {
     this.tiles.push(tile);
-}
+};
 
 LetterBag.prototype.returnTiles = function(tiles)
 {
     this.tiles = this.tiles.concat(tiles);
-}
+};
 
 LetterBag.prototype.remainingTileCount = function(tile)
 {
     return this.tiles.length;
-}
+};
 
 function calculateMove(squares)
 {
