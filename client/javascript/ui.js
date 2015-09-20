@@ -515,7 +515,7 @@ UI.prototype.displayRemainingTileCounts = function() {
     } else {
         $('#swapRack').show();
     }
-}
+};
 
 UI.prototype.eventCallback = function(f) {
     var ui = this;
@@ -527,7 +527,7 @@ UI.prototype.eventCallback = function(f) {
         }
         f.apply(ui, args);
     }
-}
+};
 
 UI.prototype.idToSquare = function(id) {
     var match = id.match(/(Board|Rack)_(\d+)x?(\d*)/);
@@ -540,7 +540,7 @@ UI.prototype.idToSquare = function(id) {
     } else {
         throw "cannot parse id " + id;
     }
-}
+};
 
 UI.prototype.updateSquare = function(square) {
     if (square.owner == this.rack
@@ -551,7 +551,7 @@ UI.prototype.updateSquare = function(square) {
     } else {
         console.log('could not identify owner of square', square);
     }
-}
+};
 
 UI.prototype.clearCursor = function() {
     var ui = this;
@@ -560,14 +560,14 @@ UI.prototype.clearCursor = function() {
         delete ui.cursor;
         ui.updateBoardSquare(cursor.square);
     }
-}
+};
 
 UI.prototype.updateBoardSquare = function(square) {
     var div = DIV({ id: square.id });
     var ui = this;                                          // we're creating a bunch of callbacks below that close over the UI object
 
     if (square.tile) {
-        $(div).addClass('Tile')
+        $(div).addClass('Tile');
         if (square.tileLocked) {
             $(div).addClass('Locked');
         } else {
@@ -577,56 +577,58 @@ UI.prototype.updateBoardSquare = function(square) {
             $(div).addClass('BlankLetter');
         }
 
-	if (!square.tileLocked) {
-	    $(div).click(
-		function () {
-		    if (ui.currentlySelectedSquare) {
-			if (ui.currentlySelectedSquare == square) {
-			    ui.selectSquare(null);
-			    return;
-			}
-		    }
-		    ui.selectSquare(square);
-		}
-	    );
-	    
-	    var doneOnce = false;
-	    
-	    $(div).draggable({
-		revert: "invalid",
-		opacity: 1,
-		helper: "clone",
-		start: function(event, jui) {
-		    ui.selectSquare(null);
-		    $(this).css({ opacity: 0.5 });
-		    $(jui.helper)
+    if (!square.tileLocked) {
+        $(div).click(
+            function () {
+                if (ui.currentlySelectedSquare) {
+                    if (ui.currentlySelectedSquare == square) {
+                        ui.selectSquare(null);
+                        return;
+                    }
+                }
+                ui.selectSquare(square);
+            }
+        );
+        
+        var doneOnce = false;
+        
+        $(div).draggable({
+        revert: "invalid",
+        opacity: 1,
+        helper: "clone",
+        start: function(event, jui) {
+            ui.selectSquare(null);
+            $(this).css({ opacity: 0.5 });
+            $(jui.helper)
                         .animate({'font-size' : '120%'}, 300)
                         .addClass("dragBorder");
-		},
-		
-		drag: function(event, jui) {
-		    if (!doneOnce) {
-			$(jui.helper).addClass("dragBorder");
-			doneOnce = true;
-		    }
-		},
-		stop: function(event, jui) {
-		    $(this).css({ opacity: 1 });
-		}
-	    });
-	}
-
+        },
+        
+        drag: function(event, jui) {
+            if (!doneOnce) {
+            $(jui.helper).addClass("dragBorder");
+            doneOnce = true;
+            }
+        },
+        stop: function(event, jui) {
+            $(this).css({ opacity: 1 });
+        }
+        });
+    }
+        if (square.tile.letter && square.tile.letter === "_") {
+            square.tile.letter = "";
+        }
         $(div).append(A(null,
                         SPAN({ 'class': 'Letter' }, square.tile.letter ? square.tile.letter : ''),
                         SPAN({ 'class': 'Score' }, square.tile.score ? square.tile.score : '0')));
     } else {
         if (!ui.boardLocked()) {
-	    $(div)
+        $(div)
                 .click(function () {
-		    if (ui.currentlySelectedSquare) {
+            if (ui.currentlySelectedSquare) {
                         ui.moveTile(ui.currentlySelectedSquare, square);
-		        ui.selectSquare(null);
-		    } else {
+                ui.selectSquare(null);
+            } else {
                         function placeCursor() {
                             ui.cursor = { square: square,
                                           direction: 'horizontal' };
@@ -649,14 +651,14 @@ UI.prototype.updateBoardSquare = function(square) {
                         }
                         ui.updateSquare(square);
                     }
-	        })
+            })
                 .droppable({
-	            hoverClass: "dropActive",
-	            drop: function(event, jui) {
+                hoverClass: "dropActive",
+                drop: function(event, jui) {
                         ui.deleteCursor();
                         ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
-	            }
-	        });
+                }
+            });
         }
 
         var text = ' ';
@@ -665,23 +667,23 @@ UI.prototype.updateBoardSquare = function(square) {
             $(div).addClass('Cursor');
             $('#dummyInput').focus();
         } else {
-	    switch (square.type) {
-	    case 'DoubleWord':
-	        if (square.x == 7 && square.y == 7) {
+        switch (square.type) {
+        case 'DoubleWord':
+            if (square.x == 7 && square.y == 7) {
                     text = '\u2605';
-	        } else {
+            } else {
                     text = "DOUBLE WORD SCORE";
-	        }
-	        break;
-	    case 'TripleWord':
+            }
+            break;
+        case 'TripleWord':
                 text = "TRIPLE WORD SCORE";
-	        break;
-	    case 'DoubleLetter':
+            break;
+        case 'DoubleLetter':
                 text = "DOUBLE LETTER SCORE";
-	        break;
-	    case 'TripleLetter':
+            break;
+        case 'TripleLetter':
                 text = "TRIPLE LETTER SCORE";
-	    }
+        }
         }
         $(div)
             .addClass('Empty')
@@ -692,7 +694,7 @@ UI.prototype.updateBoardSquare = function(square) {
         .parent()
         .empty()
         .append(div);
-}
+};
     
 UI.prototype.drawBoard = function() {
     var board = this.board;
@@ -701,8 +703,8 @@ UI.prototype.drawBoard = function() {
                              _.range(board.Dimension).map(function (y) {
                                  return TR(null,
                                            _.range(board.Dimension).map(function (x) {
-	                                       var square = board.squares[x][y];
-	                                       var id = 'Board_' + x + "x" + y;
+                                           var square = board.squares[x][y];
+                                           var id = 'Board_' + x + "x" + y;
                                                square.id = id;
                                                var tdClass = square.type;
                                                if (x == 7 && y == 7) {
@@ -711,12 +713,12 @@ UI.prototype.drawBoard = function() {
                                                    tdClass += ' SpecialField';
                                                }
                                                return TD({ 'class': tdClass },
-	                                                 DIV({ id: id },
+                                                     DIV({ id: id },
                                                              A()));
                                            }));
                              })));
     this.refreshBoard();
-}
+};
 
 UI.prototype.updateRackSquare = function(square) {
     var id = square.id;
@@ -738,70 +740,70 @@ UI.prototype.updateRackSquare = function(square) {
         if (square.tile.isBlank()) {
             $(div).addClass('BlankLetter');
         }
-	$(div)
-            .addClass('Temp')
-            .click(
-	        function () {
-		    if (ui.currentlySelectedSquare) {
-		        if (ui.currentlySelectedSquare == square) {
-			    ui.selectSquare(null);
-			    return;
-		        }
-		    }
-		    ui.selectSquare(square);
+    $(div)
+        .addClass('Temp')
+        .click(
+            function () {
+                if (ui.currentlySelectedSquare) {
+                    if (ui.currentlySelectedSquare == square) {
+                        ui.selectSquare(null);
+                    return;
+                    }
                 }
-	    );
+                ui.selectSquare(square);
+            }
+        );
 
-	var doneOnce = false;
-	
-	$(div).draggable({
-	    revert: "invalid",
-	    opacity: 1,
-	    helper: "clone",
-	    start: function(event, jui) {
-		ui.selectSquare(null);
-		$(this).css({ opacity: 0.5 });
-		$(jui.helper)
+    var doneOnce = false;
+
+    $(div).draggable({
+        revert: "invalid",
+        opacity: 1,
+        helper: "clone",
+        start: function(event, jui) {
+        ui.selectSquare(null);
+        $(this).css({ opacity: 0.5 });
+        $(jui.helper)
                     .animate({'font-size' : '120%'}, 300)
                     .addClass("dragBorder");
-	    },
-	    
-	    drag: function(event, jui) {
-		if (!doneOnce) {
-		    $(jui.helper).addClass("dragBorder");
-		    doneOnce = true;
-		}
-	    },
-	    stop: function(event, jui) {
-		$(this).css({ opacity: 1 });
-	    }
-	});
-	
+        },
+
+        drag: function(event, jui) {
+        if (!doneOnce) {
+            $(jui.helper).addClass("dragBorder");
+            doneOnce = true;
+        }
+        },
+        stop: function(event, jui) {
+        $(this).css({ opacity: 1 });
+        }
+    });
+
         a.appendChild(SPAN({ 'class': 'Letter'  },
                            square.tile.letter ? square.tile.letter : ''));
         a.appendChild(SPAN({ 'class': 'Score' },
                            square.tile.score ? square.tile.score : ''));
     } else {
-	div.setAttribute('class', 'Empty');
-	
-	$(div).click(
-	    function () {
-		if (ui.currentlySelectedSquare) {
-		    ui.moveTile(ui.currentlySelectedSquare, square);
-		    ui.selectSquare(null);
-                }
-	    }
-	);
+    div.setAttribute('class', 'Empty');
 
-	$(div).droppable({
-	    hoverClass: "dropActive",
-	    drop: function(event, jui) {
+    $(div).click(
+        function () {
+        if (ui.currentlySelectedSquare) {
+            ui.moveTile(ui.currentlySelectedSquare, square);
+            ui.selectSquare(null);
+                }
+        }
+    );
+
+    $(div).droppable({
+        hoverClass: "dropActive",
+        drop: function(event, jui) {
                 ui.deleteCursor();
                 ui.moveTile(ui.idToSquare($(jui.draggable).attr("id")), square);
-	    }
-	});
+        }
+    });
     }
-}
+};
 
 UI.prototype.drawRack = function() {
     var rack = this.rack;
@@ -824,9 +826,9 @@ UI.prototype.drawRack = function() {
         $('#' + action).bind('click', ui.eventCallback(action));
     });
     forEach(range(8), function (x) {
-	ui.updateRackSquare(rack.squares[x]);
+    ui.updateRackSquare(rack.squares[x]);
     });
-}
+};
 
 UI.prototype.drawSwapRack = function() {
     var swapRack = this.swapRack;
@@ -840,30 +842,30 @@ UI.prototype.drawSwapRack = function() {
                                        DIV({ id: id }, A()));
                          }))));
     forEach(range(7), function (x) {
-	ui.updateRackSquare(swapRack.squares[x]);
+    ui.updateRackSquare(swapRack.squares[x]);
     });
-}
+};
 
 UI.prototype.refreshRack = function() {
     var rack = this.rack;
     for (var x = 0; x < rack.squares.length; x++) {
-	this.updateRackSquare(rack.squares[x]);
+    this.updateRackSquare(rack.squares[x]);
     }
-}
+};
 
 UI.prototype.refreshBoard = function() {
     var board = this.board;
     for (var y = 0; y < board.Dimension; y++) {
-	for (var x = 0; x < board.Dimension; x++) {
+        for (var x = 0; x < board.Dimension; x++) {
             this.updateBoardSquare(board.squares[x][y]);
-	}
+        }
     }
-}
+};
 
 UI.prototype.refresh = function () {
     this.refreshRack();
     this.refreshBoard();
-}
+};
 
 UI.prototype.selectSquare = function(square) {
 
@@ -885,7 +887,7 @@ UI.prototype.selectSquare = function(square) {
         $('#' + 'Board_' + square.x + "x" + square.y)
             .addClass('Targeted');
     }
-}
+};
 
 UI.prototype.moveTile = function(fromSquare, toSquare) {
     var tile = fromSquare.tile;
@@ -894,20 +896,28 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     fromSquare.owner.tileCount--;
     if (tile.isBlank() && !tile.letter || (tile.letter == ' ')) {
         if (fromSquare.owner != this.board && toSquare.owner == this.board) {
-            $('#blankLetterRequester button')
-                .on('keypress', function (event) {
-                    var letter = String.fromCharCode(event.charCode);
-                    if (letter != '') {
-                        letter = letter.toUpperCase();
-                        if (ui.legalLetters.indexOf(letter) != -1) {
-                            $(this).off('keypress');
-                            tile.letter = letter;
-                            $.unblockUI();
-                            ui.updateSquare(toSquare);
-                            $('#dummyInput').focus();
-                        }
+            var blankLetterRequesterButton = $("#blankLetterRequester button");
+            var blankLetterRequesterSkip = $("#blankLetterRequesterSkip button");
+            function setLetter(letter) {
+                tile.letter = letter;
+                $.unblockUI();
+                ui.updateSquare(toSquare);
+                $('#dummyInput').focus();
+                blankLetterRequesterSkip.off('click');
+                blankLetterRequesterButton.off('keypress');
+            }
+            blankLetterRequesterButton.on('keypress', function (event) {
+                var letter = String.fromCharCode(event.charCode);
+                if (letter != '') {
+                    letter = letter.toUpperCase();
+                    if (ui.legalLetters.indexOf(letter) != -1) {
+                        setLetter(letter);
                     }
-                });
+                }
+            });
+            blankLetterRequesterSkip.on('click', function (){
+                setLetter("_")
+            });
             $.blockUI({ message: $('#blankLetterRequester') });
         } else if (toSquare.owner == ui.rack || toSquare.owner == ui.swapRack) {
             tile.letter = ' ';
@@ -918,7 +928,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     if (!this.boardLocked()) {
         setTimeout(function () { ui.updateGameStatus() }, 100);
     }
-}
+};
 
 UI.prototype.updateGameStatus = function() {
     $('#move').empty();
@@ -952,31 +962,31 @@ UI.prototype.updateGameStatus = function() {
         $('#turnButton').removeAttr('disabled');
         $('#TakeBackTiles').css('visibility', 'hidden');
     }
-}
+};
 
 UI.prototype.playAudio = function(id) {
     var audio = document.getElementById(id);
 
     if (audio.playing) {
-	audio.pause();
+    audio.pause();
     }
-    
+
     audio.defaultPlaybackRate = 1;
     audio.volume = 1;
-    
+
     try {
-	audio.currentTime = 0;
-	audio.play();
+    audio.currentTime = 0;
+    audio.play();
     }
     catch(e) {
-	function currentTime() {
-	    audio.currentTime = 0;
-	    audio.removeEventListener("canplay", currentTime, true);
-	    audio.play();
-	}
-	audio.addEventListener("canplay", currentTime, true);
+    function currentTime() {
+        audio.currentTime = 0;
+        audio.removeEventListener("canplay", currentTime, true);
+        audio.play();
     }
-}
+    audio.addEventListener("canplay", currentTime, true);
+    }
+};
 
 UI.prototype.sendMoveToServer = function(command, args, success) {
     this.cancelNotification();
@@ -991,7 +1001,7 @@ UI.prototype.sendMoveToServer = function(command, args, success) {
             alert('PUT request returned error: ' + textStatus + ' (' + errorThrown + ')');
         }
     });
-}
+};
 
 UI.prototype.boardLocked = function(newVal) {
     if (arguments.length > 0) {
@@ -1004,13 +1014,13 @@ UI.prototype.boardLocked = function(newVal) {
         this.refreshBoard();
     }
     return this.board.locked;
-}
+};
 
 UI.prototype.endMove = function() {
     this.removeMoveEditButtons();
     $('#move').empty();
     this.boardLocked(true);
-}
+};
 
 UI.prototype.processMoveResponse = function(data) {
     console.log('move response:', data);
@@ -1028,7 +1038,7 @@ UI.prototype.processMoveResponse = function(data) {
             }
         }
     });
-}
+};
 
 UI.prototype.commitMove = function() {
     try {
@@ -1059,7 +1069,7 @@ UI.prototype.commitMove = function() {
     catch (e) {
         alert('error in commitMove: ' + e);
     }
-}
+};
 
 UI.prototype.addLastMoveActionButton = function(action, label) {
     var ui = this;
@@ -1068,41 +1078,41 @@ UI.prototype.addLastMoveActionButton = function(action, label) {
         ui[action]();
     });
     $('#log div.moveScore div.score').last().append(button);
-}
+};
 
 UI.prototype.addChallengeButton = function() {
     this.addLastMoveActionButton('challenge', 'Challenge');
-}
+};
 
 UI.prototype.addTakeBackMoveButton = function() {
     this.addLastMoveActionButton('takeBackMove', 'Take back move');
-}
+};
 
 UI.prototype.removeMoveEditButtons = function() {
-    $('button#challenge').remove()
-    $('button#takeBackMove').remove()
-}
+    $('button#challenge').remove();
+    $('button#takeBackMove').remove();
+};
 
 UI.prototype.challenge = function() {
     var ui = this;
     ui.TakeBackTiles();
     ui.endMove();
     ui.sendMoveToServer('challenge');
-}
+};
 
 UI.prototype.takeBackMove = function() {
     var ui = this;
     ui.TakeBackTiles();
     ui.endMove();
     ui.sendMoveToServer('takeBack');
-}
+};
 
 UI.prototype.pass = function() {
     var ui = this;
     ui.TakeBackTiles();
     ui.endMove();
     ui.sendMoveToServer('pass')
-}
+};
 
 UI.prototype.swapTiles = function() {
     var ui = this;
@@ -1115,21 +1125,21 @@ UI.prototype.swapTiles = function() {
     ui.sendMoveToServer('swap',
                         letters,
                         bind(this.processMoveResponse, ui));
-}
+};
 
 UI.prototype.setMoveAction = function(action, title) {
     $('#turnButton')
         .attr('action', action)
         .empty()
         .append(title);
-}
+};
 
 UI.prototype.makeMove = function() {
     var action = $('#turnButton').attr('action');
     console.log('makeMove =>', action);
     this.deleteCursor();
     this[action]();
-}
+};
 
 UI.prototype.deleteCursor = function() {
     if (ui.cursor) {
@@ -1137,7 +1147,7 @@ UI.prototype.deleteCursor = function() {
         delete ui.cursor;
         ui.updateBoardSquare(cursorSquare);
     }
-}
+};
 
 UI.prototype.setCursor = function(square, direction) {
     if (ui.cursor) {
@@ -1149,7 +1159,7 @@ UI.prototype.setCursor = function(square, direction) {
                       direction: (direction || 'horizontal') };
     }
     ui.updateBoardSquare(square);
-}
+};
 
 UI.prototype.TakeBackTiles = function() {
     var ui = this;
@@ -1182,7 +1192,7 @@ UI.prototype.TakeBackTiles = function() {
     });
     this.deleteCursor();
     ui.updateGameStatus();
-}
+};
 
 UI.prototype.Shuffle = function() {
     function random(i) {
@@ -1196,7 +1206,7 @@ UI.prototype.Shuffle = function() {
         to.tile = tmp;
     }
     this.refreshRack();
-}
+};
 
 UI.prototype.enableNotifications = function() {
     // must be called in response to user action
@@ -1207,7 +1217,7 @@ UI.prototype.enableNotifications = function() {
             window.webkitNotifications.requestPermission();
         }
     }
-}
+};
 
 UI.prototype.notify = function(title, text) {
     var ui = this;
@@ -1224,11 +1234,11 @@ UI.prototype.notify = function(title, text) {
             });
         notification.show();
     }
-}
+};
 
 UI.prototype.cancelNotification = function() {
     if (this.notification) {
         this.notification.cancel();
         delete this.notification;
     }
-}
+};
