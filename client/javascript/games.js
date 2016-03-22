@@ -21,6 +21,6 @@ function populateGamesList() {
 
 function addCreateGameLink() {
     return TD(null,
-        A({ href: "/make-game/" },
+        A({ href: "/make-game.html" },
             "Create new game"));
 }
