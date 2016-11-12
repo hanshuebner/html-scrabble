@@ -106,6 +106,21 @@ function makeKey() {
     return crypto.randomBytes(8).toString('hex');
 }
 
+// Email subject formatting helper ///////////////////////////////////////
+
+function joinProse(array)
+{
+    var length = array.length;
+    switch (length) {
+    case 0:
+        return "";
+    case 1:
+        return array[0];
+    default:
+        return _.reduce(array.slice(1, length - 1), function (word, accu) { return word + ", " + accu }, array[0]) + " and " + array[length - 1];
+    }
+}
+
 // Game //////////////////////////////////////////////////////////////////
 
 function Game() {
@@ -137,9 +152,16 @@ Game.create = function(language, players) {
     game.passes = 0;
     game.save();
     game.players.forEach(function (player) {
-        game.sendInvitation(player);
+        game.sendInvitation(player,
+                            'You have been invited to play Scrabble with '
+                            + joinProse(game.otherPlayers(player)));
     });
     return game;
+}
+
+Game.prototype.otherPlayers = function(player)
+{
+    return _.pluck(_.without(this.players, player), 'name');
 }
 
 Game.prototype.makeLink = function(player)
@@ -151,27 +173,15 @@ Game.prototype.makeLink = function(player)
     return url;
 }
 
-function joinProse(array)
-{
-    var length = array.length;
-    switch (length) {
-    case 0:
-        return "";
-    case 1:
-        return array[0];
-    default:
-        return _.reduce(array.slice(1, length - 1), function (word, accu) { return word + ", " + accu }, array[0]) + " and " + array[length - 1];
-    }
-}
-
-Game.prototype.sendInvitation = function(player)
+Game.prototype.sendInvitation = function(player, subject)
 {
     try {
+        console.log('sendInvitation to', player.name, 'subject', subject);
         smtp.sendMail({ from: config.mailSender,
                         to: [ player.email ],
-                        subject: 'You have been invited to play Scrabble with ' + joinProse(_.pluck(_.without(this.players, player), 'name')),
-                        text: 'Use this link to play:\n\n' + this.makeLink(player),
-                        html: 'Click <a href="' + this.makeLink(player) + '">here</a> to play.' },
+                        subject: subject,
+                        text: 'Make your move:\n\n' + this.makeLink(player),
+                        html: 'Click <a href="' + this.makeLink(player) + '">here</a> to make your move.' },
                       function (err) {
                           if (err) {
                               console.log('sending mail failed', err);
@@ -564,14 +574,38 @@ var gameListAuth = basicAuth(function(username, password) {
 
 // Handlers //////////////////////////////////////////////////////////////////
 
-app.get("/games", config.gameListLogin ? gameListAuth : function (req, res, next) { next(); }, function(req, res) {
-    res.send(db.all().map(function(game) {
-        return { key: game.key,
-                 players: game.players.map(function(player) {
-                     return { name: player.name,
-                              key: player.key };
-                 })};
-    }));
+app.get("/games",
+        config.gameListLogin ? gameListAuth : function (req, res, next) { next(); },
+        function(req, res) {
+            res.send(db
+                     .all()
+                     .filter(function (game) {
+                         return !game.endMessage;
+                     })
+                     .map(function (game) {
+                         return { key: game.key,
+                                  players: game.players.map(function(player) {
+                                      return { name: player.name,
+                                               email: player.email,
+                                               key: player.key,
+                                               hasTurn: player == game.players[game.whosTurn]};
+                                  })};
+                     }));
+});
+
+app.post("/send-game-reminders", function (req, res) {
+    var count = 0;
+    db.all().map(function (game) {
+        game = db.get(game.key);
+        if (!game.endMessage) {
+            count = count + 1;
+            var player = game.players[game.whosTurn];
+            game.sendInvitation(player,
+                                'It is your turn in your Scrabble game with '
+                                + joinProse(game.otherPlayers(player)));
+        }
+    });
+    res.send("Sent " + count + " reminder emails");
 });
 
 app.get("/game", function(req, res) {
