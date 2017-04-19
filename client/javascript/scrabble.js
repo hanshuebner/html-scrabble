@@ -478,16 +478,18 @@ Rack.prototype.letters = function() {
 };
 Rack.prototype.findLetterSquare = function(letter, includingBlank) {
     var blankSquare = null;
+    
     var square = _.find(this.squares,
-        function(square) {
-            if (square.tile) {
-                if (square.tile.isBlank() && !blankSquare) {
-                    blankSquare = square;
-                } else if (square.tile.letter == letter) {
-                    return true;
-                }
-            }
-        });
+                        function(square) {
+                            if (square.tile) {
+                                if (square.tile.isBlank() && !blankSquare) {
+                                    blankSquare = square;
+                                } else if (square.tile.letter == letter) {
+                                    return true;
+                                }
+                            }
+                        });
+    
     if (square) {
         return square;
     } else if (includingBlank) {
@@ -509,7 +511,8 @@ LetterBag.create = function(language) {
     for (var i = 0; i < letterDistribution.length; ++i) {
         var letterDefinition = letterDistribution[i];
         var tile = new Tile(letterDefinition.letter || " ", letterDefinition.score);
-        if (letterDefinition.letter) {letterBag.legalLetters += letterDefinition.letter;
+        if (letterDefinition.letter) {
+            letterBag.legalLetters += letterDefinition.letter;
         }
         for (var n = 0; n < letterDefinition.count; ++n) {
             var tile = new Tile(letterDefinition.letter || " ", letterDefinition.score);
