@@ -470,11 +470,13 @@ Rack.prototype.toString = function() {
 };
 Rack.prototype.letters = function() {
     return _.reduce(this.squares,
-        function(accu, square) {
-            if (square.tile) {
-                accu.push(square.tile.letter);
-            }
-            return accu;}, []);
+                    function(accu, square) {
+                        if (square.tile) {
+                            accu.push(square.tile.letter);
+                        }
+        
+                        return accu;
+                    }, []);
 };
 Rack.prototype.findLetterSquare = function(letter, includingBlank) {
     var blankSquare = null;
