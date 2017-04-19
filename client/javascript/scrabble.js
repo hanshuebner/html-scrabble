@@ -372,7 +372,8 @@ Square.prototype.toString = function() {
     }
     if (this.tile) {
         string += ' => ' + this.tile;
-        if (this.tileLocked) {string += ' (Locked)';
+        if (this.tileLocked) {
+            string += ' (Locked)';
         }
     }
     return string;
