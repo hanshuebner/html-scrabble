@@ -141,6 +141,10 @@ $ node server.js
 
 Open your web browser on the configured game URL to create a new game.
 
+## Deleting a game
+
+    jq -c 'select(.key != "b657b5d33a7736b0")' data.db | sponge data.db
+
 If you have trouble getting the server to run, feel free to contact
 me.  Be aware, though, that you will need a machine to run the server
 on (I'm using my Mac, but FreeBSD or Linux will work as well) and have
