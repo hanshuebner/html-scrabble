@@ -1,6 +1,6 @@
 {
-    "port": 9093,
-    "baseUrl": "http://localhost:9093/",
+    "port": 8888,
+    "baseUrl": "http://localhost:8888/",
     "mailSender": "Scrabble Server <scrabble@netzhansa.com>",
     "mailTransportConfig": {
         "host": "localhost"
