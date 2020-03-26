@@ -9,6 +9,10 @@ name: app
 # The runtime the application uses.
 type: nodejs:12
 
+hooks:
+  build: |
+    ln -s data/data.db data.db
+
 # The relationships of the application with services or other applications.
 #
 # The left-hand side is the name of the relationship as it will be exposed
@@ -26,6 +30,6 @@ web:
 disk: 512
 
 mounts:
-    'run':
+    'data':
         source: local
-        source_path: run
+        source_path: data
