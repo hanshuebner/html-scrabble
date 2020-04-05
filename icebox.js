@@ -10,10 +10,6 @@ function thaw(object, prototypeMap) {
     }
 
     function thawTree(object) {
-        console.log(object);
-        if (object._constructorName == 'Date') {
-            console.log('date', object);
-        }
         if (object && (typeof object == 'object')) {
             if (object._ref !== undefined) {
                 if (objectsThawed[object._ref]) {
@@ -71,14 +67,17 @@ function freeze(object) {
 
     function freezeTree(object) {
         if (object && (typeof object == 'object')) {
-            if (object._frozen) {
+	    if (!object.constructor) {
+		console.log('freeze strange object', object);
+		return object;
+	    } else if (object._frozen) {
                 return { _ref: object._frozen._id };
             } else {
                 var frozen = freezeObject(object);
-                if (object.constructor && !object.constructor.name.match(/^(Array|Object)$/)) {
+                if (!object.constructor.name.match(/^(Array|Object)$/)) {
                     frozen._constructorName = object.constructor.name;
                 }
-                if (object.constructor && object.constructor.name == 'Date') {
+                if (object.constructor.name == 'Date') {
                     frozen._isoString = object.toISOString();
                 } else {
                     for (var prop in object) {
