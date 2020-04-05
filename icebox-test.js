@@ -1,4 +1,4 @@
-var icebox = require('./client/javascript/icebox.js');
+var icebox = require('./icebox.js');
 
 exports.testDatePreserved = function(test) {
     var timestamp = new Date();

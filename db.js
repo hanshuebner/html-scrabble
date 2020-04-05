@@ -1,7 +1,7 @@
 var fs = require('fs');
 var dirty = require('dirty');
 var util = require('util');
-var icebox = require('./client/javascript/icebox.js');
+var icebox = require('./icebox.js');
 var EventEmitter = require('events').EventEmitter;
 
 // //////////////////////////////////////////////////////////////////////
