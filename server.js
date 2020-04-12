@@ -75,7 +75,8 @@ console.log('config', config);
 var smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
 
 var app = express();
-var server = app.listen(config.port)
+const PORT = process.env.PORT || config.port
+var server = app.listen(PORT)
 var io = io.listen(server);
 var db = new DB.DB(argv.database);
 
