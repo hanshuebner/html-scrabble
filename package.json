@@ -35,6 +35,7 @@
         "release-utils": ">= 0.0.1"
     },
     "scripts": {
-        "build-release": "node node_modules/release-utils/npm-release.js"
+        "build-release": "node node_modules/release-utils/npm-release.js",
+        "web": "node server.js"
     }
 }
