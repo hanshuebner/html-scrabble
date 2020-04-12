@@ -72,13 +72,16 @@ console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
 
-var smtp = nodemailer.createTransport({
-  service: 'gmail',
+var sgTransport = require('nodemailer-sendgrid-transport');
+
+var options = {
   auth: {
-    user: process.env.GMAIL_USERNAME,
-    pass: process.env.GMAIL_PASSWORD
+    api_user: process.env.SENDGRID_USERNAME,
+    api_key: process.env.SENDGRID_PASSWORD
   }
-});
+}
+
+var smtp = nodemailer.createTransport(sgTransport(options));
 
 var app = express();
 const PORT = process.env.PORT || config.port
