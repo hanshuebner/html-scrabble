@@ -17,6 +17,7 @@
     },
     "license": "MIT/X11",
     "dependencies": {
+        "nodemailer-sendgrid-transport": "^0.2.0",
         "dirty": ">=0.9.6",
         "express-negotiate": ">=0.0.5",
         "express": ">=3.0.0rc2",
