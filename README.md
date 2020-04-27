@@ -26,7 +26,8 @@ want to keep it that way.
 ## Features
 
 * Two to four players
-* Czech, English, Estonian, French, German, Hungarian and Dutch letter sets
+* Czech, English, Estonian, French, German, Hungarian, Dutch and Spanish
+  letter sets
 * Written in JavaScript, runs in browser
 * Scalable user interface
 * Desktop notification support
