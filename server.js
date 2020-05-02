@@ -45,7 +45,7 @@ function maybeLoadConfig() {
         catch (e) {
             console.log('error reading configuration:\n' + e);
             process.exit(1);
-        }            
+        }
     }
 
     var defaultConfig = readConfig(__dirname + "/config-default.json");
@@ -94,7 +94,7 @@ app.use(bodyParser());
 app.use(cookieParser());
 app.use(express.static(__dirname + '/client'));
 app.use(errorhandler({
-    dumpExceptions: true, 
+    dumpExceptions: true,
     showStack: true
 }));
 
@@ -186,12 +186,14 @@ Game.prototype.makeLink = function(player)
 Game.prototype.sendInvitation = function(player, subject)
 {
     try {
+        const gameLink = this.makeLink(player)
         console.log('sendInvitation to', player.name, 'subject', subject);
+        console.log('link: ', gameLink);
         smtp.sendMail({ from: config.mailSender,
                         to: [ player.email ],
                         subject: subject,
-                        text: 'Make your move:\n\n' + this.makeLink(player),
-                        html: 'Click <a href="' + this.makeLink(player) + '">here</a> to make your move.' },
+                        text: 'Make your move:\n\n' + gameLink,
+                        html: 'Click <a href="' + gameLink + '">here</a> to make your move.' },
                       function (err) {
                           if (err) {
                               console.log('sending mail failed', err);
@@ -507,7 +509,7 @@ Game.prototype.finish = function(reason) {
 
     delete game.whosTurn;
 
-    // Tally scores  
+    // Tally scores
     var playerWithNoTiles;
     var pointsRemainingOnRacks = 0;
     game.players.forEach(function(player) {
