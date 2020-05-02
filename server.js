@@ -176,7 +176,8 @@ Game.prototype.otherPlayers = function(player)
 
 Game.prototype.makeLink = function(player)
 {
-    var url = config.baseUrl + "game/" + this.key;
+    const baseUrl = process.env.BASE_URL || config.baseUrl
+    var url = baseUrl + "game/" + this.key;
     if (player) {
         url += "/" + player.key;
     }

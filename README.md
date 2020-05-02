@@ -112,6 +112,9 @@ SMTP server on your server, you need to set the
 documentation](http://documentup.com/andris9/nodemailer/#setting-up-a-transport-method)
 for information on how to configure nodemailer.
 
+If set, the BASE_URL environment variable will be used instead of the
+```baseUrl``` value in the config file.
+
 ### Protecting the game list
 
 If you deploy your Scrabble server in the Internet, you may want to
