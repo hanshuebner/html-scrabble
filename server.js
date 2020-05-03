@@ -7,6 +7,7 @@ var os = require('os');
 var fs = require('fs');
 var io = require('socket.io');
 var nodemailer = require('nodemailer');
+const mailgun = require('nodemailer-mailgun-transport');
 var express = require('express');
 var methodOverride = require('method-override');
 var bodyParser = require('body-parser');
@@ -77,16 +78,12 @@ console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
 
-
-var smtp = nodemailer.createTransport({
-  service: 'SendGrid',
+var smtp = nodemailer.createTransport(mailgun, {
   auth: {
-    user: process.env.SENDGRID_USERNAME,
-    pass: process.env.SENDGRID_PASSWORD
+    api_key: process.env.MAILGUN_API_KEY,
+    domain: process.env.MAILGUN_DOMAIN
   }
 });
-
-
 
 var app = express();
 const PORT = process.env.PORT || config.port
