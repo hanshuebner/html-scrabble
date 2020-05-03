@@ -31,6 +31,13 @@ DB.prototype.get = function(key) {
     return icebox.thaw(this.dirty.get(key), this.prototypeMap);
 }
 
+DB.prototype.asyncGet = async function(key) {
+    const json = await getAsync(key);
+    const data = JSON.parse(json);
+    const game = icebox.thaw(data, this.prototypeMap);
+    return game;
+}
+
 DB.prototype.set = function(key, object) {
     data = icebox.freeze(object);
     this.dirty.set(key, data);
