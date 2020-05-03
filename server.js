@@ -763,9 +763,9 @@ app.post("/game/:gameKey", (req, res) => handleCommand(req, res)),
 
 io.sockets.on('connection', function (socket) {
     socket
-        .on('join', function(data) {
+        .on('join', async function(data) {
             var socket = this;
-            var game = Game.load(data.gameKey);
+            var game = await Game.asyncLoad(data.gameKey);
             if (!game) {
                 console.log("game " + data.gameKey + " not found");
             } else {
