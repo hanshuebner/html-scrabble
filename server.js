@@ -7,7 +7,6 @@ var os = require('os');
 var fs = require('fs');
 var io = require('socket.io');
 var nodemailer = require('nodemailer');
-const mailgun = require('nodemailer-mailgun-transport');
 var express = require('express');
 var methodOverride = require('method-override');
 var bodyParser = require('body-parser');
@@ -78,10 +77,13 @@ console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
 
-var smtp = nodemailer.createTransport(mailgun, {
+var smtp = nodemailer.createTransport({
+  host: process.env.MAILGUN_SMTP_SERVER,
+  port: process.env.MAILGUN_SMTP_PORT,
+  secure: false,
   auth: {
-    api_key: process.env.MAILGUN_API_KEY,
-    domain: process.env.MAILGUN_DOMAIN
+    user: process.env.MAILGUN_SMTP_LOGIN,
+    pass: process.env.MAILGUN_SMTP_PASSWORD
   }
 });
 
@@ -193,7 +195,7 @@ Game.prototype.sendInvitation = function(player, subject)
         console.log('sendInvitation to', player.name, 'subject', subject);
         console.log('link: ', gameLink);
         smtp.sendMail({ from: config.mailSender,
-                        to: [ player.email ],
+                        to:  player.email,
                         subject: subject,
                         text: 'Make your move:\n\n' + gameLink,
                         html: 'Click <a href="' + gameLink + '">here</a> to make your move.' },
