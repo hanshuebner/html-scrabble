@@ -612,8 +612,8 @@ app.get("/games",
 async function sendGameReminders(req, res) {
     var count = 0;
     const games = await db.all()
-    games.map(function (game) {
-        game = db.get(game.key);
+    games.map(async function (game) {
+        game = await db.asyncGet(game.key);
         if (!game.endMessage) {
             count = count + 1;
             var player = game.players[game.whosTurn];
