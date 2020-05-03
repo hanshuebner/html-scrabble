@@ -4,7 +4,7 @@ var icebox = require('./icebox.js');
 var EventEmitter = require('events').EventEmitter;
 
 const redis = require('redis');
-const client = redis.createClient(); // TODO: use REDIS_URL here
+const client = redis.createClient(process.env.REDIS_URL);
 const { promisify } = require("util");
 const getAsync = promisify(client.get).bind(client);
 const keysAsync = promisify(client.keys).bind(client);
