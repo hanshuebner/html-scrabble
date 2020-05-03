@@ -17,6 +17,7 @@ setup:
 	heroku addons:create heroku-redis:hobby-dev
 	heroku addons:create mailgun:starter
 	git push heroku master
+	heroku open
 
 deploy:
 	git push heroku master
