@@ -52,24 +52,4 @@ DB.prototype.all = async function() {
     return retval;
 }
 
-DB.prototype.snapshot = function() {
-    var db = this;
-    var filename = this.path + '.tmp';
-    if (fs.existsSync(filename)) {
-        throw 'snapshot cannot overwrite existing file ' + filename;
-    }
-    var snapshot = dirty(filename);
-    snapshot.on('load', function() {
-        db.dirty.forEach(function(key, value) {
-            snapshot.set(key, value);
-        });
-    });
-    snapshot.on('drain', function() {
-        fs.renameSync(db.path, db.path + '.old');
-        fs.renameSync(filename, db.path);
-        db.dirty = dirty(db.path);
-        console.log('DB snapshot finished');
-    });
-}
-
 exports.DB = DB;
