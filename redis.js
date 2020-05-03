@@ -1,5 +1,4 @@
 var fs = require('fs');
-var dirty = require('dirty');
 var util = require('util');
 var icebox = require('./icebox.js');
 var EventEmitter = require('events').EventEmitter;
@@ -12,15 +11,12 @@ const keysAsync = promisify(client.keys).bind(client);
 
 // //////////////////////////////////////////////////////////////////////
 
-function DB(path) {
+function DB() {
     this.prototypeMap = {};
     EventEmitter.call(this);
-    console.log('opening database', path);
-    this.path = path;
-    this.dirty = dirty(path);
+    console.log('opening database');
     var db = this;
-    this.dirty.on('load', function () { db.emit('load', 0); });
-    this.dirty.on('all', function () { db.emit('load', 0); });
+    db.on('all', function () { db.emit('load', 0); });
 }
 
 util.inherits(DB, EventEmitter);
