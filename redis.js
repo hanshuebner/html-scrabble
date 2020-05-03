@@ -38,7 +38,6 @@ DB.prototype.get = async function(key) {
 
 DB.prototype.set = function(key, object) {
     data = icebox.freeze(object);
-    this.dirty.set(key, data);
     client.set(key, JSON.stringify(data));
 }
 
