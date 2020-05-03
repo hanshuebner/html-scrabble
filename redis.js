@@ -8,6 +8,7 @@ const redis = require('redis');
 const client = redis.createClient(); // TODO: use REDIS_URL here
 const { promisify } = require("util");
 const getAsync = promisify(client.get).bind(client);
+const keysAsync = promisify(client.keys).bind(client);
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -44,11 +45,14 @@ DB.prototype.set = function(key, object) {
     client.set(key, JSON.stringify(data));
 }
 
-DB.prototype.all = function() {
+DB.prototype.all = async function() {
+    const keys = await keysAsync('*');
     var retval = [];
-    this.dirty.forEach(function(key, value) {
+    for (let i = 0; i < keys.length; i++) {
+        const jsn = await getAsync(keys[i]);
+        const value = JSON.parse(jsn);
         retval.push(value);
-    });
+    }
     return retval;
 }
 

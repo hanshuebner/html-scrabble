@@ -604,24 +604,27 @@ var gameListAuth = basicAuth(function(username, password) {
 
 // Handlers //////////////////////////////////////////////////////////////////
 
+async function listGames(req, res) {
+    games = await db.all();
+    res.send(
+        games.filter(function (game) {
+            return !game.endMessage;
+        })
+        .map(function (game) {
+            return { key: game.key,
+                players: game.players.map(function(player) {
+                    return { name: player.name,
+                        email: player.email,
+                        key: player.key,
+                        hasTurn: player == game.players[game.whosTurn]};
+                })};
+        }));
+}
+
 app.get("/games",
         config.gameListLogin ? gameListAuth : function (req, res, next) { next(); },
-        function(req, res) {
-            res.send(db
-                     .all()
-                     .filter(function (game) {
-                         return !game.endMessage;
-                     })
-                     .map(function (game) {
-                         return { key: game.key,
-                                  players: game.players.map(function(player) {
-                                      return { name: player.name,
-                                               email: player.email,
-                                               key: player.key,
-                                               hasTurn: player == game.players[game.whosTurn]};
-                                  })};
-                     }));
-});
+        (req, res) => listGames(req, res)
+);
 
 app.post("/send-game-reminders", function (req, res) {
     var count = 0;
