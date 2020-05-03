@@ -215,7 +215,7 @@ Game.prototype.save = function(key) {
     db.set(this.key, this);
 }
 
-Game.asyncLoad = async function(key) {
+Game.load = async function(key) {
     if (!this.games) {
         this.games = {};
     }
@@ -659,7 +659,7 @@ app.post("/game", function(req, res) {
 
 async function getGameAndSetPlayerKey(req, res) {
     const gameKey = req.params.gameKey;
-    const game = await Game.asyncLoad(gameKey);
+    const game = await Game.load(gameKey);
     if (!game) {
         throw "Game " + gameKey + " does not exist";
     }
@@ -669,7 +669,7 @@ async function getGameAndSetPlayerKey(req, res) {
 
 async function getGame(req, res) {
     const gameKey = req.params.gameKey;
-    const game = await Game.asyncLoad(gameKey);
+    const game = await Game.load(gameKey);
     if (!game) {
         throw "Game " + gameKey + " does not exist";
     }
@@ -702,7 +702,7 @@ async function getGame(req, res) {
 
 async function handleCommand(req, res) {
     const gameKey = req.params.gameKey;
-    const game = await Game.asyncLoad(gameKey);
+    const game = await Game.load(gameKey);
     if (!game) {
         throw "Game " + gameKey + " does not exist";
     }
@@ -751,7 +751,7 @@ io.sockets.on('connection', function (socket) {
     socket
         .on('join', async function(data) {
             var socket = this;
-            var game = await Game.asyncLoad(data.gameKey);
+            var game = await Game.load(data.gameKey);
             if (!game) {
                 console.log("game " + data.gameKey + " not found");
             } else {
