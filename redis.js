@@ -28,7 +28,7 @@ DB.prototype.registerObject = function(constructor) {
     this.prototypeMap[constructor.name] = constructor;
 }
 
-DB.prototype.asyncGet = async function(key) {
+DB.prototype.get = async function(key) {
     const json = await getAsync(key);
     const data = JSON.parse(json);
     const game = icebox.thaw(data, this.prototypeMap);

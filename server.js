@@ -215,7 +215,7 @@ Game.asyncLoad = async function(key) {
         this.games = {};
     }
     if (!this.games[key]) {
-        var game = await db.asyncGet(key);
+        var game = await db.get(key);
         if (!game) {
             return null;
         }
@@ -613,7 +613,7 @@ async function sendGameReminders(req, res) {
     var count = 0;
     const games = await db.all()
     games.map(async function (game) {
-        game = await db.asyncGet(game.key);
+        game = await db.get(game.key);
         if (!game.endMessage) {
             count = count + 1;
             var player = game.players[game.whosTurn];
