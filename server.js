@@ -28,7 +28,7 @@ var argv = require('optimist')
 
 var scrabble = require('./client/javascript/scrabble.js');
 var icebox = require('./client/javascript/icebox.js');
-var DB = require('./db.js');
+var DB = require('./redis.js');
 
 var EventEmitter = require('events').EventEmitter;
 
