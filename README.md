@@ -105,12 +105,7 @@ running on the local host to send out game invitation emails.  The
 invitation emails contain the "localhost" in the URL, so they will
 only work for a browser running on the same machine as the server.
 
-As a minimum, the ```baseUrl``` and ```mailSender``` configuration
-properties should be changed.  Furthermore, if you are not running an
-SMTP server on your server, you need to set the
-```mailTransportConfig``` appropriately.  Please refer to [nodemailer
-documentation](http://documentup.com/andris9/nodemailer/#setting-up-a-transport-method)
-for information on how to configure nodemailer.
+As a minimum, the ```baseUrl``` configuration property should be changed.
 
 If set, the BASE_URL environment variable will be used instead of the
 ```baseUrl``` value in the config file.

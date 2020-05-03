@@ -192,9 +192,10 @@ Game.prototype.sendInvitation = function(player, subject)
 {
     try {
         const gameLink = this.makeLink(player)
+        const sender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
         console.log('sendInvitation to', player.name, 'subject', subject);
         console.log('link: ', gameLink);
-        smtp.sendMail({ from: config.mailSender,
+        smtp.sendMail({ from: sender,
                         to:  player.email,
                         subject: subject,
                         text: 'Make your move:\n\n' + gameLink,
