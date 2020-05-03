@@ -727,12 +727,17 @@ async function getGame(req, res) {
     });
 }
 
-app.get("/game/:gameKey/:playerKey", (req, res) => getGameAndSetPlayerKey(req, res)),
-app.get("/game/:gameKey", (req, res) => getGame(req, res)),
+async function handleCommand(req, res) {
+    const gameKey = req.params.gameKey;
+    const game = await Game.asyncLoad(gameKey);
+    if (!game) {
+        throw "Game " + gameKey + " does not exist";
+    }
+    const player = game.lookupPlayer(req);
+    const body = icebox.thaw(req.body);
 
-app.post("/game/:gameKey", playerHandler(function(player, game, req, res) {
-    var body = icebox.thaw(req.body);
     console.log('put', game.key, 'player', player.name, 'command', body.command, 'arguments', req.body.arguments);
+
     var tilesAndTurn;
     switch (req.body.command) {
     case 'makeMove':
@@ -763,7 +768,11 @@ app.post("/game/:gameKey", playerHandler(function(player, game, req, res) {
         var result = game.finishTurn(player, tiles, turn);
         res.send(icebox.freeze(result));
     }
-}));
+}
+
+app.get("/game/:gameKey/:playerKey", (req, res) => getGameAndSetPlayerKey(req, res)),
+app.get("/game/:gameKey", (req, res) => getGame(req, res)),
+app.post("/game/:gameKey", (req, res) => handleCommand(req, res)),
 
 io.sockets.on('connection', function (socket) {
     socket
