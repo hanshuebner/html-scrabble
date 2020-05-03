@@ -694,9 +694,12 @@ async function getGameAndSetPlayerKey(req, res) {
     res.redirect("/game/" + gameKey);
 }
 
-app.get("/game/:gameKey/:playerKey", (req, res) => getGameAndSetPlayerKey(req, res)),
-
-app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
+async function getGame(req, res) {
+    const gameKey = req.params.gameKey;
+    const game = await Game.asyncLoad(gameKey);
+    if (!game) {
+        throw "Game " + gameKey + " does not exist";
+    }
     req.negotiate({
         'application/json': function () {
             var response = { board: game.board,
@@ -722,7 +725,10 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
             res.sendfile(__dirname + '/client/game.html');
         }
     });
-}));
+}
+
+app.get("/game/:gameKey/:playerKey", (req, res) => getGameAndSetPlayerKey(req, res)),
+app.get("/game/:gameKey", (req, res) => getGame(req, res)),
 
 app.post("/game/:gameKey", playerHandler(function(player, game, req, res) {
     var body = icebox.thaw(req.body);
