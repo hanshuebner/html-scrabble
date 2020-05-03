@@ -4,6 +4,11 @@ var util = require('util');
 var icebox = require('./icebox.js');
 var EventEmitter = require('events').EventEmitter;
 
+const redis = require('redis');
+const client = redis.createClient(); // TODO: use REDIS_URL here
+const { promisify } = require("util");
+const getAsync = promisify(client.get).bind(client);
+
 // //////////////////////////////////////////////////////////////////////
 
 function DB(path) {
