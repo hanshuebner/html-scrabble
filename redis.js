@@ -20,6 +20,7 @@ function DB(path) {
     this.dirty = dirty(path);
     var db = this;
     this.dirty.on('load', function () { db.emit('load', 0); });
+    this.dirty.on('all', function () { db.emit('load', 0); });
 }
 
 util.inherits(DB, EventEmitter);
