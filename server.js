@@ -210,6 +210,23 @@ Game.prototype.save = function(key) {
     db.set(this.key, this);
 }
 
+Game.asyncLoad = async function(key) {
+    if (!this.games) {
+        this.games = {};
+    }
+    if (!this.games[key]) {
+        var game = await db.asyncGet(key);
+        if (!game) {
+            return null;
+        }
+        EventEmitter.call(game);
+        game.connections = [];
+        Object.defineProperty(game, 'connections', { enumerable: false }); // makes connections non-persistent
+        this.games[key] = game;
+    }
+    return this.games[key];
+}
+
 Game.load = function(key) {
     if (!this.games) {
         this.games = {};
@@ -667,10 +684,17 @@ function playerHandler(handler) {
     });
 }
 
-app.get("/game/:gameKey/:playerKey", gameHandler(function (game, req, res) {
-    res.cookie(req.params.gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
-    res.redirect("/game/" + req.params.gameKey);
-}));
+async function getGameAndSetPlayerKey(req, res) {
+    const gameKey = req.params.gameKey;
+    const game = await Game.asyncLoad(gameKey);
+    if (!game) {
+        throw "Game " + gameKey + " does not exist";
+    }
+    res.cookie(gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
+    res.redirect("/game/" + gameKey);
+}
+
+app.get("/game/:gameKey/:playerKey", (req, res) => getGameAndSetPlayerKey(req, res)),
 
 app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
     req.negotiate({
