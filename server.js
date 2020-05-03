@@ -626,20 +626,22 @@ app.get("/games",
         (req, res) => listGames(req, res)
 );
 
-app.post("/send-game-reminders", function (req, res) {
+async function sendGameReminders(req, res) {
     var count = 0;
-    db.all().map(function (game) {
+    const games = await db.all()
+    games.map(function (game) {
         game = db.get(game.key);
         if (!game.endMessage) {
             count = count + 1;
             var player = game.players[game.whosTurn];
             game.sendInvitation(player,
-                                'It is your turn in your Scrabble game with '
-                                + joinProse(game.otherPlayers(player)));
+                'It is your turn in your Scrabble game with ' + joinProse(game.otherPlayers(player)));
         }
     });
     res.send("Sent " + count + " reminder emails");
-});
+}
+
+app.post("/send-game-reminders", (req, res) => sendGameReminders(req, res));
 
 app.get("/game", function(req, res) {
     res.sendfile(__dirname + '/client/make-game.html');
