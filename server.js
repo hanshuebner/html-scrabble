@@ -28,7 +28,12 @@ var argv = require('optimist')
 
 var scrabble = require('./client/javascript/scrabble.js');
 var icebox = require('./client/javascript/icebox.js');
-var DB = require('./redis.js');
+
+if (process.env.REDIS_URL) {
+    var DB = require('./redis.js');
+} else {
+    var DB = require('./db.js');
+}
 
 var EventEmitter = require('events').EventEmitter;
 
