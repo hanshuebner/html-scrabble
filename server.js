@@ -666,24 +666,6 @@ app.post("/game", function(req, res) {
     res.redirect("/game/" + game.key + "/" + game.players[0].key);
 });
 
-function gameHandler(handler) {
-    return function(req, res) {
-        var gameKey = req.params.gameKey;
-        var game = Game.load(gameKey);
-        if (!game) {
-            throw "Game " + req.params.gameKey + " does not exist";
-        }
-        handler(game, req, res);
-    }
-}
-
-function playerHandler(handler) {
-    return gameHandler(function(game, req, res) {
-        var player = game.lookupPlayer(req);
-        handler(player, game, req, res);
-    });
-}
-
 async function getGameAndSetPlayerKey(req, res) {
     const gameKey = req.params.gameKey;
     const game = await Game.asyncLoad(gameKey);
