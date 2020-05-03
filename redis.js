@@ -28,10 +28,6 @@ DB.prototype.registerObject = function(constructor) {
     this.prototypeMap[constructor.name] = constructor;
 }
 
-DB.prototype.get = function(key) {
-    return icebox.thaw(this.dirty.get(key), this.prototypeMap);
-}
-
 DB.prototype.asyncGet = async function(key) {
     const json = await getAsync(key);
     const data = JSON.parse(json);
