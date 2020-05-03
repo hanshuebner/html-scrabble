@@ -227,23 +227,6 @@ Game.asyncLoad = async function(key) {
     return this.games[key];
 }
 
-Game.load = function(key) {
-    if (!this.games) {
-        this.games = {};
-    }
-    if (!this.games[key]) {
-        var game = db.get(key);
-        if (!game) {
-            return null;
-        }
-        EventEmitter.call(game);
-        game.connections = [];
-        Object.defineProperty(game, 'connections', { enumerable: false }); // makes connections non-persistent
-        this.games[key] = game;
-    }
-    return this.games[key];
-}
-
 Game.prototype.notifyListeners = function(message, data) {
     this.connections.forEach(function (socket) {
         socket.emit(message, data);
