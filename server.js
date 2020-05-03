@@ -28,7 +28,7 @@ var argv = require('optimist')
 
 var scrabble = require('./client/javascript/scrabble.js');
 var icebox = require('./client/javascript/icebox.js');
-var DB = require('./db.js');
+var DB = require('./redis.js');
 
 var EventEmitter = require('events').EventEmitter;
 
@@ -210,12 +210,12 @@ Game.prototype.save = function(key) {
     db.set(this.key, this);
 }
 
-Game.load = function(key) {
+Game.asyncLoad = async function(key) {
     if (!this.games) {
         this.games = {};
     }
     if (!this.games[key]) {
-        var game = db.get(key);
+        var game = await db.get(key);
         if (!game) {
             return null;
         }
@@ -548,8 +548,6 @@ Game.prototype.finish = function(reason) {
                        })
                      };
     game.endMessage = endMessage;
-
-    db.snapshot();
 }
 
 Game.prototype.ended = function() {
@@ -587,39 +585,44 @@ var gameListAuth = basicAuth(function(username, password) {
 
 // Handlers //////////////////////////////////////////////////////////////////
 
+async function listGames(req, res) {
+    games = await db.all();
+    res.send(
+        games.filter(function (game) {
+            return !game.endMessage;
+        })
+        .map(function (game) {
+            return { key: game.key,
+                players: game.players.map(function(player) {
+                    return { name: player.name,
+                        email: player.email,
+                        key: player.key,
+                        hasTurn: player == game.players[game.whosTurn]};
+                })};
+        }));
+}
+
 app.get("/games",
         config.gameListLogin ? gameListAuth : function (req, res, next) { next(); },
-        function(req, res) {
-            res.send(db
-                     .all()
-                     .filter(function (game) {
-                         return !game.endMessage;
-                     })
-                     .map(function (game) {
-                         return { key: game.key,
-                                  players: game.players.map(function(player) {
-                                      return { name: player.name,
-                                               email: player.email,
-                                               key: player.key,
-                                               hasTurn: player == game.players[game.whosTurn]};
-                                  })};
-                     }));
-});
+        (req, res) => listGames(req, res)
+);
 
-app.post("/send-game-reminders", function (req, res) {
+async function sendGameReminders(req, res) {
     var count = 0;
-    db.all().map(function (game) {
-        game = db.get(game.key);
+    const games = await db.all()
+    games.map(async function (game) {
+        game = await db.get(game.key);
         if (!game.endMessage) {
             count = count + 1;
             var player = game.players[game.whosTurn];
             game.sendInvitation(player,
-                                'It is your turn in your Scrabble game with '
-                                + joinProse(game.otherPlayers(player)));
+                'It is your turn in your Scrabble game with ' + joinProse(game.otherPlayers(player)));
         }
     });
     res.send("Sent " + count + " reminder emails");
-});
+}
+
+app.post("/send-game-reminders", (req, res) => sendGameReminders(req, res));
 
 app.get("/game", function(req, res) {
     res.sendfile(__dirname + '/client/make-game.html');
@@ -649,30 +652,22 @@ app.post("/game", function(req, res) {
     res.redirect("/game/" + game.key + "/" + game.players[0].key);
 });
 
-function gameHandler(handler) {
-    return function(req, res) {
-        var gameKey = req.params.gameKey;
-        var game = Game.load(gameKey);
-        if (!game) {
-            throw "Game " + req.params.gameKey + " does not exist";
-        }
-        handler(game, req, res);
+async function getGameAndSetPlayerKey(req, res) {
+    const gameKey = req.params.gameKey;
+    const game = await Game.asyncLoad(gameKey);
+    if (!game) {
+        throw "Game " + gameKey + " does not exist";
     }
+    res.cookie(gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
+    res.redirect("/game/" + gameKey);
 }
 
-function playerHandler(handler) {
-    return gameHandler(function(game, req, res) {
-        var player = game.lookupPlayer(req);
-        handler(player, game, req, res);
-    });
-}
-
-app.get("/game/:gameKey/:playerKey", gameHandler(function (game, req, res) {
-    res.cookie(req.params.gameKey, req.params.playerKey, { path: '/', maxAge: (30 * 24 * 60 * 60 * 1000) });
-    res.redirect("/game/" + req.params.gameKey);
-}));
-
-app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
+async function getGame(req, res) {
+    const gameKey = req.params.gameKey;
+    const game = await Game.asyncLoad(gameKey);
+    if (!game) {
+        throw "Game " + gameKey + " does not exist";
+    }
     req.negotiate({
         'application/json': function () {
             var response = { board: game.board,
@@ -698,11 +693,19 @@ app.get("/game/:gameKey", gameHandler(function (game, req, res, next) {
             res.sendfile(__dirname + '/client/game.html');
         }
     });
-}));
+}
 
-app.post("/game/:gameKey", playerHandler(function(player, game, req, res) {
-    var body = icebox.thaw(req.body);
+async function handleCommand(req, res) {
+    const gameKey = req.params.gameKey;
+    const game = await Game.asyncLoad(gameKey);
+    if (!game) {
+        throw "Game " + gameKey + " does not exist";
+    }
+    const player = game.lookupPlayer(req);
+    const body = icebox.thaw(req.body);
+
     console.log('put', game.key, 'player', player.name, 'command', body.command, 'arguments', req.body.arguments);
+
     var tilesAndTurn;
     switch (req.body.command) {
     case 'makeMove':
@@ -733,13 +736,17 @@ app.post("/game/:gameKey", playerHandler(function(player, game, req, res) {
         var result = game.finishTurn(player, tiles, turn);
         res.send(icebox.freeze(result));
     }
-}));
+}
+
+app.get("/game/:gameKey/:playerKey", (req, res) => getGameAndSetPlayerKey(req, res)),
+app.get("/game/:gameKey", (req, res) => getGame(req, res)),
+app.post("/game/:gameKey", (req, res) => handleCommand(req, res)),
 
 io.sockets.on('connection', function (socket) {
     socket
-        .on('join', function(data) {
+        .on('join', async function(data) {
             var socket = this;
-            var game = Game.load(data.gameKey);
+            var game = await Game.asyncLoad(data.gameKey);
             if (!game) {
                 console.log("game " + data.gameKey + " not found");
             } else {
