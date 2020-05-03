@@ -32,7 +32,9 @@ DB.prototype.get = function(key) {
 }
 
 DB.prototype.set = function(key, object) {
-    this.dirty.set(key, icebox.freeze(object));
+    data = icebox.freeze(object);
+    this.dirty.set(key, data);
+    client.set(key, JSON.stringify(data));
 }
 
 DB.prototype.all = function() {
