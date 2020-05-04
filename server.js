@@ -220,6 +220,7 @@ Game.prototype.sendInvitation = function(player, subject)
               }
             });
         }
+
     }
     catch (e) {
         console.log('cannot send mail:', e);

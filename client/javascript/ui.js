@@ -331,7 +331,7 @@ function UI(game) {
                                 SPAN({ 'class': 'name' }, message.name),
                                 ': ',
                                 message.text))
-                    .animate({ scrollTop: $('#log').prop('scrollHeight') }, 100);
+                    .animate({ scrollTop: $('#chatLog').prop('scrollHeight') }, 100);
                 if (message.name != ui.thisPlayer.name) {
                     ui.notify(message.name + " says", message.text);
                 }
