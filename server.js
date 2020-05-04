@@ -205,16 +205,21 @@ Game.prototype.sendInvitation = function(player, subject)
         const gameLink = this.makeLink(player)
         console.log('sendInvitation to', player.name, 'subject', subject);
         console.log('link: ', gameLink);
-        smtp.sendMail({ from: config.mailSender,
-                        to:  player.email,
-                        subject: subject,
-                        text: 'Make your move:\n\n' + gameLink,
-                        html: 'Click <a href="' + gameLink + '">here</a> to make your move.' },
-                      function (err) {
-                          if (err) {
-                              console.log('sending mail failed', err);
-                          }
-                      });
+
+        if (smtp === undefined) {
+          console.log("No email transport defined. Email will not be sent.");
+        } else {
+          smtp.sendMail({ from: config.mailSender,
+            to:  player.email,
+            subject: subject,
+            text: 'Make your move:\n\n' + gameLink,
+            html: 'Click <a href="' + gameLink + '">here</a> to make your move.' },
+            function (err) {
+              if (err) {
+                console.log('sending mail failed', err);
+              }
+            });
+        }
     }
     catch (e) {
         console.log('cannot send mail:', e);
