@@ -48,4 +48,8 @@ DB.prototype.all = async function() {
     return retval;
 }
 
+DB.prototype.snapshot = function() {
+  console.log("Called redis stub snapshot function")
+}
+
 exports.DB = DB;
