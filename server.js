@@ -36,6 +36,7 @@ if (process.env.REDIS_URL) {
 }
 
 var EventEmitter = require('events').EventEmitter;
+var smtp;
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -45,7 +46,28 @@ function maybeLoadConfig() {
 
     function readConfig(filename) {
         try {
-            return JSON.parse(fs.readFileSync(filename));
+            const config = JSON.parse(fs.readFileSync(filename));
+
+            config.baseUrl = process.env.BASE_URL ? process.env.BASE_URL : config.baseUrl;
+
+            if (config.mailTransportConfig) {
+              smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
+            } else if (process.env.MAILGUN_SMTP_SERVER) {
+              config.mailSender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
+              smtp = nodemailer.createTransport({
+                host: process.env.MAILGUN_SMTP_SERVER,
+                port: process.env.MAILGUN_SMTP_PORT,
+                secure: false,
+                auth: {
+                  user: process.env.MAILGUN_SMTP_LOGIN,
+                  pass: process.env.MAILGUN_SMTP_PASSWORD
+                }
+              });
+            } else {
+              console.log('email sending not configured');
+            }
+
+            return config;
         }
         catch (e) {
             console.log('error reading configuration:\n' + e);
@@ -76,16 +98,6 @@ var config = maybeLoadConfig();
 console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
-
-var smtp = nodemailer.createTransport({
-  host: process.env.MAILGUN_SMTP_SERVER,
-  port: process.env.MAILGUN_SMTP_PORT,
-  secure: false,
-  auth: {
-    user: process.env.MAILGUN_SMTP_LOGIN,
-    pass: process.env.MAILGUN_SMTP_PASSWORD
-  }
-});
 
 var app = express();
 const PORT = process.env.PORT || config.port
@@ -180,8 +192,7 @@ Game.prototype.otherPlayers = function(player)
 
 Game.prototype.makeLink = function(player)
 {
-    const baseUrl = process.env.BASE_URL || config.baseUrl
-    var url = baseUrl + "game/" + this.key;
+    var url = config.baseUrl + "game/" + this.key;
     if (player) {
         url += "/" + player.key;
     }
@@ -192,10 +203,9 @@ Game.prototype.sendInvitation = function(player, subject)
 {
     try {
         const gameLink = this.makeLink(player)
-        const sender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
         console.log('sendInvitation to', player.name, 'subject', subject);
         console.log('link: ', gameLink);
-        smtp.sendMail({ from: sender,
+        smtp.sendMail({ from: config.mailSender,
                         to:  player.email,
                         subject: subject,
                         text: 'Make your move:\n\n' + gameLink,
@@ -553,6 +563,8 @@ Game.prototype.finish = function(reason) {
                        })
                      };
     game.endMessage = endMessage;
+
+    db.snapshot();
 }
 
 Game.prototype.ended = function() {
