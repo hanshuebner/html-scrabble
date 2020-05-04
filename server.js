@@ -36,6 +36,7 @@ if (process.env.REDIS_URL) {
 }
 
 var EventEmitter = require('events').EventEmitter;
+var smtp;
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,25 @@ function maybeLoadConfig() {
     function readConfig(filename) {
         try {
             const config = JSON.parse(fs.readFileSync(filename));
+
             config.baseUrl = process.env.BASE_URL ? process.env.BASE_URL : config.baseUrl;
+
+            if (config.mailTransportConfig) {
+              smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
+            } else if (env.MAILGUN_SMTP_SERVER) {
+              smtp = nodemailer.createTransport({
+                host: process.env.MAILGUN_SMTP_SERVER,
+                port: process.env.MAILGUN_SMTP_PORT,
+                secure: false,
+                auth: {
+                  user: process.env.MAILGUN_SMTP_LOGIN,
+                  pass: process.env.MAILGUN_SMTP_PASSWORD
+                }
+              });
+            } else {
+              console.log('email sending not configured');
+            }
+
             return config;
         }
         catch (e) {
@@ -78,16 +97,6 @@ var config = maybeLoadConfig();
 console.log('config', config);
 
 // //////////////////////////////////////////////////////////////////////
-
-var smtp = nodemailer.createTransport({
-  host: process.env.MAILGUN_SMTP_SERVER,
-  port: process.env.MAILGUN_SMTP_PORT,
-  secure: false,
-  auth: {
-    user: process.env.MAILGUN_SMTP_LOGIN,
-    pass: process.env.MAILGUN_SMTP_PASSWORD
-  }
-});
 
 var app = express();
 const PORT = process.env.PORT || config.port
