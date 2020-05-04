@@ -45,7 +45,9 @@ function maybeLoadConfig() {
 
     function readConfig(filename) {
         try {
-            return JSON.parse(fs.readFileSync(filename));
+            const config = JSON.parse(fs.readFileSync(filename));
+            config.baseUrl = process.env.BASE_URL ? process.env.BASE_URL : config.baseUrl;
+            return config;
         }
         catch (e) {
             console.log('error reading configuration:\n' + e);
@@ -180,8 +182,7 @@ Game.prototype.otherPlayers = function(player)
 
 Game.prototype.makeLink = function(player)
 {
-    const baseUrl = process.env.BASE_URL || config.baseUrl
-    var url = baseUrl + "game/" + this.key;
+    var url = config.baseUrl + "game/" + this.key;
     if (player) {
         url += "/" + player.key;
     }
