@@ -52,7 +52,7 @@ function maybeLoadConfig() {
 
             if (config.mailTransportConfig) {
               smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
-            } else if (env.MAILGUN_SMTP_SERVER) {
+            } else if (process.env.MAILGUN_SMTP_SERVER) {
               config.mailSender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
               smtp = nodemailer.createTransport({
                 host: process.env.MAILGUN_SMTP_SERVER,
