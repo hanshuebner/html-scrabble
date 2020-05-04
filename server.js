@@ -53,6 +53,7 @@ function maybeLoadConfig() {
             if (config.mailTransportConfig) {
               smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
             } else if (env.MAILGUN_SMTP_SERVER) {
+              config.mailSender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
               smtp = nodemailer.createTransport({
                 host: process.env.MAILGUN_SMTP_SERVER,
                 port: process.env.MAILGUN_SMTP_PORT,
@@ -202,10 +203,9 @@ Game.prototype.sendInvitation = function(player, subject)
 {
     try {
         const gameLink = this.makeLink(player)
-        const sender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
         console.log('sendInvitation to', player.name, 'subject', subject);
         console.log('link: ', gameLink);
-        smtp.sendMail({ from: sender,
+        smtp.sendMail({ from: config.mailSender,
                         to:  player.email,
                         subject: subject,
                         text: 'Make your move:\n\n' + gameLink,
