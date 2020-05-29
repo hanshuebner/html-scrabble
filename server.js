@@ -51,7 +51,7 @@ function maybeLoadConfig() {
             config.baseUrl = process.env.BASE_URL ? process.env.BASE_URL : config.baseUrl;
 
             if (config.mailTransportConfig) {
-              smtp = nodemailer.createTransport('SMTP', config.mailTransportConfig);
+              smtp = nodemailer.createTransport(config.mailTransportConfig);
             } else if (process.env.MAILGUN_SMTP_SERVER) {
               config.mailSender = `scrabble@${process.env.MAILGUN_DOMAIN}`;
               smtp = nodemailer.createTransport({
