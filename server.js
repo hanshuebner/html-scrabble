@@ -755,6 +755,11 @@ async function handleCommand(req, res) {
     if (tilesAndTurn) {
         var tiles = tilesAndTurn[0];
         var turn = tilesAndTurn[1];
+
+        // keep time stamp of turn
+        var now = (new Date()).toISOString();
+        turn.timestamp = now;
+
         var result = game.finishTurn(player, tiles, turn);
         res.send(icebox.freeze(result));
     }
