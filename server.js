@@ -172,6 +172,7 @@ Game.create = async (language, players) => {
         player.score = 0;
     }
     console.log('players', players);
+    game.creationTimestamp = (new Date()).toISOString();
     game.board = new scrabble.Board();
     game.turns = [];
     game.whosTurn = 0;
@@ -199,6 +200,17 @@ Game.prototype.makeLink = function(player)
     return url;
 }
 
+Game.prototype.lastActivity = function()
+{
+    if (this.turns.length && this.turns[this.turns.length - 1].timestamp) {
+        return new Date(this.turns[this.turns.length - 1].timestamp);
+    } else if (this.creationTimestamp) {
+        return new Date(this.creationTimestamp);
+    } else {
+        return new Date('2020-08-01T00:00:00.000Z');
+    }
+}
+
 Game.prototype.sendInvitation = async function(player, subject)
 {
     try {
@@ -207,14 +219,14 @@ Game.prototype.sendInvitation = async function(player, subject)
         console.log('link: ', gameLink);
 
         if (smtp === undefined) {
-          console.log("No email transport defined. Email will not be sent.");
-        } else {
           const mailResult = await smtp.sendMail({ from: config.mailSender,
             to:  player.email,
             subject: subject,
             text: 'Make your move:\n\n' + gameLink,
             html: 'Click <a href="' + gameLink + '">here</a> to make your move.' });
           console.log('mail sent', mailResult.response);
+        } else {
+          console.log("No email transport defined. Email will not be sent.");
         }
     }
     catch (e) {
@@ -626,18 +638,25 @@ app.get("/games",
 );
 
 async function sendGameReminders(req, res) {
-    var count = 0;
+    let count = 0;
     const games = await db.all()
     games.map(async function (game) {
         game = await db.get(game.key);
+
         if (!game.endMessage) {
-            count = count + 1;
-            var player = game.players[game.whosTurn];
-            game.sendInvitation(player,
-                'It is your turn in your Scrabble game with ' + joinProse(game.otherPlayers(player)));
+            const ageInDays = (new Date() - game.lastActivity()) / 60000 / 60 / 24;
+            if (ageInDays > 14) {
+                console.log('Game timed out:', game.players.map(({ name }) => name));
+                game.endMessage = { reason: 'timed out' };
+                game.save();
+            } else {
+                const player = game.players[game.whosTurn];
+                game.sendInvitation(player,
+                                    'It is your turn in your Scrabble game with ' + joinProse(game.otherPlayers(player)));
+            }
         }
     });
-    res.send("Sent " + count + " reminder emails");
+    res.send("Reminder emails sent");
 }
 
 app.post("/send-game-reminders", (req, res) => sendGameReminders(req, res));
