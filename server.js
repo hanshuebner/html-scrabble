@@ -156,7 +156,7 @@ util.inherits(Game, EventEmitter);
 
 db.registerObject(Game);
 
-Game.create = function(language, players) {
+Game.create = async (language, players) => {
     var game = new Game();
     game.language = language;
     game.players = players;
@@ -199,7 +199,7 @@ Game.prototype.makeLink = function(player)
     return url;
 }
 
-Game.prototype.sendInvitation = function(player, subject)
+Game.prototype.sendInvitation = async function(player, subject)
 {
     try {
         const gameLink = this.makeLink(player)
@@ -209,17 +209,12 @@ Game.prototype.sendInvitation = function(player, subject)
         if (smtp === undefined) {
           console.log("No email transport defined. Email will not be sent.");
         } else {
-          smtp.sendMail({ from: config.mailSender,
+          const mailResult = await smtp.sendMail({ from: config.mailSender,
             to:  player.email,
             subject: subject,
             text: 'Make your move:\n\n' + gameLink,
-            html: 'Click <a href="' + gameLink + '">here</a> to make your move.' },
-            function (err) {
-              if (err) {
-                console.log('sending mail failed', err);
-              }
-            })
-                .then(() => console.log('mail to', player.email, 'sent');
+            html: 'Click <a href="' + gameLink + '">here</a> to make your move.' });
+          console.log('mail sent', mailResult.response);
         }
     }
     catch (e) {
@@ -505,7 +500,7 @@ Game.prototype.finishTurn = function(player, newTiles, turn) {
     return { newTiles: newTiles };
 }
 
-Game.prototype.createFollowonGame = function(startPlayer) {
+Game.prototype.createFollowonGame = async function(startPlayer) {
     if (this.nextGameKey) {
         throw 'followon game already created: old ' + this.key + ' new ' + this.nextGameKey;
     }
@@ -518,7 +513,7 @@ Game.prototype.createFollowonGame = function(startPlayer) {
                           email: oldPlayer.email,
                           key: oldPlayer.key });
     }
-    var newGame = Game.create(oldGame.language, newPlayers);
+    var newGame = await Game.create(oldGame.language, newPlayers);
     oldGame.endMessage.nextGameKey = newGame.key;
     oldGame.save();
     newGame.save();
@@ -670,9 +665,8 @@ app.post("/game", function(req, res) {
     }
 
     console.log(players.length, 'players');
-    var game = Game.create(req.body.language || 'German', players);
-
-    res.redirect("/game/" + game.key + "/" + game.players[0].key);
+    Game.create(req.body.language || 'German', players)
+	.then(game => res.redirect("/game/" + game.key + "/" + game.players[0].key));
 });
 
 async function getGameAndSetPlayerKey(req, res) {
