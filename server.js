@@ -218,7 +218,8 @@ Game.prototype.sendInvitation = function(player, subject)
               if (err) {
                 console.log('sending mail failed', err);
               }
-            });
+            })
+                .then(() => console.log('mail to', player.email, 'sent');
         }
     }
     catch (e) {
