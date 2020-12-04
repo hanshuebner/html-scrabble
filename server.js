@@ -218,7 +218,7 @@ Game.prototype.sendInvitation = async function(player, subject)
         console.log('sendInvitation to', player.name, 'subject', subject);
         console.log('link: ', gameLink);
 
-        if (smtp === undefined) {
+        if (smtp !== undefined) {
           const mailResult = await smtp.sendMail({ from: config.mailSender,
             to:  player.email,
             subject: subject,
