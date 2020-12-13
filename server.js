@@ -156,12 +156,13 @@ util.inherits(Game, EventEmitter);
 
 db.registerObject(Game);
 
-Game.create = async (language, players) => {
+Game.create = async (language, players, size) => {
     var game = new Game();
     game.language = language;
+    game.size = size;
     game.players = players;
     game.key = makeKey();
-    game.letterBag = scrabble.LetterBag.create(language);
+    game.letterBag = scrabble.LetterBag.create(language, size);
     for (var i = 0; i < players.length; i++) {
         var player = players[i];
         player.index = i;
@@ -173,10 +174,11 @@ Game.create = async (language, players) => {
     }
     console.log('players', players);
     game.creationTimestamp = (new Date()).toISOString();
-    game.board = new scrabble.Board();
+    game.board = new scrabble.Board(game.size);
     game.turns = [];
     game.whosTurn = 0;
     game.passes = 0;
+    game.size = '';
     game.save();
     game.players.forEach(function (player) {
         game.sendInvitation(player,
@@ -525,7 +527,7 @@ Game.prototype.createFollowonGame = async function(startPlayer) {
                           email: oldPlayer.email,
                           key: oldPlayer.key });
     }
-    var newGame = await Game.create(oldGame.language, newPlayers);
+    var newGame = await Game.create(oldGame.language, newPlayers, oldGame.size);
     oldGame.endMessage.nextGameKey = newGame.key;
     oldGame.save();
     newGame.save();
@@ -684,7 +686,7 @@ app.post("/game", function(req, res) {
     }
 
     console.log(players.length, 'players');
-    Game.create(req.body.language || 'German', players)
+    Game.create(req.body.language || 'German', players, req.body.size)
 	.then(game => res.redirect("/game/" + game.key + "/" + game.players[0].key));
 });
 
