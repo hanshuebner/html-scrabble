@@ -74,10 +74,6 @@ function MakeBoardArray()
     		console.log('MakeBoardArray size=0');
 		throw "boardLen=0";
 	}
-	else
-	{
-    		console.log('MakeBoardArray size=' + boardLen.toString());
-	}
     var retval = new Array(boardLen);
     for (var x = 0; x < boardLen; x++) {
         retval[x] = new Array(boardLen);
@@ -827,12 +823,13 @@ LetterBag.create = function(language, size) {
     var letterBag = new LetterBag;
     var langPlus = language;
     switch (size) {
-		    	case 'Regular':
-                                boardLen=15;
-                                break;
-	    		default:
+	    		case 'SuperScrabble':
                                 boardLen=21;
 		    		langPlus += "-SS";
+                                break;
+		    	case 'Regular':
+		    	default:
+                                boardLen=15;
                                 break;
     }
     var letterDistribution = letterDistributions[langPlus];
@@ -920,10 +917,8 @@ function calculateMove(squares)
     boardLen = squares.length;
     middle = Math.floor(boardLen/2);
     if (!squares[middle][middle].tile) {
-	    console.log("error calculateMove: middle=" + middle.toString());
         return { error: "start field must be used" };
     }
-    //console.log("calculateMove: middle=" + middle.toString());
     
     // Determine that the placement of the Tile(s) is legal
     
@@ -951,22 +946,11 @@ function calculateMove(squares)
     legalPlacements[topLeftX][topLeftY] = true;
 
     function touchingOld(x, y) {
-	    switch(boardLen) {
-		    case 21:
         var retval = 
         (x > 0 && squares[x - 1][y].tile && squares[x - 1][y].tileLocked)
-            || (x < 20 && squares[x + 1][y].tile && squares[x + 1][y].tileLocked)
+            || (x < boardLen-1 && squares[x + 1][y].tile && squares[x + 1][y].tileLocked)
             || (y > 0 && squares[x][y - 1].tile && squares[x][y - 1].tileLocked)
-            || (y < 20 && squares[x][y + 1].tile && squares[x][y + 1].tileLocked);
-			    break;
-		    default:
-        var retval = 
-        (x > 0 && squares[x - 1][y].tile && squares[x - 1][y].tileLocked)
-            || (x < 14 && squares[x + 1][y].tile && squares[x + 1][y].tileLocked)
-             || (y > 0 && squares[x][y - 1].tile && squares[x][y - 1].tileLocked)
-            || (y < 14 && squares[x][y + 1].tile && squares[x][y + 1].tileLocked);
-			    break;
-	    }
+            || (y < boardLen-1 && squares[x][y + 1].tile && squares[x][y + 1].tileLocked);
         return retval;
     }
 
@@ -993,7 +977,6 @@ function calculateMove(squares)
         }
     }
 
-    //var middle = Math.floor(boardLen/2);
     if (!isTouchingOld && !legalPlacements[middle][middle]) {
         return { error: 'not touching old tile ' + topLeftX + '/' + topLeftY };
     }
