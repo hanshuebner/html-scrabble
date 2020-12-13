@@ -540,33 +540,8 @@ var letterDistributions = {
 		  { letter: "Y", score: 4, count: 4},
 		  { letter: "Z", score: 10, count: 2},
 	    { score: 0, count: 4}
-    ],
-    'Test': [ { score: 0, count: 1},
-
-          { letter: "E", score: 1, count: 1},
-          { letter: "N", score: 1, count: 1},
-          { letter: "S", score: 1, count: 1},
-          { letter: "I", score: 1, count: 1},
-          { letter: "R", score: 1, count: 1},
-          { letter: "T", score: 1, count: 1},
-          { letter: "U", score: 1, count: 1},
-          { letter: "A", score: 1, count: 1},
-          { letter: "D", score: 1, count: 1},
-
-          { letter: "H", score: 2, count: 1},
-          { letter: "G", score: 2, count: 1},
-          { letter: "L", score: 2, count: 1},
-          { letter: "O", score: 2, count: 1},
-
-          { letter: "M", score: 3, count: 1},
-          { letter: "B", score: 3, count: 1},
-          { letter: "W", score: 3, count: 1},
-          { letter: "Z", score: 3, count: 1},
-
-          { letter: "C", score: 4, count: 1},
-          { letter: "F", score: 4, count: 1},
-          { letter: "K", score: 4, count: 1}
-            ]};
+    ]
+            };
 
 function type_of(obj) {
     if (typeof(obj) == 'object') {
