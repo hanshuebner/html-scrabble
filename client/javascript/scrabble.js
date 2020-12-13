@@ -825,7 +825,7 @@ LetterBag.create = function(language, size) {
     switch (size) {
 	    		case 'SuperScrabble':
                                 boardLen=21;
-		    		langPlus += "-SS";
+                                langPlus += "-SS";
                                 break;
 		    	case 'Regular':
 		    	default:
