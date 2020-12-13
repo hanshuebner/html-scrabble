@@ -222,8 +222,10 @@ div.tableDivWrap td.Normal
 
 div.tableDivWrap td.DoubleWord,
 div.tableDivWrap td.TripleWord,
+div.tableDivWrap td.QuadWord,
 div.tableDivWrap td.DoubleLetter,
 div.tableDivWrap td.TripleLetter
+div.tableDivWrap td.QuadLetter,
 {
     background-color: #AAA38E;
 }
@@ -334,6 +336,13 @@ div.tableDivWrap td.TripleWord div
     color: #8B0000;
 }
 
+div.tableDivWrap td.QuadWord div
+{
+    background-color: #FF0000;
+    border-color: #FBBBD9;
+    color: #FFFFFF;
+}
+
 div.tableDivWrap td.Normal div
 {
     background-color: #BEB9A6;
@@ -351,6 +360,13 @@ div.tableDivWrap td.TripleLetter div
 {
     background-color: #157DEC;
     border-color: #157DEC;
+    color: #000080;
+}
+
+div.tableDivWrap td.QuadLetter div
+{
+    background-color: #157D1C;
+    border-color: #157D1C;
     color: #000080;
 }
 

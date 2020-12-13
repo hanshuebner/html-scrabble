@@ -381,7 +381,7 @@ function UI(game) {
                     ui.moveTile(rackSquare, ui.cursor.square);
                     var newCursorSquare;
                     if (ui.cursor.direction == 'horizontal') {
-                        for (var x = ui.cursor.square.x; x < 15; x++) {
+                        for (var x = ui.cursor.square.x; x < ui.board.Dimension; x++) {
                             var boardSquare = ui.board.squares[x][ui.cursor.square.y];
                             if (!boardSquare.tile) {
                                 newCursorSquare = boardSquare;
@@ -389,7 +389,7 @@ function UI(game) {
                             }
                         }
                     } else {
-                        for (var y = ui.cursor.square.y; y < 15; y++) {
+                        for (var y = ui.cursor.square.y; y < ui.board.Dimension; y++) {
                             var boardSquare = ui.board.squares[ui.cursor.square.x][y];
                             if (!boardSquare.tile) {
                                 newCursorSquare = boardSquare;
@@ -416,19 +416,19 @@ function UI(game) {
                 var y = ui.cursor.square.y;
                 if (ui.cursor) {
                     if (dx > 0) {
-                        for (x++; x < 15 && ui.board.squares[x][y].tile; x++);
+                        for (x++; x < ui.board.Dimension && ui.board.squares[x][y].tile; x++);
                     }
                     if (dx < 0) {
                         for (x--; x >= 0 && ui.board.squares[x][y].tile; x--);
                     }
                     if (dy > 0) {
-                        for (y++; y < 15 && ui.board.squares[x][y].tile; y++);
+                        for (y++; y < ui.board.Dimension && ui.board.squares[x][y].tile; y++);
                     }
                     if (dy < 0) {
                         for (y--; y >= 0 && ui.board.squares[x][y].tile; y--);
                     }
-                    if (x >= 0 && x < 15
-                        && y >= 0 && y < 15
+                    if (x >= 0 && x < ui.board.Dimension
+                        && y >= 0 && y < ui.board.Dimension
                         && (x != ui.cursor.square.x || y != ui.cursor.square.y)) {
                         var oldCursorSquare = ui.cursor.square;
                         ui.cursor.square = ui.board.squares[x][y];
@@ -667,22 +667,30 @@ UI.prototype.updateBoardSquare = function(square) {
             $(div).addClass('Cursor');
             $('#dummyInput').focus();
         } else {
+		var middle = Math.floor(ui.board.Dimension/2);
         switch (square.type) {
         case 'DoubleWord':
-            if (square.x == 7 && square.y == 7) {
+            if (square.x == middle && square.y == middle) {
                     text = '\u2605';
             } else {
                     text = "DOUBLE WORD SCORE";
             }
             break;
-        case 'TripleWord':
-                text = "TRIPLE WORD SCORE";
-            break;
         case 'DoubleLetter':
                 text = "DOUBLE LETTER SCORE";
             break;
+        case 'TripleWord':
+                text = "TRIPLE WORD SCORE";
+            break;
         case 'TripleLetter':
                 text = "TRIPLE LETTER SCORE";
+            break;
+        case 'QuadWord':
+                text = "QUAD WORD SCORE";
+            break;
+        case 'QuadLetter':
+                text = "QUAD LETTER SCORE";
+            break;
         }
         }
         $(div)
@@ -704,10 +712,11 @@ UI.prototype.drawBoard = function() {
                                  return TR(null,
                                            _.range(board.Dimension).map(function (x) {
                                            var square = board.squares[x][y];
+					   var middle = Math.floor(board.Dimension/2);
                                            var id = 'Board_' + x + "x" + y;
                                                square.id = id;
                                                var tdClass = square.type;
-                                               if (x == 7 && y == 7) {
+                                               if (x == middle && y == middle) {
                                                    tdClass += ' StartField';
                                                } else if (square.type != 'Normal') {
                                                    tdClass += ' SpecialField';
