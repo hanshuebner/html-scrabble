@@ -530,13 +530,18 @@ UI.prototype.eventCallback = function(f) {
 };
 
 UI.prototype.idToSquare = function(id) {
-    var match = id.match(/(Board|Rack)_(\d+)x?(\d*)/);
+    var match = id.match(/^(SwapRack|Board|Rack)_(\d+)x?(\d*)/);
     if (match) {
         if (match[1] == 'Board') {
             return this.board.squares[match[2]][match[3]];
-        } else {
+        } else if (match[1] == 'Rack') {
             return this.rack.squares[match[2]];
+        } else if (match[1] == 'SwapRack') {
+            return this.swapRack.squares[match[2]];
+        } else {
+            throw "cannot find tile " + id;
         }
+
     } else {
         throw "cannot parse id " + id;
     }
