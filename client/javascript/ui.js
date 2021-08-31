@@ -894,33 +894,36 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     var ui = this;
     fromSquare.placeTile(null);
     fromSquare.owner.tileCount--;
-    if (tile.isBlank() && !tile.letter || (tile.letter == ' ')) {
-        if (fromSquare.owner != this.board && toSquare.owner == this.board) {
-            var blankLetterRequesterButton = $("#blankLetterRequester button");
-            var blankLetterRequesterSkip = $("#blankLetterRequesterSkip button");
-            function setLetter(letter) {
-                tile.letter = letter;
-                $.unblockUI();
-                ui.updateSquare(toSquare);
-                $('#dummyInput').focus();
-                blankLetterRequesterSkip.off('click');
-                blankLetterRequesterButton.off('keypress');
-            }
-            blankLetterRequesterButton.on('keypress', function (event) {
-                var letter = String.fromCharCode(event.charCode);
-                if (letter != '') {
-                    letter = letter.toUpperCase();
-                    if (ui.legalLetters.indexOf(letter) != -1) {
-                        setLetter(letter);
-                    }
-                }
-            });
-            blankLetterRequesterSkip.on('click', function (){
-                setLetter("_")
-            });
-            $.blockUI({ message: $('#blankLetterRequester') });
-        } else if (toSquare.owner == ui.rack || toSquare.owner == ui.swapRack) {
+
+    if (tile.isBlank()) {
+        if (toSquare.owner == ui.rack || toSquare.owner == ui.swapRack) {
             tile.letter = ' ';
+        } else  if ( !tile.letter || (tile.letter == ' ')) {
+            if (fromSquare.owner != this.board && toSquare.owner == this.board) {
+                var blankLetterRequesterButton = $("#blankLetterRequester button");
+                var blankLetterRequesterSkip = $("#blankLetterRequesterSkip button");
+                function setLetter(letter) {
+                    tile.letter = letter;
+                    $.unblockUI();
+                    ui.updateSquare(toSquare);
+                    $('#dummyInput').focus();
+                    blankLetterRequesterSkip.off('click');
+                    blankLetterRequesterButton.off('keypress');
+                }
+                blankLetterRequesterButton.on('keypress', function (event) {
+                    var letter = String.fromCharCode(event.charCode);
+                    if (letter != '') {
+                        letter = letter.toUpperCase();
+                        if (ui.legalLetters.indexOf(letter) != -1) {
+                            setLetter(letter);
+                        }
+                    }
+                });
+                blankLetterRequesterSkip.on('click', function (){
+                    setLetter("_")
+                });
+                $.blockUI({ message: $('#blankLetterRequester') });
+            }
         }
     }
     toSquare.placeTile(tile);
