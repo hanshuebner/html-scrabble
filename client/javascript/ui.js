@@ -902,13 +902,13 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
     if (tile.isBlank() && !tile.letter || (tile.letter == ' ')) {
         if (fromSquare.owner != this.board && toSquare.owner == this.board) {
             var blankLetterRequesterButton = $("#blankLetterRequester button");
-            var blankLetterRequesterSkip = $("#blankLetterRequesterSkip button");
+
             function setLetter(letter) {
                 tile.letter = letter;
                 $.unblockUI();
                 ui.updateSquare(toSquare);
                 $('#dummyInput').focus();
-                blankLetterRequesterSkip.off('click');
+
                 blankLetterRequesterButton.off('keypress');
             }
             blankLetterRequesterButton.on('keypress', function (event) {
@@ -920,9 +920,7 @@ UI.prototype.moveTile = function(fromSquare, toSquare) {
                     }
                 }
             });
-            blankLetterRequesterSkip.on('click', function (){
-                setLetter("_")
-            });
+
             $.blockUI({ message: $('#blankLetterRequester') });
         } else if (toSquare.owner == ui.rack || toSquare.owner == ui.swapRack) {
             tile.letter = ' ';
