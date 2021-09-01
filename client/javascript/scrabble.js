@@ -586,14 +586,7 @@ LetterBag.create = function(language) {
 
 LetterBag.prototype.shake = function()
 {
-    var count = this.tiles.length;
-    for (i = 0; i < count * 3; i++) {
-        var a = Math.floor(Math.random() * count);
-        var b = Math.floor(Math.random() * count);
-        var tmp = this.tiles[b];
-        this.tiles[b] = this.tiles[a];
-        this.tiles[a] = tmp;
-    }
+   this.tiles  = _.shuffle(this.tiles);
 };
 
 LetterBag.prototype.getRandomTile = function()
