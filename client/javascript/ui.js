@@ -351,7 +351,7 @@ function UI(game) {
                 ui.clearCursor();
             })
             .bind('keypress', function(evt) {
-                if (evt.charCode===13) {
+                if (evt.charCode==13) {
                     ui.socket.emit('message', {
                         name: ui.thisPlayer.name,
                         text: $(this).val()
