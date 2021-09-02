@@ -350,10 +350,14 @@ function UI(game) {
             .bind('focus', function() {
                 ui.clearCursor();
             })
-            .bind('change', function() {
-                ui.socket.emit('message', { name: ui.thisPlayer.name,
-                                            text: $(this).val() });
-                $(this).val('');
+            .bind('keypress', function(evt) {
+                if (evt.charCode==13) {
+                    ui.socket.emit('message', {
+                        name: ui.thisPlayer.name,
+                        text: $(this).val()
+                    });
+                    $(this).val('');
+                }
             });
         $(document)
             .bind('SquareChanged', ui.eventCallback(ui.updateSquare))
