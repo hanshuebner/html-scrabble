@@ -1127,8 +1127,10 @@ UI.prototype.swapTiles = function() {
     ui.endMove();
     var letters = ui.swapRack.letters();
     ui.swapRack.squares.forEach(function(square) {
+        if (square.tile){
+            ui.swapRack.tileCount--;
+        }
         square.placeTile(null);
-        ui.swapRack.tileCount--;
     });
     ui.sendMoveToServer('swap',
                         letters,
