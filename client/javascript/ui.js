@@ -35,6 +35,7 @@ function UI(game) {
         gameData = thaw(gameData, PrototypeMap);
         console.log('gameData', gameData);
 
+        ui.createLetterDistributionChart(gameData);
         ui.swapRack = new Rack(7);
         ui.swapRack.tileCount = 0;
         ui.board = gameData.board;
@@ -704,7 +705,23 @@ UI.prototype.updateBoardSquare = function(square) {
         .empty()
         .append(div);
 };
-    
+UI.prototype.createLetterDistributionChart = function(gameData) {
+
+    var header = [TR(null, [TH(null, "Letter"), TH(null, "Count"), TH(null, "Points")])];
+    var distribution = gameData.letterDistributions.slice();//copy
+    var blank = distribution.shift();
+    distribution.push(blank);
+    var rows = distribution.map(function (letter) {
+        return TR({'class': 'letterDistribution'},
+            TD({'class': 'letter'}, letter.letter ? letter.letter : "_"),
+            TD({'class': 'count'}, letter.count),
+            TD({'class': 'score'}, letter.score));
+    });
+    var tableContent = header.concat(rows);
+    $('#letterDistributionChart').append(TABLE(null, tableContent));
+}
+
+
 UI.prototype.drawBoard = function() {
     var board = this.board;
 

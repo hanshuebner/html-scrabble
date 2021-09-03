@@ -14,6 +14,12 @@ div.bottomShade table
     -o-box-shadow: 0 0 0.5em #000000;
     box-shadow: 0 0 0.5em #000000;
 }
+#container {
+    display: flex;
+}
+#container > div {
+    flex: auto; /*grow*/
+}
 
 div#container
 {
@@ -25,21 +31,31 @@ div#letterbagStatus > div
     margin: 0.5em;
 }
 
+
+div#letterDistributionChartHolder {
+    float:left;
+    margin-left: 2.7em;
+    margin-top: 2.6em;
+    margin-bottom: 0.4em;
+    font-size: 0.82em;
+    height: 100%;
+}
+
 div#controls
 {
     float: left;
     margin: 1em;
     margin-top: 2em;
-    width: 19.5em;
+    flex: 0 0 20em;
 }
 
-div#controls > div
+div#letterDistributionChartHolder, div#controls > div
 {
     background-color: #F7F7E3;
     border-color: #DCDCC6;
 
     border-style: solid;
-	
+
     -webkit-border-radius: 0.4em;
     -moz-border-radius: 0.4em;
     -ms-border-radius: 0.4em;
@@ -47,7 +63,7 @@ div#controls > div
     border-radius: 0.4em;
 
     margin-bottom: 0.4em;
-    padding: 0.4em;
+    padding: 0.6em;
 }
 
 div#log {
@@ -162,7 +178,7 @@ div#rackButtons {
 div#boardWrap
 {
     margin-top: 1em;
-    float: right;
+    float: left;
     width: 37em;
 }
 
@@ -373,7 +389,7 @@ div.tableDivWrap td div.Tile
     background-color: #F7F7E3;
     border-color: #DCDCC6;
     border-style: solid;
-	
+
     -webkit-border-radius: 0.2em;
     -moz-border-radius: 0.2em;
     -ms-border-radius: 0.2em;
@@ -436,7 +452,7 @@ div.tableDivWrap td div.Selected,
     -o-animation-iteration-count: infinite;
     -o-animation-direction: alternate;
     -o-animation-timing-function: linear;
-	
+
     animation-name: glow;
     animation-duration: 0.5s;
     animation-iteration-count: infinite;
