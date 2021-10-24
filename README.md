@@ -78,10 +78,10 @@ next game creation, no passwords, keyboard operability.  I also want
 zero-effort deployment (i.e. no mandatory dependency on a database
 server).
 
-It would be somewhat nice to grow the game into a public service, but
-there is a lot of work left towards that goal, and I don't intend to
-make such an effort given the uncertain licensing issues.  If you want
-to deal with the legal aspects, let me know.
+There is a fork of this game which has reorganized source code, more languages,
+automatic players, better touch device support and an active maintainer.  Have
+a look at https://github.com/cdot/CrosswordGame before you consider changing 
+this version.
 
 ## Installing
 
