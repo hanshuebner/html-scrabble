@@ -26,7 +26,8 @@ want to keep it that way.
 ## Features
 
 * Two to four players
-* Czech, English, Estonian, French, German, Hungarian and Dutch letter sets
+* Czech, English, Estonian, French, German, Hungarian, Slovenian and Dutch
+  letter sets
 * Written in JavaScript, runs in browser
 * Scalable user interface
 * Desktop notification support
@@ -80,7 +81,7 @@ server).
 
 There is a fork of this game which has reorganized source code, more languages,
 automatic players, better touch device support and an active maintainer.  Have
-a look at https://github.com/cdot/CrosswordGame before you consider changing 
+a look at https://github.com/cdot/CrosswordGame before you consider changing
 this version.
 
 ## Installing
