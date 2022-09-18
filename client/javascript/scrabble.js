@@ -324,6 +324,33 @@ var letterDistributions = {
 	{ letter: "Y", score: 4, count: 2},
 	{ letter: "Z", score: 4, count: 2}
     ],
+    'Slovenian': [
+        { letter: "A", score: 1, count: 10 },
+        { letter: "B", score: 4, count: 2 },
+        { letter: "C", score: 8, count: 1 },
+        { letter: "Č", score: 5, count: 1 },
+        { letter: "D", score: 2, count: 4 },
+        { letter: "E", score: 1, count: 11 },
+        { letter: "F", score: 10, count: 1 },
+        { letter: "G", score: 4, count: 2 },
+        { letter: "H", score: 5, count: 1 },
+        { letter: "I", score: 1, count: 9 },
+        { letter: "J", score: 1, count: 4 },
+        { letter: "K", score: 3, count: 3 },
+        { letter: "L", score: 1, count: 4 },
+        { letter: "M", score: 3, count: 2 },
+        { letter: "N", score: 1, count: 7 },
+        { letter: "O", score: 1, count: 8 },
+        { letter: "P", score: 3, count: 2 },
+        { letter: "R", score: 1, count: 6 },
+        { letter: "S", score: 1, count: 6 },
+        { letter: "Š", score: 6, count: 1 },
+        { letter: "T", score: 1, count: 4 },
+        { letter: "U", score: 3, count: 2 },
+        { letter: "V", score: 2, count: 4 },
+        { letter: "Z", score: 4, count: 2 },
+        { letter: "Ž", score: 10, count: 1 }
+    ],
     'Test': [ { score: 0, count: 1},
 
           { letter: "E", score: 1, count: 1},
@@ -423,10 +450,10 @@ function Board() {
 	    var centerStart = false;
 
 	    var square = new Square('Normal', this);
-	    
+
 	    var middle = Math.floor(this.Dimension / 2);
 	    var halfMiddle = Math.ceil(middle / 2);
-	    
+
 	    if ((x == 0 || x == this.Dimension - 1 || x == middle)
 		&& (y == 0 || y == this.Dimension - 1 || y == middle && x != middle)) {
 		square = new Square('TripleWord', this);
@@ -512,7 +539,7 @@ function Rack(size) {
 Rack.prototype.emptyTiles = function() {
     for (var x = 0; x < this.squares.length; x++) {
 	var square = this.squares[x];
-	
+
 	square.placeTile(null);
     }
 };
@@ -569,18 +596,18 @@ LetterBag.create = function(language) {
     }
     for (var i = 0; i < letterDistribution.length; ++i) {
 	var letterDefinition = letterDistribution[i];
-	
+
 	var tile = new Tile(letterDefinition.letter || " ", letterDefinition.score);
         if (letterDefinition.letter) {
             letterBag.legalLetters += letterDefinition.letter;
         }
-	
+
 	for (var n = 0; n < letterDefinition.count; ++n) {
 	    var tile = new Tile(letterDefinition.letter || " ", letterDefinition.score);
 	    letterBag.tiles.push(tile);
 	}
     }
-    
+
     return letterBag;
 };
 
@@ -628,9 +655,9 @@ function calculateMove(squares)
     if (!squares[7][7].tile) {
         return { error: "start field must be used" };
     }
-    
+
     // Determine that the placement of the Tile(s) is legal
-    
+
     // Find top-leftmost placed tile
     var x;
     var y;
@@ -649,13 +676,13 @@ function calculateMove(squares)
     if (!tile) {
         return { error: "no new tile found" };
     }
-    
+
     // Remember which newly placed tile positions are legal
     var legalPlacements = MakeBoardArray();
     legalPlacements[topLeftX][topLeftY] = true;
 
     function touchingOld(x, y) {
-        var retval = 
+        var retval =
         (x > 0 && squares[x - 1][y].tile && squares[x - 1][y].tileLocked)
             || (x < 14 && squares[x + 1][y].tile && squares[x + 1][y].tileLocked)
             || (y > 0 && squares[x][y - 1].tile && squares[x][y - 1].tileLocked)
