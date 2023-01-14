@@ -846,4 +846,6 @@ if (typeof exports == 'object') {
     exports.calculateMove = calculateMove;
     exports.LetterBag = LetterBag;
     exports.Bag = Bag;
+    exports.letterDistributions = letterDistributions;
+
 }

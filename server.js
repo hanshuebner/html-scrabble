@@ -712,6 +712,7 @@ async function getGame(req, res) {
                              whosTurn: game.whosTurn,
                              remainingTileCounts: game.remainingTileCounts(),
                              legalLetters: game.letterBag.legalLetters,
+                             letterDistributions: scrabble.letterDistributions[game.language],
                              players: [] }
             var thisPlayer = game.lookupPlayer(req, true);
             for (var i = 0; i < game.players.length; i++) {
