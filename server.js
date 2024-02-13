@@ -305,7 +305,7 @@ Game.prototype.makeMove = function(player, placementList) {
                     square.tile.letter = placement.letter;
                 }
                 fromSquare = square;
-                delete rackSquares[i];
+                rackSquares.splice(i, 1)
                 break;
             }
         }
