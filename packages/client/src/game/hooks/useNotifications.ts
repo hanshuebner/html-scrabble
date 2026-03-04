@@ -10,7 +10,9 @@ export function useNotifications() {
   const playerIndex = useGameState((s) => s.playerIndex);
   const players = useGameState((s) => s.players);
   const turns = useGameState((s) => s.turns);
+  const chatMessages = useGameState((s) => s.chatMessages);
   const prevTurnCount = useRef(0);
+  const prevChatCount = useRef(0);
   const ready = useRef(false);
 
   // Mark ready once game data is loaded (works even for games with 0 turns)
@@ -18,8 +20,22 @@ export function useNotifications() {
     if (gameKey && !ready.current) {
       ready.current = true;
       prevTurnCount.current = turns.length;
+      prevChatCount.current = chatMessages.length;
     }
-  }, [gameKey, turns.length]);
+  }, [gameKey, turns.length, chatMessages.length]);
+
+  // Notify on new chat messages from other players
+  useEffect(() => {
+    if (!ready.current) return;
+    if (chatMessages.length > prevChatCount.current) {
+      const newMsg = chatMessages[chatMessages.length - 1];
+      const myName = playerIndex !== null ? players[playerIndex]?.name : null;
+      if (newMsg && newMsg.playerName !== myName && Notification.permission === 'granted') {
+        new Notification('Scrabble', { body: `${newMsg.playerName}: ${newMsg.message}` });
+      }
+    }
+    prevChatCount.current = chatMessages.length;
+  }, [chatMessages, playerIndex, players]);
 
   // Notify on new turns received via websocket (not on initial load)
   useEffect(() => {

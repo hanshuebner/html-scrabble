@@ -31,14 +31,14 @@ export const api = {
   getGame: (gameKey: string, playerKey?: string) =>
     request<any>(`/games/${gameKey}${playerKey ? `?playerKey=${playerKey}` : ''}`),
   makeMove: (gameKey: string, placements: any[], playerKey: string) =>
-    request<{ newTiles: { letter: string; score: number }[] }>(`/games/${gameKey}/move`, {
+    request<{ ok: true }>(`/games/${gameKey}/move`, {
       method: 'POST',
       body: JSON.stringify({ placements, playerKey }),
     }),
   pass: (gameKey: string, playerKey: string) =>
-    request(`/games/${gameKey}/pass`, { method: 'POST', body: JSON.stringify({ playerKey }) }),
+    request<{ ok: true }>(`/games/${gameKey}/pass`, { method: 'POST', body: JSON.stringify({ playerKey }) }),
   swap: (gameKey: string, letters: string[], playerKey: string) =>
-    request<{ newTiles: { letter: string; score: number }[] }>(`/games/${gameKey}/swap`, {
+    request<{ ok: true }>(`/games/${gameKey}/swap`, {
       method: 'POST',
       body: JSON.stringify({ letters, playerKey }),
     }),

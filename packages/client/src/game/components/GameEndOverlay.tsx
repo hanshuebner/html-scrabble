@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useGameState } from '../hooks/useGameState.js';
 import { api } from '../../api/client.js';
 
@@ -6,6 +7,7 @@ export function GameEndOverlay() {
   const gameKey = useGameState((s) => s.gameKey);
   const playerKey = useGameState((s) => s.playerKey);
   const setError = useGameState((s) => s.setError);
+  const navigatingRef = useRef(false);
 
   if (!endMessage) return null;
 
@@ -15,12 +17,22 @@ export function GameEndOverlay() {
   );
 
   const handleNewGame = async () => {
-    if (!gameKey) return;
+    if (!gameKey || navigatingRef.current) return;
+    navigatingRef.current = true;
+    // If another player already created the follow-on game, navigate to it
+    if (endMessage.nextGameKey) {
+      const url = playerKey
+        ? `/game/${endMessage.nextGameKey}/${playerKey}`
+        : `/game/${endMessage.nextGameKey}`;
+      window.location.href = url;
+      return;
+    }
     try {
       const result = await api.newGame(gameKey, playerKey!);
       const url = playerKey ? `/game/${result.key}/${playerKey}` : `/game/${result.key}`;
       window.location.href = url;
     } catch (e: any) {
+      navigatingRef.current = false;
       setError(e.message);
     }
   };
@@ -66,7 +78,7 @@ export function GameEndOverlay() {
           onClick={handleNewGame}
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
         >
-          New Game
+          {endMessage.nextGameKey && !navigatingRef.current ? 'Join New Game' : 'New Game'}
         </button>
       </div>
     </div>

@@ -12,10 +12,12 @@ export function getSocket(): Socket {
   return socket;
 }
 
-export function joinGame(gameKey: string, playerKey?: string): void {
+export function joinGame(gameKey: string, playerKey?: string): Promise<boolean> {
   const s = getSocket();
   if (!s.connected) s.connect();
-  s.emit('join', { gameKey, playerKey });
+  return new Promise((resolve) => {
+    s.emit('join', { gameKey, playerKey }, (ok: boolean) => resolve(ok));
+  });
 }
 
 export function sendMessage(gameKey: string, playerName: string, message: string): void {

@@ -63,6 +63,8 @@ interface GameState {
   cursor: CursorState | null;
   pendingPlacements: { letter: string; score: number; x: number; y: number; blank: boolean; rackIndex: number }[];
   chatMessages: ChatMessage[];
+  swapMode: boolean;
+  swapIndices: Set<number>;
   error: string | null;
   loading: boolean;
 
@@ -75,10 +77,12 @@ interface GameState {
   addPendingPlacement: (placement: { letter: string; score: number; x: number; y: number; blank: boolean; rackIndex: number }) => void;
   removePendingPlacement: (x: number, y: number) => number;
   clearPendingPlacements: () => void;
-  applyOwnMove: (placements: { letter: string; score: number; x: number; y: number; rackIndex: number }[], newTiles: { letter: string; score: number }[]) => void;
+  updateMyRack: (rack: { tile: TileData | null }[]) => void;
   reorderRack: (fromIndex: number, toIndex: number) => void;
   shuffleRack: () => void;
   addChatMessage: (msg: ChatMessage) => void;
+  setSwapMode: (on: boolean) => void;
+  toggleSwapTile: (index: number) => void;
   setError: (error: string | null) => void;
   setLoading: (loading: boolean) => void;
   setEndMessage: (msg: any) => void;
@@ -105,6 +109,8 @@ export const useGameState = create<GameState>((set, get) => ({
   cursor: null,
   pendingPlacements: [],
   chatMessages: [],
+  swapMode: false,
+  swapIndices: new Set<number>(),
   error: null,
   loading: false,
 
@@ -132,6 +138,8 @@ export const useGameState = create<GameState>((set, get) => ({
 
   applyTurn: (turn) => {
     set((state) => {
+      // Skip duplicate turns (e.g. socket reconnection)
+      if (state.turns.some(t => t.timestamp === turn.timestamp)) return {};
       // Apply tile placements to the board
       let board = state.board;
       if (board && turn.placements && turn.type === 'move') {
@@ -186,47 +194,56 @@ export const useGameState = create<GameState>((set, get) => ({
     const idx = state.pendingPlacements.findIndex((p) => p.x === x && p.y === y);
     if (idx !== -1) {
       const placement = state.pendingPlacements[idx];
-      set({
+      const updates: Partial<GameState> = {
         pendingPlacements: state.pendingPlacements.filter((_, i) => i !== idx),
-      });
+      };
+      // Clear letter on blank tiles returning to rack
+      if (placement.blank && state.playerIndex !== null) {
+        const player = state.players[state.playerIndex];
+        if (player?.rack) {
+          const newRack = player.rack.map((sq) => ({ ...sq }));
+          const tile = newRack[placement.rackIndex]?.tile;
+          if (tile && tile.score === 0) {
+            newRack[placement.rackIndex] = { tile: { ...tile, letter: ' ' } };
+            const newPlayers = [...state.players];
+            newPlayers[state.playerIndex] = { ...player, rack: newRack };
+            updates.players = newPlayers;
+          }
+        }
+      }
+      set(updates);
       return placement.rackIndex;
     }
     return -1;
   },
 
-  clearPendingPlacements: () => set({ pendingPlacements: [] }),
-  applyOwnMove: (placements, newTiles) => {
-    set((state) => {
-      // Lock placed tiles on board
-      let board = state.board;
-      if (board) {
-        board = board.map((col) => col.map((sq) => ({ ...sq })));
-        for (const p of placements) {
-          board[p.x][p.y] = {
-            ...board[p.x][p.y],
-            tile: { letter: p.letter, score: p.score },
-            tileLocked: true,
-          };
-        }
-      }
-
-      // Update rack: replace placed tiles with new tiles
-      if (state.playerIndex !== null) {
-        const player = state.players[state.playerIndex];
-        if (player?.rack) {
-          const newRack = player.rack.map((sq) => ({ ...sq }));
-          for (let i = 0; i < placements.length; i++) {
-            newRack[placements[i].rackIndex] = {
-              tile: i < newTiles.length ? newTiles[i] : null,
-            };
+  clearPendingPlacements: () => {
+    const state = get();
+    const blanks = state.pendingPlacements.filter((p) => p.blank);
+    if (blanks.length > 0 && state.playerIndex !== null) {
+      const player = state.players[state.playerIndex];
+      if (player?.rack) {
+        const newRack = player.rack.map((sq) => ({ ...sq }));
+        for (const b of blanks) {
+          const tile = newRack[b.rackIndex]?.tile;
+          if (tile && tile.score === 0) {
+            newRack[b.rackIndex] = { tile: { ...tile, letter: ' ' } };
           }
-          const newPlayers = [...state.players];
-          newPlayers[state.playerIndex] = { ...player, rack: newRack };
-          return { board, players: newPlayers, pendingPlacements: [] };
         }
+        const newPlayers = [...state.players];
+        newPlayers[state.playerIndex] = { ...player, rack: newRack };
+        set({ pendingPlacements: [], players: newPlayers });
+        return;
       }
-
-      return { board, pendingPlacements: [] };
+    }
+    set({ pendingPlacements: [] });
+  },
+  updateMyRack: (rack) => {
+    set((state) => {
+      if (state.playerIndex === null) return {};
+      const newPlayers = [...state.players];
+      newPlayers[state.playerIndex] = { ...newPlayers[state.playerIndex], rack };
+      return { players: newPlayers, pendingPlacements: [], swapMode: false, swapIndices: new Set() };
     });
   },
   reorderRack: (fromIndex, toIndex) => {
@@ -264,6 +281,16 @@ export const useGameState = create<GameState>((set, get) => ({
   },
   addChatMessage: (msg) =>
     set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+  setSwapMode: (on) => set({ swapMode: on, swapIndices: new Set() }),
+  toggleSwapTile: (index) => set((state) => {
+    const next = new Set(state.swapIndices);
+    if (next.has(index)) {
+      next.delete(index);
+    } else {
+      next.add(index);
+    }
+    return { swapIndices: next };
+  }),
   setError: (error) => set({ error }),
   setLoading: (loading) => set({ loading }),
   setEndMessage: (endMessage) => set({ endMessage }),

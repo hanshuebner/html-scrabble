@@ -64,6 +64,9 @@ export function Rack() {
   const selectSquare = useGameState((s) => s.selectSquare);
   const clearSelection = useGameState((s) => s.clearSelection);
   const pendingPlacements = useGameState((s) => s.pendingPlacements);
+  const swapMode = useGameState((s) => s.swapMode);
+  const swapIndices = useGameState((s) => s.swapIndices);
+  const toggleSwapTile = useGameState((s) => s.toggleSwapTile);
 
   const playerIndex = useGameState((s) => s.playerIndex);
   const rackData = useGameState((s) => s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null);
@@ -73,6 +76,10 @@ export function Rack() {
   const placedRackIndices = new Set(pendingPlacements.map((p) => p.rackIndex));
 
   const handleTileClick = (index: number) => {
+    if (swapMode) {
+      toggleSwapTile(index);
+      return;
+    }
     if (selectedSquare?.fromRack && selectedSquare.x === index) {
       clearSelection();
     } else {
@@ -92,6 +99,11 @@ export function Rack() {
     <div className="flex gap-1 justify-center p-2 bg-[#54534A] rounded shadow-md">
       {rack.map((tile, i) => {
         if (!tile || placedRackIndices.has(i)) {
+          return <EmptyRackSlot key={i} index={i} />;
+        }
+
+        // In swap mode, selected tiles show as empty slots
+        if (swapMode && swapIndices.has(i)) {
           return <EmptyRackSlot key={i} index={i} />;
         }
 

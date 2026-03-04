@@ -38,6 +38,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
   const setGameData = useGameState((s) => s.setGameData);
   const applyTurn = useGameState((s) => s.applyTurn);
   const addChatMessage = useGameState((s) => s.addChatMessage);
+  const updateMyRack = useGameState((s) => s.updateMyRack);
   const setEndMessage = useGameState((s) => s.setEndMessage);
   const setError = useGameState((s) => s.setError);
   const board = useGameState((s) => s.board);
@@ -58,29 +59,45 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
 
   const [activeDragTile, setActiveDragTile] = useState<{ letter: string; score: number } | null>(null);
 
-  // Load game data
+  // Clear stale state immediately when game key changes (prevents old endMessage flashing)
   useEffect(() => {
-    api
-      .getGame(gameKey, playerKeyProp)
-      .then((data) => setGameData(data, playerKeyProp))
-      .catch((e) => setError(e.message));
-  }, [gameKey, playerKeyProp, setGameData, setError]);
+    useGameState.setState({ endMessage: null, board: null, error: null });
+  }, [gameKey]);
 
-  // Socket setup
+  // Socket setup + load game data (join room before loading to avoid missing events)
   useEffect(() => {
+    let cancelled = false;
     const socket = getSocket();
-    joinGame(gameKey, playerKeyProp || playerKey || undefined);
 
     socket.on('turn', (turn) => applyTurn(turn));
+    socket.on('rack', (rack) => updateMyRack(rack));
     socket.on('gameEnded', (msg) => setEndMessage(msg));
     socket.on('message', (msg) => addChatMessage(msg));
+    socket.on('nextGame', (nextGameKey: string) => {
+      const state = useGameState.getState();
+      if (state.endMessage) {
+        setEndMessage({ ...state.endMessage, nextGameKey });
+      }
+    });
+
+    // Join socket room first, then load game data so we never miss events
+    joinGame(gameKey, playerKeyProp || playerKey || undefined).then(() => {
+      if (cancelled) return;
+      api
+        .getGame(gameKey, playerKeyProp)
+        .then((data) => { if (!cancelled) setGameData(data, playerKeyProp); })
+        .catch((e) => { if (!cancelled) setError(e.message); });
+    });
 
     return () => {
+      cancelled = true;
       socket.off('turn');
+      socket.off('rack');
       socket.off('gameEnded');
       socket.off('message');
+      socket.off('nextGame');
     };
-  }, [gameKey, playerKey, applyTurn, setEndMessage, addChatMessage]);
+  }, [gameKey, playerKeyProp, playerKey, applyTurn, updateMyRack, setEndMessage, addChatMessage, setGameData, setError]);
 
   const [mobileTab, setMobileTab] = useState<'score' | 'log' | 'chat'>('score');
 
@@ -90,6 +107,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
   const handleBoardClickForPlacement = useCallback(
     (x: number, y: number) => {
       const state = useGameState.getState();
+      if (!state.isMyTurn()) return;
       if (!state.selectedSquare?.fromRack) return;
 
       const rackIndex = state.selectedSquare.x;
@@ -171,8 +189,9 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
       const activeId = String(active.id);
       const overId = String(over.id);
 
-      // Rack tile dragged to a board square
+      // Rack tile dragged to a board square (only when it's my turn)
       if (activeId.startsWith('rack-') && overId.startsWith('board-')) {
+        if (!useGameState.getState().isMyTurn()) return;
         const rackIndex = parseInt(activeId.replace('rack-', ''), 10);
         const [, bx, by] = overId.split('-').map(Number);
         const state = useGameState.getState();
@@ -196,8 +215,9 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
         }
       }
 
-      // Pending board tile dragged to another board square
+      // Pending board tile dragged to another board square (only when it's my turn)
       if (activeId.startsWith('pending-') && overId.startsWith('board-')) {
+        if (!useGameState.getState().isMyTurn()) return;
         const [, px, py] = activeId.split('-').map(Number);
         const [, bx, by] = overId.split('-').map(Number);
         const state = useGameState.getState();
@@ -235,7 +255,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const state = useGameState.getState();
-      if (!state.cursor || !state.board) return;
+      if (!state.cursor || !state.board || !state.isMyTurn()) return;
 
       const { cursor, legalLetters } = state;
       const letter = e.key.toUpperCase();
@@ -244,19 +264,28 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
         // Find this letter in the rack
         const rack = state.getMyRack();
         const placedIndices = new Set(state.pendingPlacements.map((p) => p.rackIndex));
-        const rackIndex = rack.findIndex(
+        let rackIndex = rack.findIndex(
           (t, i) => t && !placedIndices.has(i) && t.letter === letter,
         );
+
+        // If no matching letter tile, use a blank tile instead
+        let useBlank = false;
+        if (rackIndex === -1) {
+          rackIndex = rack.findIndex(
+            (t, i) => t && !placedIndices.has(i) && t.score === 0,
+          );
+          if (rackIndex !== -1) useBlank = true;
+        }
 
         if (rackIndex !== -1) {
           const sq = state.board[cursor.x]?.[cursor.y];
           if (sq && !sq.tile && !state.pendingPlacements.find((p) => p.x === cursor.x && p.y === cursor.y)) {
             addPendingPlacement({
               letter,
-              score: rack[rackIndex]!.score,
+              score: useBlank ? 0 : rack[rackIndex]!.score,
               x: cursor.x,
               y: cursor.y,
-              blank: false,
+              blank: useBlank,
               rackIndex,
             });
 
@@ -383,7 +412,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
                     </button>
                     {pendingPlacements.length > 0 && (
                       <button
-                        onClick={clearPendingPlacements}
+                        onClick={() => { clearPendingPlacements(); useGameState.getState().setCursor(null); }}
                         className="px-2 py-1 text-xs bg-[#54534A] text-[#AAA38E] rounded hover:text-white"
                         title="Recall"
                       >
@@ -402,6 +431,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
 
             {/* Mobile controls - tab interface */}
             <div className="lg:hidden w-full space-y-2">
+              {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
               <div className="flex border-b border-[#DCDCC6]">
                 {(isSpectator ? (['score', 'log'] as const) : (['score', 'log', 'chat'] as const)).map((tab) => (
                   <button
@@ -422,7 +452,6 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
                 {mobileTab === 'log' && <MoveLog />}
                 {mobileTab === 'chat' && !isSpectator && <ChatPanel />}
               </div>
-              {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
             </div>
           </div>
         </div>

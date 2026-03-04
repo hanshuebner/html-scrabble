@@ -144,13 +144,8 @@ gameRoutes.post('/:gameKey/move', async (req: Request, res: Response) => {
 
     const { placements } = req.body;
     const result = makeMove(game, player, placements);
-    const response = await finishTurn(game, player, result.newTiles, result.turn);
-    res.json({
-      newTiles: response.newTiles.map((t) => ({
-        letter: t.letter,
-        score: t.score,
-      })),
-    });
+    await finishTurn(game, player, result.newTiles, result.turn);
+    res.json({ ok: true });
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }
@@ -198,13 +193,8 @@ gameRoutes.post('/:gameKey/swap', async (req: Request, res: Response) => {
 
     const { letters } = req.body;
     const result = swapTiles(game, player, letters);
-    const response = await finishTurn(game, player, result.newTiles, result.turn);
-    res.json({
-      newTiles: response.newTiles.map((t) => ({
-        letter: t.letter,
-        score: t.score,
-      })),
-    });
+    await finishTurn(game, player, result.newTiles, result.turn);
+    res.json({ ok: true });
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }
@@ -274,6 +264,10 @@ gameRoutes.post('/:gameKey/new-game', async (req: Request, res: Response) => {
       return;
     }
 
+    if (game.nextGameKey) {
+      res.json({ key: game.nextGameKey });
+      return;
+    }
     const newGame = await createFollowonGame(game, player);
     res.json({ key: newGame.key });
   } catch (e: any) {

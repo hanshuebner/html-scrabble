@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useGameState } from '../hooks/useGameState.js';
 import { api } from '../../api/client.js';
 import { calculateMove, Tile, Square } from '@scrabble/shared';
@@ -6,7 +6,9 @@ import type { MoveResult } from '@scrabble/shared';
 
 export function TurnControls() {
   const gameKey = useGameState((s) => s.gameKey);
-  const isMyTurn = useGameState((s) => s.isMyTurn);
+  const whosTurn = useGameState((s) => s.whosTurn);
+  const playerIndex = useGameState((s) => s.playerIndex);
+  const isMyTurn = playerIndex !== null && whosTurn === playerIndex;
   const pendingPlacements = useGameState((s) => s.pendingPlacements);
   const clearPendingPlacements = useGameState((s) => s.clearPendingPlacements);
   const setError = useGameState((s) => s.setError);
@@ -17,9 +19,13 @@ export function TurnControls() {
   const remainingTileCounts = useGameState((s) => s.remainingTileCounts);
   const board = useGameState((s) => s.board);
   const turns = useGameState((s) => s.turns);
-  const playerIndex = useGameState((s) => s.playerIndex);
   const playerKey = useGameState((s) => s.playerKey);
-  const [showSwap, setShowSwap] = useState(false);
+  const getMyRack = useGameState((s) => s.getMyRack);
+  const swapMode = useGameState((s) => s.swapMode);
+  const swapIndices = useGameState((s) => s.swapIndices);
+  const setSwapMode = useGameState((s) => s.setSwapMode);
+  const toggleSwapTile = useGameState((s) => s.toggleSwapTile);
+  const swapContainerRef = useRef<HTMLDivElement>(null);
 
   const lastTurn = turns.length > 0 ? turns[turns.length - 1] : null;
   const hasPreviousMove = lastTurn?.type === 'move';
@@ -57,21 +63,70 @@ export function TurnControls() {
 
   const isValidPlacement = moveResult !== null && !moveResult.error;
 
+  // Keyboard handler for swap mode: type letters to toggle tiles
+  useEffect(() => {
+    if (!swapMode) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const key = e.key;
+      if (key === 'Escape') {
+        setSwapMode(false);
+        return;
+      }
+      if (key === 'Enter' && swapIndices.size > 0) {
+        e.preventDefault();
+        swapContainerRef.current?.querySelector<HTMLButtonElement>('[data-swap-confirm]')?.click();
+        return;
+      }
+      const letter = key.toUpperCase();
+      if (!/^[A-Z]$/.test(letter)) return;
+      const rack = getMyRack();
+      // Find a rack tile with this letter that isn't already selected for swap
+      const idx = rack.findIndex(
+        (t, i) => t && t.letter === letter && !swapIndices.has(i),
+      );
+      if (idx !== -1) {
+        toggleSwapTile(idx);
+      } else {
+        // If all instances selected, deselect one
+        const selectedIdx = [...swapIndices].find((i) => rack[i]?.letter === letter);
+        if (selectedIdx !== undefined) {
+          toggleSwapTile(selectedIdx);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [swapMode, swapIndices, getMyRack, setSwapMode, toggleSwapTile]);
+
+  const setCursor = useGameState((s) => s.setCursor);
+
   if (!gameKey) return null;
   if (endMessage) return null;
 
-  const applyOwnMove = useGameState((s) => s.applyOwnMove);
-  const setCursor = useGameState((s) => s.setCursor);
-
-  const handleSubmitMove = async () => {
-    if (!pendingPlacements.length) return;
-    const placements = [...pendingPlacements];
+  const handleSwapConfirm = async () => {
+    const rack = getMyRack();
+    const letters = [...swapIndices].map((i) => rack[i]!.letter);
+    if (letters.length === 0) return;
     setLoading(true);
     setError(null);
     try {
-      const result = await api.makeMove(
+      await api.swap(gameKey, letters, playerKey!);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmitMove = async () => {
+    if (!pendingPlacements.length) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await api.makeMove(
         gameKey,
-        placements.map((p) => ({
+        [...pendingPlacements].map((p) => ({
           letter: p.letter,
           x: p.x,
           y: p.y,
@@ -80,7 +135,6 @@ export function TurnControls() {
         playerKey!,
       );
       setCursor(null);
-      applyOwnMove(placements, result.newTiles);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -93,7 +147,7 @@ export function TurnControls() {
     setError(null);
     try {
       await api.pass(gameKey, playerKey!);
-      clearPendingPlacements();
+      setCursor(null);
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -125,6 +179,65 @@ export function TurnControls() {
     }
   };
 
+  // Swap mode UI — rack handles tile selection, we just show swap tray + buttons
+  if (swapMode) {
+    const rack = getMyRack();
+
+    return (
+      <div ref={swapContainerRef} className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 space-y-2">
+        {error && (
+          <div className="text-red-600 text-xs p-2 bg-red-50 rounded">{error}</div>
+        )}
+        <div className="text-sm text-[#474633] text-center">
+          Select tiles in your rack to swap (or type letters)
+        </div>
+
+        {/* Swap tray showing selected tiles */}
+        {swapIndices.size > 0 && (
+          <div className="flex items-center gap-2 justify-center">
+            <span className="text-xs text-[#AAA38E]">Swapping:</span>
+            <div className="flex gap-1 p-1 bg-[#54534A] rounded">
+              {[...swapIndices].map((i) => {
+                const tile = rack[i]!;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => toggleSwapTile(i)}
+                    className="w-8 h-8 bg-[#F7F7E3] border border-[#DCDCC6] rounded-sm flex items-center justify-center text-sm font-medium text-[#474633] hover:ring-2 hover:ring-orange-400 relative"
+                  >
+                    {tile.letter}
+                    {tile.score > 0 && (
+                      <span className="absolute text-[8px] bottom-0 right-0.5">{tile.score}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Confirm / Cancel */}
+        <div className="flex gap-2 justify-center">
+          <button
+            data-swap-confirm
+            onClick={handleSwapConfirm}
+            disabled={loading || swapIndices.size === 0}
+            className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            Swap {swapIndices.size > 0 ? `${swapIndices.size} tile${swapIndices.size > 1 ? 's' : ''}` : ''}
+          </button>
+          <button
+            onClick={() => setSwapMode(false)}
+            disabled={loading}
+            className="px-3 py-1.5 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 space-y-2">
       {error && (
@@ -141,7 +254,7 @@ export function TurnControls() {
         <div className="text-xs text-[#AAA38E] text-center">{moveResult.error}</div>
       )}
 
-      {!isMyTurn() && (
+      {!isMyTurn && (
         <div className="text-sm text-[#AAA38E] text-center">
           Waiting for opponent...
         </div>
@@ -158,7 +271,7 @@ export function TurnControls() {
           </button>
         )}
 
-        {isMyTurn() && pendingPlacements.length === 0 && (
+        {isMyTurn && pendingPlacements.length === 0 && (
           <>
             <button
               onClick={handlePass}
@@ -169,7 +282,7 @@ export function TurnControls() {
             </button>
             {canSwap && (
               <button
-                onClick={() => setShowSwap(!showSwap)}
+                onClick={() => setSwapMode(true)}
                 disabled={loading}
                 className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               >
@@ -179,7 +292,7 @@ export function TurnControls() {
           </>
         )}
 
-        {hasPreviousMove && isMyTurn() && pendingPlacements.length === 0 && (
+        {hasPreviousMove && isMyTurn && pendingPlacements.length === 0 && (
           <button
             onClick={handleChallenge}
             disabled={loading}

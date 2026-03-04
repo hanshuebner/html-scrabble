@@ -65,13 +65,20 @@ export interface Game {
   createdAt: string;
 }
 
-// ── Notify callback (set by socket handler) ─────────────────────────────────
+// ── Notify callbacks (set by socket handler) ────────────────────────────────
 
 type NotifyFn = (gameKey: string, event: string, data: unknown) => void;
 let notifyListeners: NotifyFn = () => {};
 
 export function setNotifyFn(fn: NotifyFn): void {
   notifyListeners = fn;
+}
+
+type NotifyPlayerFn = (gameKey: string, playerIndex: number, event: string, data: unknown) => void;
+let notifyPlayer: NotifyPlayerFn = () => {};
+
+export function setNotifyPlayerFn(fn: NotifyPlayerFn): void {
+  notifyPlayer = fn;
 }
 
 // ── Serialization helpers for DB persistence ────────────────────────────────
@@ -499,7 +506,7 @@ export function swapTiles(
   }
 
   game.previousMove = null;
-  game.passes++;
+  game.passes = 0;
 
   const rackLetters = new Bag(player.rack.letters());
   letters.forEach((letter) => {
@@ -580,6 +587,19 @@ export async function finishTurn(
   // Notify connected clients
   turn.remainingTileCounts = remainingTileCounts(game);
   notifyListeners(game.key, 'turn', turn);
+
+  // Send updated rack to acting player (private data)
+  if (newTiles.length > 0) {
+    notifyPlayer(game.key, player.index, 'rack', serializeRack(player.rack));
+  }
+
+  // For challenge/takeBack, send rack to the player whose move was undone
+  if ((turn.type === 'challenge' || turn.type === 'takeBack') && turn.player !== undefined) {
+    const affectedPlayer = game.players[turn.player];
+    if (affectedPlayer) {
+      notifyPlayer(game.key, affectedPlayer.index, 'rack', serializeRack(affectedPlayer.rack));
+    }
+  }
 
   if (game.endMessage) {
     notifyListeners(game.key, 'gameEnded', game.endMessage);

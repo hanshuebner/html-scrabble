@@ -10,6 +10,7 @@ export function Board() {
   const setCursor = useGameState((s) => s.setCursor);
   const selectSquare = useGameState((s) => s.selectSquare);
   const clearSelection = useGameState((s) => s.clearSelection);
+  const isMyTurn = useGameState((s) => s.isMyTurn);
 
   const handleSquareClick = useCallback(
     (x: number, y: number) => {
@@ -18,6 +19,9 @@ export function Board() {
 
       // If we have a selected tile from the rack, let GamePage's handler deal with placement
       if (selectedSquare?.fromRack) return;
+
+      // Cursor and tile selection only available on your turn
+      if (!isMyTurn()) return;
 
       // If clicking an empty square, set/toggle cursor
       if (!sq.tile && !pendingPlacements.find((p) => p.x === x && p.y === y)) {
@@ -42,7 +46,7 @@ export function Board() {
         selectSquare(x, y, false);
       }
     },
-    [board, cursor, selectedSquare, pendingPlacements, setCursor, selectSquare, clearSelection],
+    [board, cursor, selectedSquare, pendingPlacements, setCursor, selectSquare, clearSelection, isMyTurn],
   );
 
   if (!board) return null;

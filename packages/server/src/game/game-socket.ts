@@ -1,5 +1,5 @@
 import type { Server } from 'socket.io';
-import { loadGame, lookupPlayer, setNotifyFn } from './game-service.js';
+import { loadGame, lookupPlayer, setNotifyFn, setNotifyPlayerFn } from './game-service.js';
 
 export function setupGameSocket(io: Server): void {
   // Wire up the notify function so game-service can broadcast
@@ -7,11 +7,24 @@ export function setupGameSocket(io: Server): void {
     io.to(`game:${gameKey}`).emit(event, data);
   });
 
+  // Wire up targeted player notification
+  setNotifyPlayerFn((gameKey, playerIndex, event, data) => {
+    const room = io.sockets.adapter.rooms.get(`game:${gameKey}`);
+    if (!room) return;
+    for (const socketId of room) {
+      const s = io.sockets.sockets.get(socketId);
+      if (s?.data.playerIndex === playerIndex) {
+        s.emit(event, data);
+      }
+    }
+  });
+
   io.on('connection', (socket) => {
-    socket.on('join', async (data: { gameKey: string; playerKey?: string }) => {
+    socket.on('join', async (data: { gameKey: string; playerKey?: string }, ack?: (ok: boolean) => void) => {
       const game = await loadGame(data.gameKey);
       if (!game) {
         console.log(`[socket] game ${data.gameKey} not found`);
+        if (typeof ack === 'function') ack(false);
         return;
       }
 
@@ -41,6 +54,8 @@ export function setupGameSocket(io: Server): void {
           socket.to(`game:${data.gameKey}`).emit('join', player.index);
         }
       }
+
+      if (typeof ack === 'function') ack(true);
     });
 
     socket.on('message', (data: { gameKey: string; message: string; playerName: string }) => {
