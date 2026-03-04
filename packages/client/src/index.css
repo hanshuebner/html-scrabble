@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.bg-woodgrain {
+  background: url('/wood.jpg') repeat;
+}

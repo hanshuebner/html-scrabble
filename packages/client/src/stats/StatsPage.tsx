@@ -47,14 +47,14 @@ export function StatsPage({ onBack }: { onBack: () => void }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+      <div className="min-h-screen bg-woodgrain flex items-center justify-center">
         <div className="text-amber-700">Loading stats...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-amber-50">
+    <div className="min-h-screen bg-woodgrain">
       <div className="max-w-lg mx-auto p-4">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={onBack} className="text-sm text-[#AAA38E] hover:text-[#474633]">

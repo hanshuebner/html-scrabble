@@ -372,7 +372,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
 
   if (!board) {
     return (
-      <div className="min-h-screen bg-amber-50 flex items-center justify-center">
+      <div className="min-h-screen bg-woodgrain flex items-center justify-center">
         <div className="text-amber-700">Loading game...</div>
       </div>
     );
@@ -380,7 +380,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
 
   return (
     <DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="min-h-screen bg-amber-50 flex flex-col">
+      <div className="min-h-screen bg-woodgrain flex flex-col">
         {/* Desktop layout */}
         <div className="max-w-[59rem] mx-auto p-2 flex flex-col lg:flex-row gap-4 flex-1 w-full">
           {/* Controls sidebar - hidden on mobile, shown on desktop */}
@@ -436,7 +436,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
             {/* Mobile controls - tab interface */}
             <div className="lg:hidden w-full space-y-2">
               {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
-              <div className="flex border-b border-[#DCDCC6]">
+              <div className="flex border-b border-[#DCDCC6] bg-[#F7F7E3] rounded-t-md">
                 {(isSpectator ? (['score', 'log'] as const) : (['score', 'log', 'chat'] as const)).map((tab) => (
                   <button
                     key={tab}

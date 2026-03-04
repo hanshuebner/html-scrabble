@@ -20,7 +20,7 @@ export function LoginPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-woodgrain flex items-center justify-center p-4">
         <div className="bg-[#F7F7E3] rounded-lg p-8 max-w-sm w-full shadow-lg text-center">
           <h2 className="text-xl font-bold text-[#474633] mb-4">Check your email</h2>
           <p className="text-sm text-[#626258]">
@@ -32,7 +32,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-woodgrain flex items-center justify-center p-4">
       <div className="bg-[#F7F7E3] rounded-lg p-8 max-w-sm w-full shadow-lg">
         <h1 className="text-2xl font-bold text-[#474633] mb-6 text-center">Scrabble</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
