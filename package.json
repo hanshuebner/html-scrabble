@@ -15,6 +15,7 @@
     "engines": {
         "node": ">=20.0.0"
     },
+    "packageManager": "pnpm@10.12.3",
     "license": "MIT/X11",
     "scripts": {
         "dev": "pnpm --filter @scrabble/client dev",
