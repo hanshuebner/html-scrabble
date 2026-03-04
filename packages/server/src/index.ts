@@ -1,3 +1,5 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
@@ -10,6 +12,9 @@ import { authRoutes } from './auth/routes.js';
 import { gameRoutes } from './game/game-routes.js';
 import { statsRoutes } from './stats/stats-routes.js';
 import { setupGameSocket } from './game/game-socket.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.join(__dirname, '../../client/dist');
 
 const app = express();
 const server = createServer(app);
@@ -34,8 +39,16 @@ app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/stats', statsRoutes);
 
+// Serve client static files
+app.use(express.static(clientDist));
+
 // Socket.IO
 setupGameSocket(io);
+
+// SPA fallback — serve index.html for all non-API routes
+app.get('/{*splat}', (_req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
+});
 
 // DB health check
 db.execute(sql`SELECT 1`)

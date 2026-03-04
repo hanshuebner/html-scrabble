@@ -72,7 +72,7 @@ export interface PlayerData {
   key: string;
   index: number;
   score: number;
-  rack: import('./rack').Rack;
+  rack: import('./rack.js').Rack;
   tallyScore?: number;
 }
 
@@ -89,7 +89,7 @@ export interface GameState {
   players: {
     name: string;
     score: number;
-    rack: import('./rack').Rack | null;
+    rack: import('./rack.js').Rack | null;
   }[];
   endMessage?: EndMessage;
 }
