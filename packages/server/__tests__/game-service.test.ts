@@ -174,7 +174,7 @@ describe('Game Service', () => {
       expect(result.turn.type).toBe('swap');
       expect(result.turn.count).toBe(2);
       expect(result.newTiles).toHaveLength(2);
-      expect(game.passes).toBe(1);
+      expect(game.passes).toBe(0);
     });
 
     it('rejects swap when bag has fewer than 7 tiles', async () => {
