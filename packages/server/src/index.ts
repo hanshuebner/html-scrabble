@@ -1,0 +1,49 @@
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { sql } from 'drizzle-orm';
+import { config } from './config.js';
+import { db } from './db/connection.js';
+import { authRoutes } from './auth/routes.js';
+import { gameRoutes } from './game/game-routes.js';
+import { statsRoutes } from './stats/stats-routes.js';
+import { setupGameSocket } from './game/game-socket.js';
+
+const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production' ? false : ['http://localhost:5173'],
+    credentials: true,
+  },
+});
+
+app.use(cors({ origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:5173', credentials: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
+
+// Health check
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/games', gameRoutes);
+app.use('/api/stats', statsRoutes);
+
+// Socket.IO
+setupGameSocket(io);
+
+// DB health check
+db.execute(sql`SELECT 1`)
+  .then(() => console.log('[DB] PostgreSQL connection OK'))
+  .catch((err) => console.error('[DB] PostgreSQL connection failed:', err));
+
+server.listen(config.port, () => {
+  console.log(`Scrabble server running on port ${config.port}`);
+});
+
+export { app, io, server };

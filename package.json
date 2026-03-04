@@ -1,7 +1,8 @@
 {
     "name": "html-scrabble",
     "description": "Multi user Scrabble game",
-    "version": "0.1.3",
+    "version": "0.2.0",
+    "private": true,
     "author": {
         "name": "Hans Hübner",
         "email": "hans.huebner@gmail.com",
@@ -11,9 +12,8 @@
         "type": "git",
         "url": "git://github.com/hanshuebner/html-scrabble.git"
     },
-    "main": "server",
     "engines": {
-        "node": ">=13.8.0"
+        "node": ">=20.0.0"
     },
     "license": "MIT/X11",
     "dependencies": {
@@ -37,6 +37,17 @@
     },
     "scripts": {
         "build-release": "node node_modules/release-utils/npm-release.js",
-        "web": "node server.js"
+        "web": "node server.js",
+        "dev": "pnpm --filter @scrabble/client dev",
+        "dev:server": "pnpm --filter @scrabble/server dev",
+        "build": "pnpm -r build",
+        "test": "pnpm --filter @scrabble/shared test",
+        "test:all": "pnpm -r test"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "esbuild",
+            "ejs"
+        ]
     }
 }
