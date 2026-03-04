@@ -38,8 +38,8 @@ export const Tile = memo(function Tile({
         style={{
           fontSize: '4.2cqw',
           marginTop: '0.15em',
-          paddingLeft: letter === 'I' ? '0.08em' : '0.22em',
-          textAlign: letter === 'I' ? 'center' : 'left',
+          paddingLeft: letter === 'I' ? '0.55em' : '0.22em',
+          textAlign: 'left',
         }}
       >
         {letter}
