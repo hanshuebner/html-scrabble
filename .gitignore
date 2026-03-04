@@ -5,3 +5,8 @@ node_modules
 *.db.old
 .idea
 *.iml
+dist/
+*.tsbuildinfo
+logs/
+.mcp.json
+data-migrated.json
