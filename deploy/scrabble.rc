@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# PROVIDE: scrabble
+# REQUIRE: LOGIN postgresql
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="scrabble"
+rcvar="${name}_enable"
+
+load_rc_config $name
+
+: ${scrabble_enable:="NO"}
+: ${scrabble_user:="scrabble"}
+: ${scrabble_dir:="/opt/scrabble"}
+: ${scrabble_env_file:="/opt/scrabble/.env"}
+
+pidfile="/var/run/${name}.pid"
+command="/usr/sbin/daemon"
+command_args="-p ${pidfile} -u ${scrabble_user} -o /var/log/${name}.log /usr/local/bin/node ${scrabble_dir}/packages/server/dist/index.js"
+
+start_precmd="${name}_prestart"
+
+scrabble_prestart()
+{
+    if [ -f "${scrabble_env_file}" ]; then
+        set -a
+        . "${scrabble_env_file}"
+        set +a
+    fi
+    cd "${scrabble_dir}"
+}
+
+run_rc_command "$1"
