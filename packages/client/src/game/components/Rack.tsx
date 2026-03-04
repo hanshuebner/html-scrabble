@@ -31,7 +31,7 @@ function SortableRackTile({
   return (
     <div
       ref={setNodeRef}
-      style={{ ...style, width: 'calc(100cqw / 15)' }}
+      style={{ ...style, width: 'calc(100cqw / 15)', touchAction: 'none' }}
       {...attributes}
       {...listeners}
       onClick={onClick}

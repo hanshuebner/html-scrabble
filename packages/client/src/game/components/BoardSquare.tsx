@@ -41,7 +41,7 @@ function DraggablePendingTile({
   });
 
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} className="w-full h-full">
+    <div ref={setNodeRef} {...attributes} {...listeners} className="w-full h-full" style={{ touchAction: 'none' }}>
       <Tile
         letter={tile.letter}
         score={tile.score}
