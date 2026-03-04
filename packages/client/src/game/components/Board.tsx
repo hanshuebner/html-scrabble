@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { BoardSquare } from './BoardSquare.js';
 import { useGameState } from '../hooks/useGameState.js';
+import { useIsDesktop } from '../hooks/useIsDesktop.js';
 
 export function Board() {
   const board = useGameState((s) => s.board);
@@ -11,6 +12,7 @@ export function Board() {
   const selectSquare = useGameState((s) => s.selectSquare);
   const clearSelection = useGameState((s) => s.clearSelection);
   const isMyTurn = useGameState((s) => s.isMyTurn);
+  const isDesktop = useIsDesktop();
 
   const handleSquareClick = useCallback(
     (x: number, y: number) => {
@@ -23,8 +25,8 @@ export function Board() {
       // Cursor and tile selection only available on your turn
       if (!isMyTurn()) return;
 
-      // If clicking an empty square, set/toggle cursor
-      if (!sq.tile && !pendingPlacements.find((p) => p.x === x && p.y === y)) {
+      // Cursor mode only on desktop (keyboard entry)
+      if (isDesktop && !sq.tile && !pendingPlacements.find((p) => p.x === x && p.y === y)) {
         if (cursor && cursor.x === x && cursor.y === y) {
           // Toggle horizontal→vertical, then remove
           if (cursor.horizontal) {
@@ -46,7 +48,7 @@ export function Board() {
         selectSquare(x, y, false);
       }
     },
-    [board, cursor, selectedSquare, pendingPlacements, setCursor, selectSquare, clearSelection, isMyTurn],
+    [board, cursor, selectedSquare, pendingPlacements, setCursor, selectSquare, clearSelection, isMyTurn, isDesktop],
   );
 
   if (!board) return null;

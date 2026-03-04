@@ -14,6 +14,7 @@ import { GameEndOverlay } from './components/GameEndOverlay.js';
 import { api } from '../api/client.js';
 import { getSocket, joinGame } from '../api/socket.js';
 import { useNotifications } from './hooks/useNotifications.js';
+import { useIsDesktop } from './hooks/useIsDesktop.js';
 
 function SpectatorTurnStatus() {
   const players = useGameState((s) => s.players);
@@ -100,6 +101,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
   }, [gameKey, playerKeyProp, playerKey, applyTurn, updateMyRack, setEndMessage, addChatMessage, setGameData, setError]);
 
   const [mobileTab, setMobileTab] = useState<'score' | 'log' | 'chat'>('score');
+  const isDesktop = useIsDesktop();
 
   useNotifications();
 
@@ -251,8 +253,10 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
     [addPendingPlacement, removePendingPlacement, reorderRack],
   );
 
-  // Keyboard handler
+  // Keyboard handler (desktop only)
   useEffect(() => {
+    if (!isDesktop) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const state = useGameState.getState();
       if (!state.cursor || !state.board || !state.isMyTurn()) return;
@@ -348,7 +352,7 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [addPendingPlacement, clearSelection]);
+  }, [isDesktop, addPendingPlacement, clearSelection]);
 
   // DnD sensors
   const pointerSensor = useSensor(PointerSensor, {
