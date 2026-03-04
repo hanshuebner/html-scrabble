@@ -8,6 +8,7 @@ export function TurnControls() {
   const gameKey = useGameState((s) => s.gameKey);
   const whosTurn = useGameState((s) => s.whosTurn);
   const playerIndex = useGameState((s) => s.playerIndex);
+  const players = useGameState((s) => s.players);
   const isMyTurn = playerIndex !== null && whosTurn === playerIndex;
   const pendingPlacements = useGameState((s) => s.pendingPlacements);
   const clearPendingPlacements = useGameState((s) => s.clearPendingPlacements);
@@ -256,7 +257,7 @@ export function TurnControls() {
 
       {!isMyTurn && (
         <div className="text-sm text-[#AAA38E] text-center">
-          Waiting for opponent...
+          Waiting for {whosTurn !== null ? players[whosTurn]?.name : 'opponent'} to make their move...
         </div>
       )}
 
