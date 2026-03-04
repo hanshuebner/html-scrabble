@@ -16,28 +16,7 @@
         "node": ">=20.0.0"
     },
     "license": "MIT/X11",
-    "dependencies": {
-        "basic-auth-connect": ">=1.0.0",
-        "body-parser": ">=1.3.1",
-        "cookie-parser": ">=1.3.1",
-        "dirty": ">=0.9.6",
-        "errorhandler": ">=1.1.0",
-        "express": ">=3.0.0rc2",
-        "express-negotiate": ">=0.0.5",
-        "method-override": ">=2.0.2",
-        "nodemailer": ">=6.4.11",
-        "nodeunit": ">=0.7.4",
-        "optimist": ">=0.3.4",
-        "redis": "^3.0.2",
-        "socket.io": ">=1.0.5",
-        "underscore": ">=1.3.3"
-    },
-    "devDependencies": {
-        "release-utils": ">= 0.0.1"
-    },
     "scripts": {
-        "build-release": "node node_modules/release-utils/npm-release.js",
-        "web": "node server.js",
         "dev": "pnpm --filter @scrabble/client dev",
         "dev:server": "pnpm --filter @scrabble/server dev",
         "build": "pnpm -r build",
