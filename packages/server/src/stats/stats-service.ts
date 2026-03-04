@@ -1,7 +1,8 @@
-// In-memory stats store — keyed by normalized player name (lowercase)
+import { sql } from 'drizzle-orm';
+import { db } from '../db/connection.js';
 
 interface PlayerStatsData {
-  name: string; // display name (first seen casing)
+  name: string;
   gamesPlayed: number;
   gamesWon: number;
   totalScore: number;
@@ -19,167 +20,140 @@ interface HeadToHeadData {
   draws: number;
 }
 
-const statsCache = new Map<string, PlayerStatsData>(); // key: normalized name
-const h2hCache = new Map<string, HeadToHeadData>(); // key: `name1:name2`
-
-function normalizeName(name: string): string {
-  return name.trim().toLowerCase();
-}
-
-function getOrCreateStats(name: string): PlayerStatsData {
-  const key = normalizeName(name);
-  let stats = statsCache.get(key);
-  if (!stats) {
-    stats = {
-      name,
-      gamesPlayed: 0,
-      gamesWon: 0,
-      totalScore: 0,
-      highestScore: 0,
-      highestWordScore: 0,
-      highestWord: null,
-      averageScore: 0,
-      totalTilesPlaced: 0,
-      bingoCount: 0,
-    };
-    statsCache.set(key, stats);
-  }
-  return stats;
-}
-
-function getOrCreateH2H(name1: string, name2: string): HeadToHeadData {
-  const key = `${normalizeName(name1)}:${normalizeName(name2)}`;
-  let h2h = h2hCache.get(key);
-  if (!h2h) {
-    h2h = { wins: 0, losses: 0, draws: 0 };
-    h2hCache.set(key, h2h);
-  }
-  return h2h;
-}
-
-export interface GameResult {
-  players: {
+export async function getAllPlayerStats(): Promise<PlayerStatsData[]> {
+  const rows = await db.execute<{
     name: string;
-    score: number;
-    tilesPlaced: number;
-    highestWord: string | null;
-    highestWordScore: number;
-    bingoCount: number;
-  }[];
-}
+    games_played: string;
+    games_won: string;
+    total_score: string;
+    highest_score: string;
+    average_score: string;
+    total_tiles_placed: string;
+    bingo_count: string;
+    highest_word: string | null;
+    highest_word_score: string;
+  }>(sql`
+    WITH finished_games AS (
+      SELECT g.id
+      FROM games g
+      WHERE g.end_message IS NOT NULL
+    ),
+    player_games AS (
+      SELECT
+        lower(trim(gp.name)) AS norm_name,
+        min(gp.name) AS display_name,
+        gp.game_id,
+        gp.score,
+        gp.player_index
+      FROM game_players gp
+      JOIN finished_games fg ON fg.id = gp.game_id
+      GROUP BY lower(trim(gp.name)), gp.game_id, gp.score, gp.player_index
+    ),
+    game_max_scores AS (
+      SELECT game_id, max(score) AS max_score, count(*) FILTER (WHERE score = (
+        SELECT max(gp2.score) FROM game_players gp2 WHERE gp2.game_id = pg.game_id
+      )) AS winners_count
+      FROM player_games pg
+      GROUP BY game_id
+    ),
+    turn_stats AS (
+      SELECT
+        lower(trim(gp.name)) AS norm_name,
+        coalesce(sum(jsonb_array_length(t.move_data->'placements')), 0) AS tiles_placed,
+        count(*) FILTER (WHERE jsonb_array_length(t.move_data->'placements') >= 7) AS bingos
+      FROM turns t
+      JOIN game_players gp ON gp.game_id = t.game_id AND gp.player_index = t.player_index
+      JOIN finished_games fg ON fg.id = t.game_id
+      WHERE t.type = 'move' AND t.move_data IS NOT NULL
+      GROUP BY lower(trim(gp.name))
+    ),
+    word_stats AS (
+      SELECT DISTINCT ON (lower(trim(gp.name)))
+        lower(trim(gp.name)) AS norm_name,
+        w->>'word' AS highest_word,
+        (w->>'score')::int AS highest_word_score
+      FROM turns t
+      JOIN game_players gp ON gp.game_id = t.game_id AND gp.player_index = t.player_index
+      JOIN finished_games fg ON fg.id = t.game_id,
+      LATERAL jsonb_array_elements(t.move_data->'move'->'words') AS w
+      WHERE t.type = 'move' AND t.move_data IS NOT NULL
+      ORDER BY lower(trim(gp.name)), (w->>'score')::int DESC
+    )
+    SELECT
+      pg.display_name AS name,
+      count(*)::text AS games_played,
+      count(*) FILTER (WHERE pg.score = gms.max_score AND gms.winners_count = 1)::text AS games_won,
+      sum(pg.score)::text AS total_score,
+      max(pg.score)::text AS highest_score,
+      round(avg(pg.score))::text AS average_score,
+      coalesce(ts.tiles_placed, 0)::text AS total_tiles_placed,
+      coalesce(ts.bingos, 0)::text AS bingo_count,
+      ws.highest_word,
+      coalesce(ws.highest_word_score, 0)::text AS highest_word_score
+    FROM player_games pg
+    JOIN game_max_scores gms ON gms.game_id = pg.game_id
+    LEFT JOIN turn_stats ts ON ts.norm_name = pg.norm_name
+    LEFT JOIN word_stats ws ON ws.norm_name = pg.norm_name
+    GROUP BY pg.norm_name, pg.display_name, ts.tiles_placed, ts.bingos, ws.highest_word, ws.highest_word_score
+    ORDER BY count(*) DESC
+  `);
 
-export function updateStatsForGame(result: GameResult): void {
-  const maxScore = Math.max(...result.players.map((p) => p.score));
-  const winners = result.players.filter((p) => p.score === maxScore);
-  const isDraw = winners.length > 1;
-
-  for (const player of result.players) {
-    const stats = getOrCreateStats(player.name);
-    stats.gamesPlayed++;
-    stats.totalScore += player.score;
-    stats.totalTilesPlaced += player.tilesPlaced;
-    stats.bingoCount += player.bingoCount;
-
-    if (player.score > stats.highestScore) {
-      stats.highestScore = player.score;
-    }
-    if (player.highestWordScore > stats.highestWordScore) {
-      stats.highestWordScore = player.highestWordScore;
-      stats.highestWord = player.highestWord;
-    }
-    if (stats.gamesPlayed > 0) {
-      stats.averageScore = Math.round(stats.totalScore / stats.gamesPlayed);
-    }
-
-    const isWinner = player.score === maxScore;
-    if (isWinner && !isDraw) {
-      stats.gamesWon++;
-    }
-
-    // Head-to-head
-    for (const opponent of result.players) {
-      if (normalizeName(opponent.name) === normalizeName(player.name)) continue;
-
-      const h2h = getOrCreateH2H(player.name, opponent.name);
-      if (isDraw && isWinner && opponent.score === maxScore) {
-        h2h.draws++;
-      } else if (player.score > opponent.score) {
-        h2h.wins++;
-      } else if (player.score < opponent.score) {
-        h2h.losses++;
-      } else {
-        h2h.draws++;
-      }
-    }
-  }
-}
-
-/**
- * Compute stats from an imported game's data (no Game object needed).
- * Call this for each finished imported game.
- */
-export function computeStatsFromImportedGame(game: {
-  endMessage: any;
-  players: { name: string; score: number }[];
-  turns: { playerIndex: number; type: string; score: number; moveData?: any }[];
-}): void {
-  if (!game.endMessage) return; // only finished games
-
-  // Count tiles placed and find highest word per player
-  const playerTiles: number[] = game.players.map(() => 0);
-  const playerHighWord: { word: string; score: number }[] = game.players.map(() => ({
-    word: '',
-    score: 0,
+  return rows.map((r) => ({
+    name: r.name,
+    gamesPlayed: Number(r.games_played),
+    gamesWon: Number(r.games_won),
+    totalScore: Number(r.total_score),
+    highestScore: Number(r.highest_score),
+    averageScore: Number(r.average_score),
+    totalTilesPlaced: Number(r.total_tiles_placed),
+    bingoCount: Number(r.bingo_count),
+    highestWord: r.highest_word,
+    highestWordScore: Number(r.highest_word_score),
   }));
-  const playerBingos: number[] = game.players.map(() => 0);
-
-  for (const turn of game.turns) {
-    const pi = turn.playerIndex;
-    if (pi < 0 || pi >= game.players.length) continue;
-
-    if (turn.type === 'move' && turn.moveData) {
-      // Count placements
-      const placements = turn.moveData.placements || [];
-      playerTiles[pi] += placements.length;
-
-      // Check for bingo (7 tiles placed)
-      if (placements.length >= 7) {
-        playerBingos[pi]++;
-      }
-
-      // Track highest word
-      const words = turn.moveData.words || [];
-      for (const w of words) {
-        if (w.score > playerHighWord[pi].score) {
-          playerHighWord[pi] = { word: w.word, score: w.score };
-        }
-      }
-    }
-  }
-
-  // Use final scores from endMessage if available, fall back to player scores
-  const finalPlayers = game.endMessage.players || game.players;
-
-  updateStatsForGame({
-    players: game.players.map((p, i) => ({
-      name: p.name,
-      score: finalPlayers[i]?.score ?? p.score,
-      tilesPlaced: playerTiles[i] || 0,
-      highestWord: playerHighWord[i]?.word || null,
-      highestWordScore: playerHighWord[i]?.score || 0,
-      bingoCount: playerBingos[i] || 0,
-    })),
-  });
 }
 
-export function getPlayerStats(name: string): PlayerStatsData | null {
-  return statsCache.get(normalizeName(name)) || null;
+export async function getPlayerStats(name: string): Promise<PlayerStatsData | null> {
+  const all = await getAllPlayerStats();
+  const norm = name.trim().toLowerCase();
+  return all.find((s) => s.name.trim().toLowerCase() === norm) ?? null;
 }
 
-export function getHeadToHead(name1: string, name2: string): HeadToHeadData {
-  return getOrCreateH2H(name1, name2);
-}
+export async function getHeadToHead(name1: string, name2: string): Promise<HeadToHeadData> {
+  const norm1 = name1.trim().toLowerCase();
+  const norm2 = name2.trim().toLowerCase();
 
-export function getAllPlayerStats(): PlayerStatsData[] {
-  return Array.from(statsCache.values()).sort((a, b) => b.gamesPlayed - a.gamesPlayed);
+  const rows = await db.execute<{
+    wins: string;
+    losses: string;
+    draws: string;
+  }>(sql`
+    WITH finished_games AS (
+      SELECT g.id
+      FROM games g
+      WHERE g.end_message IS NOT NULL
+    ),
+    matched_games AS (
+      SELECT
+        gp1.game_id,
+        gp1.score AS score1,
+        gp2.score AS score2
+      FROM game_players gp1
+      JOIN game_players gp2 ON gp1.game_id = gp2.game_id
+      JOIN finished_games fg ON fg.id = gp1.game_id
+      WHERE lower(trim(gp1.name)) = ${norm1}
+        AND lower(trim(gp2.name)) = ${norm2}
+    )
+    SELECT
+      count(*) FILTER (WHERE score1 > score2)::text AS wins,
+      count(*) FILTER (WHERE score1 < score2)::text AS losses,
+      count(*) FILTER (WHERE score1 = score2)::text AS draws
+    FROM matched_games
+  `);
+
+  const row = rows[0];
+  return {
+    wins: Number(row?.wins ?? 0),
+    losses: Number(row?.losses ?? 0),
+    draws: Number(row?.draws ?? 0),
+  };
 }

@@ -8,14 +8,15 @@ function param(val: string | string[] | undefined): string {
 }
 
 // GET /api/stats - list all players' stats
-router.get('/', (_req: Request, res: Response) => {
-  res.json(getAllPlayerStats());
+router.get('/', async (_req: Request, res: Response) => {
+  const stats = await getAllPlayerStats();
+  res.json(stats);
 });
 
 // GET /api/stats/player/:name
-router.get('/player/:name', (req: Request, res: Response) => {
+router.get('/player/:name', async (req: Request, res: Response) => {
   const name = decodeURIComponent(param(req.params.name));
-  const stats = getPlayerStats(name);
+  const stats = await getPlayerStats(name);
   if (!stats) {
     res.json({
       name,
@@ -35,10 +36,10 @@ router.get('/player/:name', (req: Request, res: Response) => {
 });
 
 // GET /api/stats/head-to-head/:name1/:name2
-router.get('/head-to-head/:name1/:name2', (req: Request, res: Response) => {
+router.get('/head-to-head/:name1/:name2', async (req: Request, res: Response) => {
   const name1 = decodeURIComponent(param(req.params.name1));
   const name2 = decodeURIComponent(param(req.params.name2));
-  const h2h = getHeadToHead(name1, name2);
+  const h2h = await getHeadToHead(name1, name2);
   res.json(h2h);
 });
 

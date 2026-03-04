@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { computeStatsFromImportedGame } from '../stats/stats-service.js';
 import {
   createGame,
   loadGame,
@@ -73,7 +72,6 @@ gameRoutes.post('/import', async (req: Request, res: Response) => {
     for (const data of games) {
       try {
         await importGame(data);
-        computeStatsFromImportedGame(data);
         imported++;
       } catch (e: any) {
         errors.push(`${data.key}: ${e.message}`);
