@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGameState } from './useGameState.js'
 
 const yourTurnAudio = new Audio('/audio/yourturn.wav')
 const applauseAudio = new Audio('/audio/applause.wav')
 
 export const useNotifications = () => {
+  const { t } = useTranslation()
   const gameKey = useGameState((s) => s.gameKey)
   const whosTurn = useGameState((s) => s.whosTurn)
   const playerIndex = useGameState((s) => s.playerIndex)
@@ -53,7 +55,7 @@ export const useNotifications = () => {
       if (lastTurn?.type === 'takeBack' && turnPlayerIndex !== playerIndex && Notification.permission === 'granted') {
         const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null
         if (opponentName) {
-          new Notification('Scrabble', { body: `${opponentName} took back their move.` })
+          new Notification('Scrabble', { body: t('{{name}} took back their move.', { name: opponentName }) })
         }
       }
 
@@ -63,18 +65,18 @@ export const useNotifications = () => {
         if (Notification.permission === 'granted') {
           const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null
           const action =
-            lastTurn.type === 'pass' ? 'passed' :
-            lastTurn.type === 'swap' ? `swapped ${lastTurn.count} tile${lastTurn.count === 1 ? '' : 's'}` :
-            lastTurn.type === 'challenge' ? 'challenged' :
-            'made a move'
+            lastTurn.type === 'pass' ? t('passed') :
+            lastTurn.type === 'swap' ? t('swapped {{num}}', { num: lastTurn.count }) :
+            lastTurn.type === 'challenge' ? t('challenged') :
+            t('made a move')
           new Notification('Scrabble', {
-            body: opponentName ? `${opponentName} ${action}. It's your turn!` : "It's your turn!",
+            body: opponentName ? t("{{name}} {{action}}. It's your turn!", { name: opponentName, action }) : t("It's your turn!"),
           })
         }
       }
     }
     prevTurnCount.current = turns.length
-  }, [turns, whosTurn, playerIndex, players])
+  }, [turns, whosTurn, playerIndex, players, t])
 
   // Request notification permission on mount
   useEffect(() => {

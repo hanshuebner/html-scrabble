@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGameState } from '../hooks/useGameState.js'
 import { api } from '../../api/client.js'
 import { calculateMove, Tile, Square } from '@scrabble/shared'
 import type { MoveResult } from '@scrabble/shared'
 
 export const TurnControls = () => {
+  const { t } = useTranslation()
   const gameKey = useGameState((s) => s.gameKey)
   const whosTurn = useGameState((s) => s.whosTurn)
   const playerIndex = useGameState((s) => s.playerIndex)
@@ -184,12 +186,12 @@ export const TurnControls = () => {
     return (
       <div ref={swapContainerRef} className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 space-y-2">
         {error && <div className="text-red-600 text-xs p-2 bg-red-50 rounded">{error}</div>}
-        <div className="text-sm text-[#474633] text-center">Select tiles in your rack to swap (or type letters)</div>
+        <div className="text-sm text-[#474633] text-center">{t('Select tiles in your rack to swap (or type letters)')}</div>
 
         {/* Swap tray showing selected tiles */}
         {swapIndices.size > 0 && (
           <div className="flex items-center gap-2 justify-center">
-            <span className="text-xs text-[#AAA38E]">Swapping:</span>
+            <span className="text-xs text-[#AAA38E]">{t('Swapping:')}</span>
             <div className="flex gap-1 p-1 bg-[#54534A] rounded">
               {[...swapIndices].map((i) => {
                 const tile = rack[i]!
@@ -216,14 +218,14 @@ export const TurnControls = () => {
             disabled={loading || swapIndices.size === 0}
             className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            Swap {swapIndices.size > 0 ? `${swapIndices.size} tile${swapIndices.size > 1 ? 's' : ''}` : ''}
+            {swapIndices.size > 0 ? t(swapIndices.size === 1 ? 'Swap {{num}} tile' : 'Swap {{num}} tiles', { num: swapIndices.size }) : t('Swap')}
           </button>
           <button
             onClick={() => setSwapMode(false)}
             disabled={loading}
             className="px-3 py-1.5 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
           >
-            Cancel
+            {t('Cancel')}
           </button>
         </div>
       </div>
@@ -236,8 +238,8 @@ export const TurnControls = () => {
 
       {moveResult && !moveResult.error && moveResult.words && moveResult.words.length > 0 && (
         <div className="text-sm text-[#474633] text-center">
-          {moveResult.words.map((w) => w.word).join(', ')} — {moveResult.score} pts
-          {moveResult.allTilesBonus ? ' (incl. 50 bonus)' : ''}
+          {moveResult.words.map((w) => w.word).join(', ')} — {t('{{score}} pts', { score: moveResult.score })}
+          {moveResult.allTilesBonus ? ` ${t('(incl. 50 bonus)')}` : ''}
         </div>
       )}
 
@@ -247,7 +249,7 @@ export const TurnControls = () => {
 
       {!isMyTurn && (
         <div className="text-sm text-[#AAA38E] text-center">
-          Waiting for {whosTurn !== null ? players[whosTurn]?.name : 'opponent'} to make their move...
+          {t('Waiting for {{name}} to make their move...', { name: whosTurn !== null ? players[whosTurn]?.name : 'opponent' })}
         </div>
       )}
 
@@ -258,7 +260,7 @@ export const TurnControls = () => {
             disabled={loading}
             className="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
           >
-            Submit Move
+            {t('Submit Move')}
           </button>
         )}
 
@@ -269,7 +271,7 @@ export const TurnControls = () => {
               disabled={loading}
               className="px-3 py-1.5 text-sm bg-yellow-600 text-white rounded hover:bg-yellow-700 disabled:opacity-50"
             >
-              Pass
+              {t('Pass')}
             </button>
             {canSwap && (
               <button
@@ -277,7 +279,7 @@ export const TurnControls = () => {
                 disabled={loading}
                 className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
               >
-                Swap
+                {t('Swap')}
               </button>
             )}
           </>
@@ -289,7 +291,7 @@ export const TurnControls = () => {
             disabled={loading}
             className="px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
           >
-            Challenge
+            {t('Challenge')}
           </button>
         )}
         {hasPreviousMove && playerIndex === lastMovePlayerIndex && pendingPlacements.length === 0 && (
@@ -298,7 +300,7 @@ export const TurnControls = () => {
             disabled={loading}
             className="px-3 py-1.5 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
           >
-            Take Back
+            {t('Take Back')}
           </button>
         )}
       </div>

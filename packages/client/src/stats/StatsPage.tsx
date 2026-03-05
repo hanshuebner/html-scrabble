@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client.js'
 
 interface PlayerStats {
@@ -15,6 +16,7 @@ interface PlayerStats {
 }
 
 export const StatsPage = ({ onBack }: { onBack: () => void }) => {
+  const { t } = useTranslation()
   const [allStats, setAllStats] = useState<PlayerStats[]>([])
   const [selected, setSelected] = useState<PlayerStats | null>(null)
   const [h2h, setH2h] = useState<{ opponent: string; wins: number; losses: number; draws: number }[]>([])
@@ -48,7 +50,7 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-woodgrain flex items-center justify-center">
-        <div className="text-amber-700">Loading stats...</div>
+        <div className="text-amber-700">{t('Loading stats...')}</div>
       </div>
     )
   }
@@ -58,14 +60,14 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
       <div className="max-w-lg mx-auto p-4">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={onBack} className="text-sm text-[#AAA38E] hover:text-[#474633]">
-            Back
+            {t('Back')}
           </button>
-          <h1 className="text-2xl font-bold text-[#474633]">Statistics</h1>
+          <h1 className="text-2xl font-bold text-[#474633]">{t('Statistics')}</h1>
         </div>
 
         {allStats.length === 0 ? (
           <div className="text-[#AAA38E] text-center py-8">
-            No games played yet. Stats will appear after your first completed game.
+            {t('No games played yet. Stats will appear after your first completed game.')}
           </div>
         ) : (
           <>
@@ -88,29 +90,29 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
 
             {selected && (
               <div className="space-y-3">
-                <StatCard label="Games Played" value={selected.gamesPlayed} />
-                <StatCard label="Games Won" value={selected.gamesWon} />
-                <StatCard label="Win Rate" value={`${Math.round((selected.gamesWon / selected.gamesPlayed) * 100)}%`} />
-                <StatCard label="Average Score" value={selected.averageScore} />
-                <StatCard label="Highest Game Score" value={selected.highestScore} />
+                <StatCard label={t('Games Played')} value={selected.gamesPlayed} />
+                <StatCard label={t('Games Won')} value={selected.gamesWon} />
+                <StatCard label={t('Win Rate')} value={`${Math.round((selected.gamesWon / selected.gamesPlayed) * 100)}%`} />
+                <StatCard label={t('Average Score')} value={selected.averageScore} />
+                <StatCard label={t('Highest Game Score')} value={selected.highestScore} />
                 <StatCard
-                  label="Highest Word"
+                  label={t('Highest Word')}
                   value={selected.highestWord ? `${selected.highestWord} (${selected.highestWordScore})` : '-'}
                 />
-                <StatCard label="Total Tiles Placed" value={selected.totalTilesPlaced} />
-                <StatCard label="Bingos (7-tile bonus)" value={selected.bingoCount} />
+                <StatCard label={t('Total Tiles Placed')} value={selected.totalTilesPlaced} />
+                <StatCard label={t('Bingos (7-tile bonus)')} value={selected.bingoCount} />
 
                 {/* Head-to-head */}
                 {h2h.length > 0 && (
                   <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 mt-4">
-                    <h3 className="font-bold text-sm text-[#474633] mb-2">Head-to-Head</h3>
+                    <h3 className="font-bold text-sm text-[#474633] mb-2">{t('Head-to-Head')}</h3>
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-[#AAA38E] text-xs">
-                          <th className="text-left py-1">Opponent</th>
-                          <th className="text-right py-1">W</th>
-                          <th className="text-right py-1">L</th>
-                          <th className="text-right py-1">D</th>
+                          <th className="text-left py-1">{t('Opponent')}</th>
+                          <th className="text-right py-1">{t('W')}</th>
+                          <th className="text-right py-1">{t('L')}</th>
+                          <th className="text-right py-1">{t('D')}</th>
                         </tr>
                       </thead>
                       <tbody>

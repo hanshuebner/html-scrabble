@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { api } from '../api/client.js'
 
 interface GameSummary {
@@ -17,6 +18,7 @@ export const LobbyPage = ({
   onSelectPlayer: (gameKey: string, playerKey: string) => void
   onViewStats: () => void
 }) => {
+  const { t, i18n } = useTranslation()
   const [games, setGames] = useState<GameSummary[]>([])
   const [showCreate, setShowCreate] = useState(false)
 
@@ -28,19 +30,27 @@ export const LobbyPage = ({
     <div className="min-h-screen bg-woodgrain">
       <div className="max-w-2xl mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-[#474633]">Scrabble</h1>
+          <h1 className="text-2xl font-bold text-[#474633]">{t('Scrabble')}</h1>
           <div className="flex items-center gap-3">
+            <select
+              value={i18n.language?.substring(0, 2)}
+              onChange={(e) => i18n.changeLanguage(e.target.value)}
+              className="px-2 py-2 border border-[#DCDCC6] rounded bg-white text-sm"
+            >
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+            </select>
             <button
               onClick={onViewStats}
               className="px-4 py-2 bg-[#474633] text-white rounded text-sm hover:bg-[#626258]"
             >
-              Stats
+              {t('Stats')}
             </button>
             <button
               onClick={() => setShowCreate(true)}
               className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700"
             >
-              New Game
+              {t('New Game')}
             </button>
           </div>
         </div>
@@ -56,7 +66,7 @@ export const LobbyPage = ({
         )}
 
         <div className="space-y-2">
-          {games.length === 0 && <div className="text-[#AAA38E] text-center py-8">No active games</div>}
+          {games.length === 0 && <div className="text-[#AAA38E] text-center py-8">{t('No active games')}</div>}
           {games.map((game) => (
             <div
               key={game.key}
@@ -89,6 +99,7 @@ export const LobbyPage = ({
 }
 
 const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => void; onCancel: () => void }) => {
+  const { t } = useTranslation()
   const [language, setLanguage] = useState('English')
   const [players, setPlayers] = useState([
     { name: '', email: '' },
@@ -123,7 +134,7 @@ const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => v
     setError('')
     const validPlayers = players.filter((p) => p.name && p.email)
     if (validPlayers.length < 2) {
-      setError('At least 2 players required')
+      setError(t('At least 2 players required'))
       return
     }
     try {
@@ -136,10 +147,10 @@ const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => v
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-4 mb-4">
-      <h2 className="text-lg font-bold text-[#474633] mb-3">New Game</h2>
+      <h2 className="text-lg font-bold text-[#474633] mb-3">{t('New Game')}</h2>
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="block text-sm text-[#474633] mb-1">Language</label>
+          <label className="block text-sm text-[#474633] mb-1">{t('Language')}</label>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
@@ -159,14 +170,14 @@ const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => v
               type="text"
               value={p.name}
               onChange={(e) => updatePlayer(i, 'name', e.target.value)}
-              placeholder={`Player ${i + 1} name`}
+              placeholder={t('Player {{n}} name', { n: i + 1 })}
               className="flex-1 px-3 py-2 border border-[#DCDCC6] rounded bg-white text-sm"
             />
             <input
               type="email"
               value={p.email}
               onChange={(e) => updatePlayer(i, 'email', e.target.value)}
-              placeholder="Email"
+              placeholder={t('Email')}
               className="flex-1 px-3 py-2 border border-[#DCDCC6] rounded bg-white text-sm"
             />
           </div>
@@ -174,7 +185,7 @@ const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => v
 
         {players.length < 4 && (
           <button type="button" onClick={addPlayer} className="text-sm text-blue-600 hover:underline">
-            + Add player
+            {t('+ Add player')}
           </button>
         )}
 
@@ -182,14 +193,14 @@ const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => v
 
         <div className="flex gap-2">
           <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700">
-            Create Game
+            {t('Create Game')}
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="px-4 py-2 bg-gray-400 text-white rounded text-sm hover:bg-gray-500"
           >
-            Cancel
+            {t('Cancel')}
           </button>
         </div>
       </form>

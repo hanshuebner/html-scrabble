@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { useDroppable, useDraggable } from '@dnd-kit/core'
+import { useTranslation } from 'react-i18next'
 import { Tile } from './Tile.js'
 
 const SQUARE_FULL: Record<string, string> = {
@@ -70,6 +71,7 @@ interface BoardSquareProps {
 export const BoardSquare = memo(
   ({ x, y, type, tile, tileLocked, isPending, isSelected, isCursor, cursorHorizontal, onClick }: BoardSquareProps) => {
     const { setNodeRef, isOver } = useDroppable({ id: `board-${x}-${y}` })
+    const { t } = useTranslation()
 
     const bg = SQUARE_BG[type] || SQUARE_BG.Normal
     const fullLabel = SQUARE_FULL[type]
@@ -109,7 +111,7 @@ export const BoardSquare = memo(
               <span
                 className={`font-bold ${textColor} leading-tight text-center text-[clamp(0.25rem,1.1cqw,0.5rem)] uppercase`}
               >
-                {fullLabel}
+                {t(fullLabel)}
               </span>
             )}
             {isCenter && !fullLabel && <span className={`text-[clamp(0.5rem,3.5cqw,1rem)] ${textColor}`}>★</span>}

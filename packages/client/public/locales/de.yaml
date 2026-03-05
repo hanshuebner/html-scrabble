@@ -1,0 +1,105 @@
+# Board squares
+Double Word Score: Doppelter Wort Wert
+Triple Word Score: Dreifacher Wort Wert
+Double Letter Score: Doppelter Buchstaben Wert
+Triple Letter Score: Dreifacher Buchstaben Wert
+
+# BlankLetterPicker
+"Choose a letter for the blank:": "Buchstaben für den Blankostein wählen:"
+Cancel: Abbrechen
+
+# ChatPanel
+Chat: Chat
+No messages: Keine Nachrichten
+"Type a message...": "Nachricht eingeben..."
+Send: Senden
+
+# Scoreboard
+Scoreboard: Punktestand
+"{{num}} tiles": "{{num}} Steine"
+"Bag: {{num}} tiles": "Beutel: {{num}} Steine"
+
+# MoveLog
+Move Log: Zugprotokoll
+No moves yet: Noch keine Züge
+passed: gepasst
+"swapped {{num}}": "{{num}} getauscht"
+
+# Rack
+"Spectating — use your player link to join as a player.": "Zuschauermodus — verwende deinen Spielerlink, um mitzuspielen."
+
+# TurnControls
+"Select tiles in your rack to swap (or type letters)": "Wähle Steine zum Tauschen (oder tippe Buchstaben)"
+"Swapping:": "Tauschen:"
+"Swap {{num}} tile": "{{num}} Stein tauschen"
+"Swap {{num}} tiles": "{{num}} Steine tauschen"
+Swap: Tauschen
+Submit Move: Zug absenden
+Pass: Passen
+Challenge: Wort ablehnen
+Take Back: Zurücknehmen
+"Waiting for {{name}} to make their move...": "Warte auf {{name}}..."
+"{{score}} pts": "{{score}} Pkt."
+"(incl. 50 bonus)": "(inkl. 50 Bonus)"
+
+# GamePage
+Game over: Spiel beendet
+"{{name}}'s turn": "{{name}} ist dran"
+"Loading...": "Laden..."
+"Loading game...": "Spiel wird geladen..."
+Shuffle: Mischen
+Recall: Zurückholen
+Score: Punkte
+Moves: Züge
+
+# GameEndOverlay
+Game Over: Spiel beendet
+Join New Game: Neuem Spiel beitreten
+"{{name}}'s tiles:": "{{name}}s Steine:"
+none: keine
+
+# LobbyPage
+Scrabble: Scrabble
+Stats: Statistik
+New Game: Neues Spiel
+Language: Sprache
+"Player {{n}} name": "Spieler {{n}} Name"
+Email: E-Mail
+"+ Add player": "+ Spieler hinzufügen"
+"At least 2 players required": "Mindestens 2 Spieler erforderlich"
+Create Game: Spiel erstellen
+No active games: Keine aktiven Spiele
+
+# StatsPage
+"Loading stats...": "Statistiken werden geladen..."
+Back: Zurück
+Statistics: Statistiken
+"No games played yet. Stats will appear after your first completed game.": "Noch keine Spiele gespielt. Statistiken erscheinen nach dem ersten abgeschlossenen Spiel."
+Games Played: Gespielte Spiele
+Games Won: Gewonnene Spiele
+Win Rate: Siegquote
+Average Score: Durchschnittspunktzahl
+Highest Game Score: Höchste Spielpunktzahl
+Highest Word: Bestes Wort
+Total Tiles Placed: Gelegte Steine gesamt
+"Bingos (7-tile bonus)": "Bingos (7-Steine-Bonus)"
+Head-to-Head: Direktvergleich
+Opponent: Gegner
+W: S
+L: N
+D: U
+
+# Notifications
+"{{name}} took back their move.": "{{name}} hat den Zug zurückgenommen."
+"{{name}} {{action}}. It's your turn!": "{{name}} hat {{action}}. Du bist dran!"
+"It's your turn!": "Du bist dran!"
+made a move: einen Zug gemacht
+challenged: angezweifelt
+
+# Game end reasons (from server)
+"all players passed two times": "Alle Spieler haben zweimal gepasst"
+"timed out": "Zeit abgelaufen"
+"{{name}} ended the game": "{{name}} hat das Spiel beendet"
+
+# Language switcher
+"UI Language": "Sprache der Oberfläche"

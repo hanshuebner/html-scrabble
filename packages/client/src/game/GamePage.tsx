@@ -25,8 +25,10 @@ import { api } from '../api/client.js'
 import { getSocket, joinGame } from '../api/socket.js'
 import { useNotifications } from './hooks/useNotifications.js'
 import { useIsDesktop } from './hooks/useIsDesktop.js'
+import { useTranslation } from 'react-i18next'
 
 const SpectatorTurnStatus = () => {
+  const { t } = useTranslation()
   const players = useGameState((s) => s.players)
   const whosTurn = useGameState((s) => s.whosTurn)
   const endMessage = useGameState((s) => s.endMessage)
@@ -35,7 +37,7 @@ const SpectatorTurnStatus = () => {
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 text-sm text-[#474633] text-center">
-      {endMessage ? 'Game over' : currentPlayer ? `${currentPlayer}'s turn` : 'Loading...'}
+      {endMessage ? t('Game over') : currentPlayer ? t("{{name}}'s turn", { name: currentPlayer }) : t('Loading...')}
     </div>
   )
 }
@@ -397,10 +399,12 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
     .map((tile, i) => (tile && !placedIndices.has(i) ? `rack-${i}` : null))
     .filter((id): id is string => id !== null)
 
+  const { t } = useTranslation()
+
   if (!board) {
     return (
       <div className="min-h-screen bg-woodgrain flex items-center justify-center">
-        <div className="text-amber-700">Loading game...</div>
+        <div className="text-amber-700">{t('Loading game...')}</div>
       </div>
     )
   }
@@ -447,7 +451,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
                       className="px-2 py-1 text-xs bg-[#54534A] text-[#AAA38E] rounded hover:text-white"
                       title="Shuffle"
                     >
-                      Shuffle
+                      {t('Shuffle')}
                     </button>
                     {pendingPlacements.length > 0 && (
                       <button
@@ -456,9 +460,9 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
                           useGameState.getState().setCursor(null)
                         }}
                         className="px-2 py-1 text-xs bg-[#54534A] text-[#AAA38E] rounded hover:text-white"
-                        title="Recall"
+                        title={t('Recall')}
                       >
-                        Recall
+                        {t('Recall')}
                       </button>
                     )}
                   </div>
@@ -483,7 +487,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
                       mobileTab === tab ? 'text-[#474633] border-b-2 border-[#474633]' : 'text-[#AAA38E]'
                     }`}
                   >
-                    {tab === 'score' ? 'Score' : tab === 'log' ? 'Moves' : 'Chat'}
+                    {tab === 'score' ? t('Score') : tab === 'log' ? t('Moves') : t('Chat')}
                   </button>
                 ))}
               </div>

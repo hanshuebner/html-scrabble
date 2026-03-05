@@ -1,0 +1,105 @@
+# Board squares
+Double Word Score: Double Word Score
+Triple Word Score: Triple Word Score
+Double Letter Score: Double Letter Score
+Triple Letter Score: Triple Letter Score
+
+# BlankLetterPicker
+"Choose a letter for the blank:": "Choose a letter for the blank:"
+Cancel: Cancel
+
+# ChatPanel
+Chat: Chat
+No messages: No messages
+"Type a message...": "Type a message..."
+Send: Send
+
+# Scoreboard
+Scoreboard: Scoreboard
+"{{num}} tiles": "{{num}} tiles"
+"Bag: {{num}} tiles": "Bag: {{num}} tiles"
+
+# MoveLog
+Move Log: Move Log
+No moves yet: No moves yet
+passed: passed
+"swapped {{num}}": "swapped {{num}}"
+
+# Rack
+"Spectating — use your player link to join as a player.": "Spectating — use your player link to join as a player."
+
+# TurnControls
+"Select tiles in your rack to swap (or type letters)": "Select tiles in your rack to swap (or type letters)"
+"Swapping:": "Swapping:"
+"Swap {{num}} tile": "Swap {{num}} tile"
+"Swap {{num}} tiles": "Swap {{num}} tiles"
+Swap: Swap
+Submit Move: Submit Move
+Pass: Pass
+Challenge: Challenge
+Take Back: Take Back
+"Waiting for {{name}} to make their move...": "Waiting for {{name}} to make their move..."
+"{{score}} pts": "{{score}} pts"
+"(incl. 50 bonus)": "(incl. 50 bonus)"
+
+# GamePage
+Game over: Game over
+"{{name}}'s turn": "{{name}}'s turn"
+"Loading...": "Loading..."
+"Loading game...": "Loading game..."
+Shuffle: Shuffle
+Recall: Recall
+Score: Score
+Moves: Moves
+
+# GameEndOverlay
+Game Over: Game Over
+Join New Game: Join New Game
+"{{name}}'s tiles:": "{{name}}'s tiles:"
+none: none
+
+# LobbyPage
+Scrabble: Scrabble
+Stats: Stats
+New Game: New Game
+Language: Language
+"Player {{n}} name": "Player {{n}} name"
+Email: Email
+"+ Add player": "+ Add player"
+"At least 2 players required": "At least 2 players required"
+Create Game: Create Game
+No active games: No active games
+
+# StatsPage
+"Loading stats...": "Loading stats..."
+Back: Back
+Statistics: Statistics
+"No games played yet. Stats will appear after your first completed game.": "No games played yet. Stats will appear after your first completed game."
+Games Played: Games Played
+Games Won: Games Won
+Win Rate: Win Rate
+Average Score: Average Score
+Highest Game Score: Highest Game Score
+Highest Word: Highest Word
+Total Tiles Placed: Total Tiles Placed
+"Bingos (7-tile bonus)": "Bingos (7-tile bonus)"
+Head-to-Head: Head-to-Head
+Opponent: Opponent
+W: W
+L: L
+D: D
+
+# Notifications
+"{{name}} took back their move.": "{{name}} took back their move."
+"{{name}} {{action}}. It's your turn!": "{{name}} {{action}}. It's your turn!"
+"It's your turn!": "It's your turn!"
+made a move: made a move
+challenged: challenged
+
+# Game end reasons (from server)
+"all players passed two times": "all players passed two times"
+"timed out": "timed out"
+"{{name}} ended the game": "{{name}} ended the game"
+
+# Language switcher
+"UI Language": "UI Language"

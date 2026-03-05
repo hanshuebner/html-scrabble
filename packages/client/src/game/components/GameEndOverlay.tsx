@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGameState } from '../hooks/useGameState.js'
 import { api } from '../../api/client.js'
 
 export const GameEndOverlay = () => {
+  const { t } = useTranslation()
   const endMessage = useGameState((s) => s.endMessage)
   const gameKey = useGameState((s) => s.gameKey)
   const playerKey = useGameState((s) => s.playerKey)
@@ -38,8 +40,17 @@ export const GameEndOverlay = () => {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#F7F7E3] rounded-lg p-6 max-w-md shadow-xl text-center">
-        <h2 className="text-2xl font-bold text-[#474633] mb-2">Game Over</h2>
-        <p className="text-sm text-[#626258] mb-4">{endMessage.reason}</p>
+        <h2 className="text-2xl font-bold text-[#474633] mb-2">{t('Game Over')}</h2>
+        <p className="text-sm text-[#626258] mb-4">{(() => {
+          const reason = endMessage.reason as string
+          const playerMatch = reason.match(/^player (\d+) ended the game$/)
+          if (playerMatch) {
+            const pi = parseInt(playerMatch[1], 10)
+            const name = endMessage.players[pi]?.name ?? `Player ${pi + 1}`
+            return t('{{name}} ended the game', { name })
+          }
+          return t(reason)
+        })()}</p>
 
         <div className="space-y-2 mb-4">
           {endMessage.players.map((p: any, i: number) => (
@@ -66,11 +77,11 @@ export const GameEndOverlay = () => {
 
         {endMessage.players.map((p: any, i: number) => (
           <div key={i} className="text-xs text-[#AAA38E] mb-1">
-            {p.name}'s tiles:{' '}
+            {t("{{name}}'s tiles:", { name: p.name })}{' '}
             {p.rack?.squares
               ?.filter((sq: any) => sq.tile)
               .map((sq: any) => sq.tile.letter)
-              .join(', ') || 'none'}
+              .join(', ') || t('none')}
           </div>
         ))}
 
@@ -78,7 +89,7 @@ export const GameEndOverlay = () => {
           onClick={handleNewGame}
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
         >
-          {endMessage.nextGameKey && !navigating ? 'Join New Game' : 'New Game'}
+          {endMessage.nextGameKey && !navigating ? t('Join New Game') : t('New Game')}
         </button>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useSortable, defaultAnimateLayoutChanges, type AnimateLayoutChanges } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
+import { useTranslation } from 'react-i18next'
 import { Tile } from './Tile.js'
 import { useGameState, type TileData } from '../hooks/useGameState.js'
 
@@ -89,10 +90,12 @@ export const Rack = () => {
     }
   }
 
+  const { t } = useTranslation()
+
   if (playerIndex === null) {
     return (
       <div className="text-center text-sm text-[#AAA38E] py-3">
-        Spectating — use your player link to join as a player.
+        {t('Spectating — use your player link to join as a player.')}
       </div>
     )
   }
