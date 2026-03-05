@@ -26,9 +26,9 @@ export const ChatPanel = () => {
   }
 
   return (
-    <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3">
-      <h3 className="font-bold text-sm text-[#474633] mb-2">{t('Chat')}</h3>
-      <div ref={scrollRef} className="h-24 overflow-auto text-xs space-y-1 mb-2">
+    <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 flex flex-col min-h-0 h-full">
+      <h3 className="font-bold text-sm text-[#474633] mb-2 shrink-0">{t('Chat')}</h3>
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto text-xs space-y-1 mb-2">
         {chatMessages.length === 0 && <div className="text-[#AAA38E] italic">{t('No messages')}</div>}
         {chatMessages.map((msg, i) => (
           <div key={i}>

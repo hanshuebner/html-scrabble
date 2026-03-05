@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-const query = '(min-width: 1024px)'
+const query = '(min-width: 1024px) and (min-height: 501px)'
 
 const subscribe = (callback: () => void) => {
   const mql = window.matchMedia(query)

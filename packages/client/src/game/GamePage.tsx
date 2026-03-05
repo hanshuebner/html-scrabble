@@ -416,19 +416,27 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="min-h-screen bg-woodgrain flex flex-col">
+      <div className="min-h-screen desktop:h-dvh bg-woodgrain flex flex-col desktop:justify-center">
         {/* Desktop layout */}
-        <div className="max-w-[74rem] mx-auto p-2 flex flex-col lg:flex-row gap-4 flex-1 w-full">
+        <div className="max-w-[74rem] mx-auto p-2 desktop:p-1 flex flex-col desktop:flex-row gap-4 flex-1 desktop:flex-initial desktop:max-h-[calc(100dvh-0.5rem)] w-full">
           {/* Controls sidebar - hidden on mobile, shown on desktop */}
-          <div className="hidden lg:block lg:w-[20rem] space-y-3 order-1">
-            <Scoreboard />
-            <MoveLog />
-            {!isSpectator && <ChatPanel />}
-            {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
+          <div className="hidden desktop:flex desktop:flex-col desktop:w-[20rem] gap-3 order-1 overflow-hidden">
+            <div className="shrink-0">
+              <Scoreboard />
+            </div>
+            <div className="flex-1 shrink min-h-0 overflow-hidden [@media(max-height:470px)]:hidden">
+              <MoveLog />
+            </div>
+            {!isSpectator && (
+              <div className="flex-1 shrink-[2] min-h-0 overflow-hidden [@media(max-height:630px)]:hidden">
+                <ChatPanel />
+              </div>
+            )}
+            <div className="shrink-0">{isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}</div>
           </div>
 
           {/* Board area */}
-          <div className="flex-1 flex flex-col items-center gap-3 order-1 lg:order-2">
+          <div className="flex-1 flex flex-col items-center desktop:items-start gap-3 order-1 desktop:order-2">
             <div
               className="flex flex-col items-center gap-2"
               onClick={(e) => {
@@ -444,7 +452,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
               <Board />
               {/* Rack with Shuffle/Recall buttons to the left */}
               {!isSpectator && (
-                <div className="flex items-center gap-1 w-[calc(100vw-1rem)] max-w-[min(50rem,100%)] lg:w-[50rem]">
+                <div className="flex items-center gap-1 w-[calc(100vw-1rem)] max-w-[min(50rem,100%)] desktop:w-[min(50rem,calc((100dvh-3rem)*15/16))]">
                   <div className="flex flex-col gap-1 shrink-0">
                     <button
                       onClick={shuffleRack}
@@ -476,7 +484,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
             </div>
 
             {/* Mobile controls - tab interface */}
-            <div className="lg:hidden w-full space-y-2">
+            <div className="desktop:hidden w-full space-y-2">
               {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
               <div className="flex border-b border-[#DCDCC6] bg-[#F7F7E3] rounded-t-md">
                 {(isSpectator ? (['score', 'log'] as const) : (['score', 'log', 'chat'] as const)).map((tab) => (
@@ -500,8 +508,8 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
           </div>
         </div>
 
-        {/* spacer */}
-        <div className="pb-4" />
+        {/* spacer (mobile only) */}
+        <div className="pb-4 desktop:pb-0" />
       </div>
 
       {blankPicker && <BlankLetterPicker onSelect={handleBlankSelect} onCancel={() => setBlankPicker(null)} />}
@@ -511,7 +519,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
           <div
             className="@container"
             style={{
-              width: isDesktop ? 800 : 480,
+              width: isDesktop ? Math.min(800, ((window.innerHeight - 48) * 15) / 16) : 480,
               transform: isDesktop ? undefined : 'translateY(-30px)',
             }}
           >

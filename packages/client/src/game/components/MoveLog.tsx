@@ -15,9 +15,9 @@ export const MoveLog = () => {
   }, [turns.length])
 
   return (
-    <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3">
-      <h3 className="font-bold text-sm text-[#474633] mb-2">{t('Move Log')}</h3>
-      <div ref={scrollRef} className="h-40 overflow-auto text-xs space-y-1">
+    <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 flex flex-col min-h-0 h-full">
+      <h3 className="font-bold text-sm text-[#474633] mb-2 shrink-0">{t('Move Log')}</h3>
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto text-xs space-y-1">
         {turns.length === 0 && <div className="text-[#AAA38E] italic">{t('No moves yet')}</div>}
         {turns.map((turn, i) => {
           const pi = turn.player ?? turn.playerIndex ?? 0

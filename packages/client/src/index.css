@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant desktop (@media (min-width: 1024px) and (min-height: 501px));
+
 .bg-woodgrain {
   background: url('/wood.jpg') repeat;
 }
