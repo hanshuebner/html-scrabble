@@ -1,21 +1,11 @@
-import {
-  pgTable,
-  uuid,
-  varchar,
-  text,
-  integer,
-  jsonb,
-  timestamp,
-  primaryKey,
-  index,
-} from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, integer, jsonb, timestamp, primaryKey, index } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+})
 
 export const games = pgTable(
   'games',
@@ -34,7 +24,7 @@ export const games = pgTable(
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
   (table) => [index('games_key_idx').on(table.key)],
-);
+)
 
 export const gamePlayers = pgTable(
   'game_players',
@@ -53,7 +43,7 @@ export const gamePlayers = pgTable(
     tallyScore: integer('tally_score'),
   },
   (table) => [index('game_players_game_id_idx').on(table.gameId)],
-);
+)
 
 export const turns = pgTable(
   'turns',
@@ -70,7 +60,7 @@ export const turns = pgTable(
     timestamp: timestamp('timestamp').defaultNow().notNull(),
   },
   (table) => [index('turns_game_id_idx').on(table.gameId)],
-);
+)
 
 export const userStats = pgTable('user_stats', {
   userId: uuid('user_id')
@@ -85,7 +75,7 @@ export const userStats = pgTable('user_stats', {
   averageScore: integer('average_score').notNull().default(0),
   totalTilesPlaced: integer('total_tiles_placed').notNull().default(0),
   bingoCount: integer('bingo_count').notNull().default(0),
-});
+})
 
 export const headToHead = pgTable(
   'head_to_head',
@@ -101,4 +91,4 @@ export const headToHead = pgTable(
     draws: integer('draws').notNull().default(0),
   },
   (table) => [primaryKey({ columns: [table.userId, table.opponentId] })],
-);
+)

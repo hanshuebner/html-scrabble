@@ -1,22 +1,30 @@
-import { useEffect, useState } from 'react';
-import { api } from '../api/client.js';
-import { useAuth } from '../auth/AuthContext.js';
+import { useEffect, useState } from 'react'
+import { api } from '../api/client.js'
+import { useAuth } from '../auth/AuthContext.js'
 
 interface GameSummary {
-  key: string;
-  language: string;
-  players: { name: string; key: string; hasTurn: boolean }[];
-  createdAt: string;
+  key: string
+  language: string
+  players: { name: string; key: string; hasTurn: boolean }[]
+  createdAt: string
 }
 
-export const LobbyPage = ({ onSelectGame, onSelectPlayer, onViewStats }: { onSelectGame: (key: string) => void; onSelectPlayer: (gameKey: string, playerKey: string) => void; onViewStats: () => void }) => {
-  const { user, logout } = useAuth();
-  const [games, setGames] = useState<GameSummary[]>([]);
-  const [showCreate, setShowCreate] = useState(false);
+export const LobbyPage = ({
+  onSelectGame,
+  onSelectPlayer,
+  onViewStats,
+}: {
+  onSelectGame: (key: string) => void
+  onSelectPlayer: (gameKey: string, playerKey: string) => void
+  onViewStats: () => void
+}) => {
+  const { user, logout } = useAuth()
+  const [games, setGames] = useState<GameSummary[]>([])
+  const [showCreate, setShowCreate] = useState(false)
 
   useEffect(() => {
-    api.listGames().then(setGames).catch(console.error);
-  }, []);
+    api.listGames().then(setGames).catch(console.error)
+  }, [])
 
   return (
     <div className="min-h-screen bg-woodgrain">
@@ -38,10 +46,7 @@ export const LobbyPage = ({ onSelectGame, onSelectPlayer, onViewStats }: { onSel
               New Game
             </button>
             {user && (
-              <button
-                onClick={logout}
-                className="text-sm text-[#AAA38E] hover:text-[#474633]"
-              >
+              <button onClick={logout} className="text-sm text-[#AAA38E] hover:text-[#474633]">
                 Logout
               </button>
             )}
@@ -51,17 +56,15 @@ export const LobbyPage = ({ onSelectGame, onSelectPlayer, onViewStats }: { onSel
         {showCreate && (
           <CreateGameForm
             onCreated={(key) => {
-              setShowCreate(false);
-              onSelectGame(key);
+              setShowCreate(false)
+              onSelectGame(key)
             }}
             onCancel={() => setShowCreate(false)}
           />
         )}
 
         <div className="space-y-2">
-          {games.length === 0 && (
-            <div className="text-[#AAA38E] text-center py-8">No active games</div>
-          )}
+          {games.length === 0 && <div className="text-[#AAA38E] text-center py-8">No active games</div>}
           {games.map((game) => (
             <div
               key={game.key}
@@ -73,7 +76,10 @@ export const LobbyPage = ({ onSelectGame, onSelectPlayer, onViewStats }: { onSel
                   {game.players.map((p, i) => (
                     <span
                       key={i}
-                      onClick={(e) => { e.stopPropagation(); onSelectPlayer(game.key, p.key); }}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onSelectPlayer(game.key, p.key)
+                      }}
                       className={`text-sm cursor-pointer hover:underline ${p.hasTurn ? 'font-bold text-green-700' : 'text-[#626258]'}`}
                     >
                       {p.name}
@@ -87,53 +93,54 @@ export const LobbyPage = ({ onSelectGame, onSelectPlayer, onViewStats }: { onSel
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-const CreateGameForm = ({
-  onCreated,
-  onCancel,
-}: {
-  onCreated: (key: string) => void;
-  onCancel: () => void;
-}) => {
-  const [language, setLanguage] = useState('English');
+const CreateGameForm = ({ onCreated, onCancel }: { onCreated: (key: string) => void; onCancel: () => void }) => {
+  const [language, setLanguage] = useState('English')
   const [players, setPlayers] = useState([
     { name: '', email: '' },
     { name: '', email: '' },
-  ]);
-  const [error, setError] = useState('');
+  ])
+  const [error, setError] = useState('')
 
   const languages = [
-    'English', 'French', 'German', 'Hungarian', 'Nederlands',
-    'Czech', 'Estonian', 'Portuguese', 'Slovenian',
-  ];
+    'English',
+    'French',
+    'German',
+    'Hungarian',
+    'Nederlands',
+    'Czech',
+    'Estonian',
+    'Portuguese',
+    'Slovenian',
+  ]
 
   const addPlayer = () => {
-    if (players.length < 4) setPlayers([...players, { name: '', email: '' }]);
-  };
+    if (players.length < 4) setPlayers([...players, { name: '', email: '' }])
+  }
 
   const updatePlayer = (i: number, field: 'name' | 'email', value: string) => {
-    const updated = [...players];
-    updated[i] = { ...updated[i], [field]: value };
-    setPlayers(updated);
-  };
+    const updated = [...players]
+    updated[i] = { ...updated[i], [field]: value }
+    setPlayers(updated)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    const validPlayers = players.filter((p) => p.name && p.email);
+    e.preventDefault()
+    setError('')
+    const validPlayers = players.filter((p) => p.name && p.email)
     if (validPlayers.length < 2) {
-      setError('At least 2 players required');
-      return;
+      setError('At least 2 players required')
+      return
     }
     try {
-      const result = await api.createGame(language, validPlayers);
-      onCreated(result.key);
+      const result = await api.createGame(language, validPlayers)
+      onCreated(result.key)
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message)
     }
-  };
+  }
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-4 mb-4">
@@ -147,7 +154,9 @@ const CreateGameForm = ({
             className="w-full px-3 py-2 border border-[#DCDCC6] rounded bg-white text-sm"
           >
             {languages.map((l) => (
-              <option key={l} value={l}>{l}</option>
+              <option key={l} value={l}>
+                {l}
+              </option>
             ))}
           </select>
         </div>
@@ -172,11 +181,7 @@ const CreateGameForm = ({
         ))}
 
         {players.length < 4 && (
-          <button
-            type="button"
-            onClick={addPlayer}
-            className="text-sm text-blue-600 hover:underline"
-          >
+          <button type="button" onClick={addPlayer} className="text-sm text-blue-600 hover:underline">
             + Add player
           </button>
         )}
@@ -184,10 +189,7 @@ const CreateGameForm = ({
         {error && <div className="text-red-600 text-xs">{error}</div>}
 
         <div className="flex gap-2">
-          <button
-            type="submit"
-            className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700"
-          >
+          <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700">
             Create Game
           </button>
           <button
@@ -200,5 +202,5 @@ const CreateGameForm = ({
         </div>
       </form>
     </div>
-  );
-};
+  )
+}

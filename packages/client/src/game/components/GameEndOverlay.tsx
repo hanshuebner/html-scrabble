@@ -1,41 +1,39 @@
-import { useRef } from 'react';
-import { useGameState } from '../hooks/useGameState.js';
-import { api } from '../../api/client.js';
+import { useRef, useState } from 'react'
+import { useGameState } from '../hooks/useGameState.js'
+import { api } from '../../api/client.js'
 
 export const GameEndOverlay = () => {
-  const endMessage = useGameState((s) => s.endMessage);
-  const gameKey = useGameState((s) => s.gameKey);
-  const playerKey = useGameState((s) => s.playerKey);
-  const setError = useGameState((s) => s.setError);
-  const navigatingRef = useRef(false);
+  const endMessage = useGameState((s) => s.endMessage)
+  const gameKey = useGameState((s) => s.gameKey)
+  const playerKey = useGameState((s) => s.playerKey)
+  const setError = useGameState((s) => s.setError)
+  const navigatingRef = useRef(false)
+  const [navigating, setNavigating] = useState(false)
 
-  if (!endMessage) return null;
+  if (!endMessage) return null
 
-  const winner = endMessage.players.reduce(
-    (best: any, p: any) => (p.score > (best?.score || 0) ? p : best),
-    null,
-  );
+  const winner = endMessage.players.reduce((best: any, p: any) => (p.score > (best?.score || 0) ? p : best), null)
 
   const handleNewGame = async () => {
-    if (!gameKey || navigatingRef.current) return;
-    navigatingRef.current = true;
+    if (!gameKey || navigatingRef.current) return
+    navigatingRef.current = true
+    setNavigating(true)
     // If another player already created the follow-on game, navigate to it
     if (endMessage.nextGameKey) {
-      const url = playerKey
-        ? `/game/${endMessage.nextGameKey}/${playerKey}`
-        : `/game/${endMessage.nextGameKey}`;
-      window.location.href = url;
-      return;
+      const url = playerKey ? `/game/${endMessage.nextGameKey}/${playerKey}` : `/game/${endMessage.nextGameKey}`
+      window.location.href = url
+      return
     }
     try {
-      const result = await api.newGame(gameKey, playerKey!);
-      const url = playerKey ? `/game/${result.key}/${playerKey}` : `/game/${result.key}`;
-      window.location.href = url;
+      const result = await api.newGame(gameKey, playerKey!)
+      const url = playerKey ? `/game/${result.key}/${playerKey}` : `/game/${result.key}`
+      window.location.href = url
     } catch (e: any) {
-      navigatingRef.current = false;
-      setError(e.message);
+      navigatingRef.current = false
+      setNavigating(false)
+      setError(e.message)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -56,7 +54,9 @@ export const GameEndOverlay = () => {
                 {p.score}
                 {p.tallyScore !== undefined && p.tallyScore !== 0 && (
                   <span className={p.tallyScore > 0 ? 'text-green-600' : 'text-red-600'}>
-                    {' '}({p.tallyScore > 0 ? '+' : ''}{p.tallyScore})
+                    {' '}
+                    ({p.tallyScore > 0 ? '+' : ''}
+                    {p.tallyScore})
                   </span>
                 )}
               </span>
@@ -78,9 +78,9 @@ export const GameEndOverlay = () => {
           onClick={handleNewGame}
           className="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
         >
-          {endMessage.nextGameKey && !navigatingRef.current ? 'Join New Game' : 'New Game'}
+          {endMessage.nextGameKey && !navigating ? 'Join New Game' : 'New Game'}
         </button>
       </div>
     </div>
-  );
-};
+  )
+}

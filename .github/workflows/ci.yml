@@ -37,6 +37,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r build
+      - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm --filter @scrabble/server db:migrate
       - run: pnpm test:all
 

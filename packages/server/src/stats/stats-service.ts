@@ -1,37 +1,37 @@
-import { sql } from 'drizzle-orm';
-import { db } from '../db/connection.js';
+import { sql } from 'drizzle-orm'
+import { db } from '../db/connection.js'
 
 interface PlayerStatsData {
-  name: string;
-  gamesPlayed: number;
-  gamesWon: number;
-  totalScore: number;
-  highestScore: number;
-  highestWordScore: number;
-  highestWord: string | null;
-  averageScore: number;
-  totalTilesPlaced: number;
-  bingoCount: number;
+  name: string
+  gamesPlayed: number
+  gamesWon: number
+  totalScore: number
+  highestScore: number
+  highestWordScore: number
+  highestWord: string | null
+  averageScore: number
+  totalTilesPlaced: number
+  bingoCount: number
 }
 
 interface HeadToHeadData {
-  wins: number;
-  losses: number;
-  draws: number;
+  wins: number
+  losses: number
+  draws: number
 }
 
 export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
   const rows = await db.execute<{
-    name: string;
-    games_played: string;
-    games_won: string;
-    total_score: string;
-    highest_score: string;
-    average_score: string;
-    total_tiles_placed: string;
-    bingo_count: string;
-    highest_word: string | null;
-    highest_word_score: string;
+    name: string
+    games_played: string
+    games_won: string
+    total_score: string
+    highest_score: string
+    average_score: string
+    total_tiles_placed: string
+    bingo_count: string
+    highest_word: string | null
+    highest_word_score: string
   }>(sql`
     WITH finished_games AS (
       SELECT g.id
@@ -96,7 +96,7 @@ export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
     LEFT JOIN word_stats ws ON ws.norm_name = pg.norm_name
     GROUP BY pg.norm_name, pg.display_name, ts.tiles_placed, ts.bingos, ws.highest_word, ws.highest_word_score
     ORDER BY count(*) DESC
-  `);
+  `)
 
   return rows.map((r) => ({
     name: r.name,
@@ -109,23 +109,23 @@ export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
     bingoCount: Number(r.bingo_count),
     highestWord: r.highest_word,
     highestWordScore: Number(r.highest_word_score),
-  }));
-};
+  }))
+}
 
 export const getPlayerStats = async (name: string): Promise<PlayerStatsData | null> => {
-  const all = await getAllPlayerStats();
-  const norm = name.trim().toLowerCase();
-  return all.find((s) => s.name.trim().toLowerCase() === norm) ?? null;
-};
+  const all = await getAllPlayerStats()
+  const norm = name.trim().toLowerCase()
+  return all.find((s) => s.name.trim().toLowerCase() === norm) ?? null
+}
 
 export const getHeadToHead = async (name1: string, name2: string): Promise<HeadToHeadData> => {
-  const norm1 = name1.trim().toLowerCase();
-  const norm2 = name2.trim().toLowerCase();
+  const norm1 = name1.trim().toLowerCase()
+  const norm2 = name2.trim().toLowerCase()
 
   const rows = await db.execute<{
-    wins: string;
-    losses: string;
-    draws: string;
+    wins: string
+    losses: string
+    draws: string
   }>(sql`
     WITH finished_games AS (
       SELECT g.id
@@ -148,12 +148,12 @@ export const getHeadToHead = async (name1: string, name2: string): Promise<HeadT
       count(*) FILTER (WHERE score1 < score2)::text AS losses,
       count(*) FILTER (WHERE score1 = score2)::text AS draws
     FROM matched_games
-  `);
+  `)
 
-  const row = rows[0];
+  const row = rows[0]
   return {
     wins: Number(row?.wins ?? 0),
     losses: Number(row?.losses ?? 0),
     draws: Number(row?.draws ?? 0),
-  };
-};
+  }
+}

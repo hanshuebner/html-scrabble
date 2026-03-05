@@ -1,40 +1,40 @@
-import { useEffect, useState } from 'react';
-import { api } from '../api/client.js';
+import { useEffect, useState } from 'react'
+import { api } from '../api/client.js'
 
 interface PlayerStats {
-  name: string;
-  gamesPlayed: number;
-  gamesWon: number;
-  totalScore: number;
-  highestScore: number;
-  highestWordScore: number;
-  highestWord: string | null;
-  averageScore: number;
-  totalTilesPlaced: number;
-  bingoCount: number;
+  name: string
+  gamesPlayed: number
+  gamesWon: number
+  totalScore: number
+  highestScore: number
+  highestWordScore: number
+  highestWord: string | null
+  averageScore: number
+  totalTilesPlaced: number
+  bingoCount: number
 }
 
 export const StatsPage = ({ onBack }: { onBack: () => void }) => {
-  const [allStats, setAllStats] = useState<PlayerStats[]>([]);
-  const [selected, setSelected] = useState<PlayerStats | null>(null);
-  const [h2h, setH2h] = useState<{ opponent: string; wins: number; losses: number; draws: number }[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [allStats, setAllStats] = useState<PlayerStats[]>([])
+  const [selected, setSelected] = useState<PlayerStats | null>(null)
+  const [h2h, setH2h] = useState<{ opponent: string; wins: number; losses: number; draws: number }[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     api
       .getAllStats()
       .then((data) => {
-        setAllStats(data);
-        if (data.length > 0) setSelected(data[0]);
+        setAllStats(data)
+        if (data.length > 0) setSelected(data[0])
       })
       .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(false))
+  }, [])
 
   // Load head-to-head when a player is selected
   useEffect(() => {
-    if (!selected) return;
-    const opponents = allStats.filter((s) => s.name !== selected.name);
+    if (!selected) return
+    const opponents = allStats.filter((s) => s.name !== selected.name)
     Promise.all(
       opponents.map((opp) =>
         api.getHeadToHead(selected.name, opp.name).then((data) => ({
@@ -42,15 +42,15 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
           ...data,
         })),
       ),
-    ).then(setH2h);
-  }, [selected, allStats]);
+    ).then(setH2h)
+  }, [selected, allStats])
 
   if (loading) {
     return (
       <div className="min-h-screen bg-woodgrain flex items-center justify-center">
         <div className="text-amber-700">Loading stats...</div>
       </div>
-    );
+    )
   }
 
   return (
@@ -90,19 +90,12 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
               <div className="space-y-3">
                 <StatCard label="Games Played" value={selected.gamesPlayed} />
                 <StatCard label="Games Won" value={selected.gamesWon} />
-                <StatCard
-                  label="Win Rate"
-                  value={`${Math.round((selected.gamesWon / selected.gamesPlayed) * 100)}%`}
-                />
+                <StatCard label="Win Rate" value={`${Math.round((selected.gamesWon / selected.gamesPlayed) * 100)}%`} />
                 <StatCard label="Average Score" value={selected.averageScore} />
                 <StatCard label="Highest Game Score" value={selected.highestScore} />
                 <StatCard
                   label="Highest Word"
-                  value={
-                    selected.highestWord
-                      ? `${selected.highestWord} (${selected.highestWordScore})`
-                      : '-'
-                  }
+                  value={selected.highestWord ? `${selected.highestWord} (${selected.highestWordScore})` : '-'}
                 />
                 <StatCard label="Total Tiles Placed" value={selected.totalTilesPlaced} />
                 <StatCard label="Bingos (7-tile bonus)" value={selected.bingoCount} />
@@ -141,8 +134,8 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 const StatCard = ({ label, value }: { label: string; value: string | number }) => {
   return (
@@ -150,5 +143,5 @@ const StatCard = ({ label, value }: { label: string; value: string | number }) =
       <span className="text-sm text-[#626258]">{label}</span>
       <span className="font-bold text-[#474633]">{value}</span>
     </div>
-  );
-};
+  )
+}

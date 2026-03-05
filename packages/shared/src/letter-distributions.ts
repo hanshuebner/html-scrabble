@@ -1,4 +1,4 @@
-import type { Language, LetterDefinition } from './types.js';
+import type { Language, LetterDefinition } from './types.js'
 
 export const letterDistributions: Record<Language, LetterDefinition[]> = {
   English: [
@@ -311,4 +311,4 @@ export const letterDistributions: Record<Language, LetterDefinition[]> = {
     { letter: 'F', score: 4, count: 1 },
     { letter: 'K', score: 4, count: 1 },
   ],
-};
+}

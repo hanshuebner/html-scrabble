@@ -1,9 +1,9 @@
-import { useGameState } from '../hooks/useGameState.js';
+import { useGameState } from '../hooks/useGameState.js'
 
 export const Scoreboard = () => {
-  const players = useGameState((s) => s.players);
-  const whosTurn = useGameState((s) => s.whosTurn);
-  const remainingTileCounts = useGameState((s) => s.remainingTileCounts);
+  const players = useGameState((s) => s.players)
+  const whosTurn = useGameState((s) => s.whosTurn)
+  const remainingTileCounts = useGameState((s) => s.remainingTileCounts)
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3">
@@ -11,10 +11,7 @@ export const Scoreboard = () => {
       <table className="w-full text-sm">
         <tbody>
           {players.map((player, i) => (
-            <tr
-              key={i}
-              className={whosTurn === i ? 'font-bold' : ''}
-            >
+            <tr key={i} className={whosTurn === i ? 'font-bold' : ''}>
               <td className="py-0.5">
                 {whosTurn === i && <span className="text-green-600 mr-1">●</span>}
                 {player.name}
@@ -28,10 +25,8 @@ export const Scoreboard = () => {
         </tbody>
       </table>
       {remainingTileCounts && (
-        <div className="text-xs text-[#AAA38E] mt-2">
-          Bag: {remainingTileCounts.letterBag} tiles
-        </div>
+        <div className="text-xs text-[#AAA38E] mt-2">Bag: {remainingTileCounts.letterBag} tiles</div>
       )}
     </div>
-  );
-};
+  )
+}

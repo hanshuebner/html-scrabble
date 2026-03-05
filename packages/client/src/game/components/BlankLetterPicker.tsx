@@ -1,14 +1,14 @@
-import { useGameState } from '../hooks/useGameState.js';
+import { useGameState } from '../hooks/useGameState.js'
 
 interface BlankLetterPickerProps {
-  onSelect: (letter: string) => void;
-  onCancel: () => void;
+  onSelect: (letter: string) => void
+  onCancel: () => void
 }
 
 export const BlankLetterPicker = ({ onSelect, onCancel }: BlankLetterPickerProps) => {
-  const legalLetters = useGameState((s) => s.legalLetters);
+  const legalLetters = useGameState((s) => s.legalLetters)
 
-  const letters = legalLetters.split('');
+  const letters = legalLetters.split('')
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -33,5 +33,5 @@ export const BlankLetterPicker = ({ onSelect, onCancel }: BlankLetterPickerProps
         </button>
       </div>
     </div>
-  );
-};
+  )
+}

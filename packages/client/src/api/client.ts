@@ -1,28 +1,29 @@
-const BASE = '/api';
+const BASE = '/api'
 
-const request = async <T,>(path: string, options?: RequestInit): Promise<T> => {
+const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options,
-  });
+  })
   if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(body.error || res.statusText);
+    const body = await res.json().catch(() => ({ error: res.statusText }))
+    throw new Error(body.error || res.statusText)
   }
-  return res.json();
-};
+  return res.json()
+}
 
 export const api = {
   // Auth
-  requestMagicLink: (email: string) =>
-    request('/auth/magic-link', { method: 'POST', body: JSON.stringify({ email }) }),
+  requestMagicLink: (email: string) => request('/auth/magic-link', { method: 'POST', body: JSON.stringify({ email }) }),
   logout: () => request('/auth/logout', { method: 'POST' }),
   me: () => request<{ id: string; email: string; name: string }>('/auth/me'),
 
   // Games
   listGames: () =>
-    request<{ key: string; language: string; players: { name: string; key: string; hasTurn: boolean }[]; createdAt: string }[]>('/games'),
+    request<
+      { key: string; language: string; players: { name: string; key: string; hasTurn: boolean }[]; createdAt: string }[]
+    >('/games'),
   createGame: (language: string, players: { name: string; email: string }[]) =>
     request<{ key: string; players: { name: string; key: string; index: number }[] }>('/games', {
       method: 'POST',
@@ -54,4 +55,4 @@ export const api = {
   getPlayerStats: (name: string) => request<any>(`/stats/player/${encodeURIComponent(name)}`),
   getHeadToHead: (name1: string, name2: string) =>
     request<any>(`/stats/head-to-head/${encodeURIComponent(name1)}/${encodeURIComponent(name2)}`),
-};
+}

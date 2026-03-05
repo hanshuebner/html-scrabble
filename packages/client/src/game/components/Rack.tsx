@@ -1,13 +1,13 @@
-import { useSortable, defaultAnimateLayoutChanges, type AnimateLayoutChanges } from '@dnd-kit/sortable';
-import { useDroppable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
-import { Tile } from './Tile.js';
-import { useGameState, type TileData } from '../hooks/useGameState.js';
+import { useSortable, defaultAnimateLayoutChanges, type AnimateLayoutChanges } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
+import { CSS } from '@dnd-kit/utilities'
+import { Tile } from './Tile.js'
+import { useGameState, type TileData } from '../hooks/useGameState.js'
 
 const animateLayoutChanges: AnimateLayoutChanges = (args) => {
-  if (args.wasDragging) return false;
-  return defaultAnimateLayoutChanges(args);
-};
+  if (args.wasDragging) return false
+  return defaultAnimateLayoutChanges(args)
+}
 
 const SortableRackTile = ({
   tile,
@@ -15,18 +15,20 @@ const SortableRackTile = ({
   isSelected,
   onClick,
 }: {
-  tile: TileData;
-  index: number;
-  isSelected: boolean;
-  onClick: () => void;
+  tile: TileData
+  index: number
+  isSelected: boolean
+  onClick: () => void
 }) => {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: `rack-${index}`, animateLayoutChanges });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: `rack-${index}`,
+    animateLayoutChanges,
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  };
+  }
 
   return (
     <div
@@ -45,70 +47,69 @@ const SortableRackTile = ({
         isDragging={isDragging}
       />
     </div>
-  );
-};
+  )
+}
 
 const EmptyRackSlot = ({ index }: { index: number }) => {
-  const { setNodeRef } = useDroppable({ id: `rack-${index}` });
+  const { setNodeRef } = useDroppable({ id: `rack-${index}` })
   return (
     <div
       ref={setNodeRef}
       className="aspect-square border border-dashed border-[#AAA38E] rounded-sm"
       style={{ width: 'calc(100cqw / 15)' }}
     />
-  );
-};
+  )
+}
 
 export const Rack = () => {
-  const selectedSquare = useGameState((s) => s.selectedSquare);
-  const selectSquare = useGameState((s) => s.selectSquare);
-  const clearSelection = useGameState((s) => s.clearSelection);
-  const pendingPlacements = useGameState((s) => s.pendingPlacements);
-  const swapMode = useGameState((s) => s.swapMode);
-  const swapIndices = useGameState((s) => s.swapIndices);
-  const toggleSwapTile = useGameState((s) => s.toggleSwapTile);
+  const selectedSquare = useGameState((s) => s.selectedSquare)
+  const selectSquare = useGameState((s) => s.selectSquare)
+  const clearSelection = useGameState((s) => s.clearSelection)
+  const pendingPlacements = useGameState((s) => s.pendingPlacements)
+  const swapMode = useGameState((s) => s.swapMode)
+  const swapIndices = useGameState((s) => s.swapIndices)
+  const toggleSwapTile = useGameState((s) => s.toggleSwapTile)
 
-  const playerIndex = useGameState((s) => s.playerIndex);
-  const rackData = useGameState((s) => s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null);
-  const rack = rackData ? rackData.map((sq) => sq.tile) : [];
+  const playerIndex = useGameState((s) => s.playerIndex)
+  const rackData = useGameState((s) => (s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null))
+  const rack = rackData ? rackData.map((sq) => sq.tile) : []
 
   // Tiles that are not currently placed on the board
-  const placedRackIndices = new Set(pendingPlacements.map((p) => p.rackIndex));
+  const placedRackIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
 
   const handleTileClick = (index: number) => {
     if (swapMode) {
-      toggleSwapTile(index);
-      return;
+      toggleSwapTile(index)
+      return
     }
     if (selectedSquare?.fromRack && selectedSquare.x === index) {
-      clearSelection();
+      clearSelection()
     } else {
-      selectSquare(index, -1, true);
+      selectSquare(index, -1, true)
     }
-  };
+  }
 
   if (playerIndex === null) {
     return (
       <div className="text-center text-sm text-[#AAA38E] py-3">
         Spectating — use your player link to join as a player.
       </div>
-    );
+    )
   }
 
   return (
     <div className="flex gap-1 justify-center p-2 bg-[#54534A] rounded shadow-md">
       {rack.map((tile, i) => {
         if (!tile || placedRackIndices.has(i)) {
-          return <EmptyRackSlot key={i} index={i} />;
+          return <EmptyRackSlot key={i} index={i} />
         }
 
         // In swap mode, selected tiles show as empty slots
         if (swapMode && swapIndices.has(i)) {
-          return <EmptyRackSlot key={i} index={i} />;
+          return <EmptyRackSlot key={i} index={i} />
         }
 
-        const isSelected =
-          selectedSquare?.fromRack && selectedSquare.x === i;
+        const isSelected = selectedSquare?.fromRack && selectedSquare.x === i
 
         return (
           <SortableRackTile
@@ -118,8 +119,8 @@ export const Rack = () => {
             isSelected={!!isSelected}
             onClick={() => handleTileClick(i)}
           />
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}

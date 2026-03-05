@@ -1,24 +1,16 @@
-import { memo } from 'react';
+import { memo } from 'react'
 
 interface TileProps {
-  letter: string;
-  score: number;
-  isBlank?: boolean;
-  isSelected?: boolean;
-  isNew?: boolean;
-  isDragging?: boolean;
-  onClick?: () => void;
+  letter: string
+  score: number
+  isBlank?: boolean
+  isSelected?: boolean
+  isNew?: boolean
+  isDragging?: boolean
+  onClick?: () => void
 }
 
-export const Tile = memo(({
-  letter,
-  score,
-  isBlank,
-  isSelected,
-  isNew,
-  isDragging,
-  onClick,
-}: TileProps) => {
+export const Tile = memo(({ letter, score, isBlank, isSelected, isNew, isDragging, onClick }: TileProps) => {
   return (
     <div
       onClick={onClick}
@@ -53,6 +45,6 @@ export const Tile = memo(({
         </span>
       )}
     </div>
-  );
-});
-Tile.displayName = 'Tile';
+  )
+})
+Tile.displayName = 'Tile'

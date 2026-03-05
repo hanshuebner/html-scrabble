@@ -1,24 +1,24 @@
-import nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
-import { config } from '../config.js';
+import nodemailer from 'nodemailer'
+import type { Transporter } from 'nodemailer'
+import { config } from '../config.js'
 
-let transporter: Transporter | null = null;
+let transporter: Transporter | null = null
 
 if (config.mail.smtp) {
-  transporter = nodemailer.createTransport(config.mail.smtp);
+  transporter = nodemailer.createTransport(config.mail.smtp)
 }
 
 export const joinProse = (array: string[]): string => {
-  const length = array.length;
-  if (length === 0) return '';
-  if (length === 1) return array[0];
-  return array.slice(0, -1).join(', ') + ' and ' + array[length - 1];
-};
+  const length = array.length
+  if (length === 0) return ''
+  if (length === 1) return array[0]
+  return array.slice(0, -1).join(', ') + ' and ' + array[length - 1]
+}
 
 export const sendEmail = async (to: string, subject: string, text: string, html: string): Promise<void> => {
   if (!transporter) {
-    console.log(`[email] No transport configured. Would send to ${to}: ${subject}`);
-    return;
+    console.log(`[email] No transport configured. Would send to ${to}: ${subject}`)
+    return
   }
 
   try {
@@ -28,12 +28,12 @@ export const sendEmail = async (to: string, subject: string, text: string, html:
       subject,
       text,
       html,
-    });
-    console.log(`[email] Sent to ${to}: ${result.response}`);
+    })
+    console.log(`[email] Sent to ${to}: ${result.response}`)
   } catch (e) {
-    console.error('[email] Failed to send:', e);
+    console.error('[email] Failed to send:', e)
   }
-};
+}
 
 export const sendGameInvitation = async (
   playerEmail: string,
@@ -41,11 +41,11 @@ export const sendGameInvitation = async (
   gameLink: string,
   otherPlayerNames: string[],
 ): Promise<void> => {
-  const subject = `You have been invited to play Scrabble with ${joinProse(otherPlayerNames)}`;
-  const text = `Make your move:\n\n${gameLink}`;
-  const html = `Click <a href="${gameLink}">here</a> to make your move.`;
-  await sendEmail(playerEmail, subject, text, html);
-};
+  const subject = `You have been invited to play Scrabble with ${joinProse(otherPlayerNames)}`
+  const text = `Make your move:\n\n${gameLink}`
+  const html = `Click <a href="${gameLink}">here</a> to make your move.`
+  await sendEmail(playerEmail, subject, text, html)
+}
 
 export const sendTurnReminder = async (
   playerEmail: string,
@@ -53,8 +53,8 @@ export const sendTurnReminder = async (
   gameLink: string,
   otherPlayerNames: string[],
 ): Promise<void> => {
-  const subject = `It is your turn in your Scrabble game with ${joinProse(otherPlayerNames)}`;
-  const text = `Make your move:\n\n${gameLink}`;
-  const html = `Click <a href="${gameLink}">here</a> to make your move.`;
-  await sendEmail(playerEmail, subject, text, html);
-};
+  const subject = `It is your turn in your Scrabble game with ${joinProse(otherPlayerNames)}`
+  const text = `Make your move:\n\n${gameLink}`
+  const html = `Click <a href="${gameLink}">here</a> to make your move.`
+  await sendEmail(playerEmail, subject, text, html)
+}

@@ -1,70 +1,72 @@
-import { useEffect, useRef } from 'react';
-import { useGameState } from './useGameState.js';
+import { useEffect, useRef } from 'react'
+import { useGameState } from './useGameState.js'
 
-const yourTurnAudio = new Audio('/audio/yourturn.wav');
-const applauseAudio = new Audio('/audio/applause.wav');
+const yourTurnAudio = new Audio('/audio/yourturn.wav')
+const applauseAudio = new Audio('/audio/applause.wav')
 
 export const useNotifications = () => {
-  const gameKey = useGameState((s) => s.gameKey);
-  const whosTurn = useGameState((s) => s.whosTurn);
-  const playerIndex = useGameState((s) => s.playerIndex);
-  const players = useGameState((s) => s.players);
-  const turns = useGameState((s) => s.turns);
-  const chatMessages = useGameState((s) => s.chatMessages);
-  const prevTurnCount = useRef(0);
-  const prevChatCount = useRef(0);
-  const ready = useRef(false);
+  const gameKey = useGameState((s) => s.gameKey)
+  const whosTurn = useGameState((s) => s.whosTurn)
+  const playerIndex = useGameState((s) => s.playerIndex)
+  const players = useGameState((s) => s.players)
+  const turns = useGameState((s) => s.turns)
+  const chatMessages = useGameState((s) => s.chatMessages)
+  const prevTurnCount = useRef(0)
+  const prevChatCount = useRef(0)
+  const ready = useRef(false)
 
   // Mark ready once game data is loaded (works even for games with 0 turns)
   useEffect(() => {
     if (gameKey && !ready.current) {
-      ready.current = true;
-      prevTurnCount.current = turns.length;
-      prevChatCount.current = chatMessages.length;
+      ready.current = true
+      prevTurnCount.current = turns.length
+      prevChatCount.current = chatMessages.length
     }
-  }, [gameKey, turns.length, chatMessages.length]);
+  }, [gameKey, turns.length, chatMessages.length])
 
   // Notify on new chat messages from other players
   useEffect(() => {
-    if (!ready.current) return;
+    if (!ready.current) return
     if (chatMessages.length > prevChatCount.current) {
-      const newMsg = chatMessages[chatMessages.length - 1];
-      const myName = playerIndex !== null ? players[playerIndex]?.name : null;
+      const newMsg = chatMessages[chatMessages.length - 1]
+      const myName = playerIndex !== null ? players[playerIndex]?.name : null
       if (newMsg && newMsg.playerName !== myName && Notification.permission === 'granted') {
-        new Notification('Scrabble', { body: `${newMsg.playerName}: ${newMsg.message}` });
+        new Notification('Scrabble', { body: `${newMsg.playerName}: ${newMsg.message}` })
       }
     }
-    prevChatCount.current = chatMessages.length;
-  }, [chatMessages, playerIndex, players]);
+    prevChatCount.current = chatMessages.length
+  }, [chatMessages, playerIndex, players])
 
   // Notify on new turns received via websocket (not on initial load)
   useEffect(() => {
-    if (!ready.current) return;
+    if (!ready.current) return
     if (turns.length > prevTurnCount.current) {
-      const lastTurn = turns[turns.length - 1];
-      const turnPlayerIndex = lastTurn?.player ?? lastTurn?.playerIndex;
+      const lastTurn = turns[turns.length - 1]
+      const turnPlayerIndex = lastTurn?.player ?? lastTurn?.playerIndex
 
       // Play applause for the player who placed all 7 tiles
       if (lastTurn?.type === 'move' && lastTurn.placements?.length === 7 && turnPlayerIndex === playerIndex) {
-        applauseAudio.play().catch(() => {});
+        applauseAudio.play().catch(() => {})
       }
 
       // Notify when it becomes your turn
       if (whosTurn === playerIndex && turnPlayerIndex !== playerIndex) {
-        yourTurnAudio.play().catch(() => {});
+        yourTurnAudio.play().catch(() => {})
         if (Notification.permission === 'granted') {
-          const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null;
-          new Notification('Scrabble', { body: opponentName ? `${opponentName} made a move. It's your turn!` : "It's your turn!" });
+          const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null
+          new Notification('Scrabble', {
+            body: opponentName ? `${opponentName} made a move. It's your turn!` : "It's your turn!",
+          })
         }
       }
     }
-    prevTurnCount.current = turns.length;
-  }, [turns, whosTurn, playerIndex]);
+    prevTurnCount.current = turns.length
+  }, [turns, whosTurn, playerIndex, players])
 
   // Request notification permission on mount
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
+      Notification.requestPermission()
     }
-  }, []);
-};
+  }, [])
+}

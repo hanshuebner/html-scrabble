@@ -1,13 +1,13 @@
-import { memo } from 'react';
-import { useDroppable, useDraggable } from '@dnd-kit/core';
-import { Tile } from './Tile.js';
+import { memo } from 'react'
+import { useDroppable, useDraggable } from '@dnd-kit/core'
+import { Tile } from './Tile.js'
 
 const SQUARE_FULL: Record<string, string> = {
   DoubleWord: 'Double Word Score',
   TripleWord: 'Triple Word Score',
   DoubleLetter: 'Double Letter Score',
   TripleLetter: 'Triple Letter Score',
-};
+}
 
 const SQUARE_BG: Record<string, string> = {
   Normal: 'bg-[#BEB9A6]',
@@ -15,7 +15,7 @@ const SQUARE_BG: Record<string, string> = {
   TripleWord: 'bg-[#F75D59]',
   DoubleLetter: 'bg-[#A0CFEC]',
   TripleLetter: 'bg-[#157DEC]',
-};
+}
 
 const SQUARE_TEXT: Record<string, string> = {
   Normal: 'text-[#AAA38E]',
@@ -23,7 +23,7 @@ const SQUARE_TEXT: Record<string, string> = {
   TripleWord: 'text-[#8B0000]',
   DoubleLetter: 'text-[#157DEC]',
   TripleLetter: 'text-[#000080]',
-};
+}
 
 const DraggablePendingTile = ({
   x,
@@ -31,14 +31,14 @@ const DraggablePendingTile = ({
   tile,
   isSelected,
 }: {
-  x: number;
-  y: number;
-  tile: { letter: string; score: number };
-  isSelected?: boolean;
+  x: number
+  y: number
+  tile: { letter: string; score: number }
+  isSelected?: boolean
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `pending-${x}-${y}`,
-  });
+  })
 
   return (
     <div ref={setNodeRef} {...attributes} {...listeners} className="w-full h-full" style={{ touchAction: 'none' }}>
@@ -51,86 +51,77 @@ const DraggablePendingTile = ({
         isDragging={isDragging}
       />
     </div>
-  );
-};
-
-interface BoardSquareProps {
-  x: number;
-  y: number;
-  type: string;
-  tile: { letter: string; score: number } | null;
-  tileLocked: boolean;
-  isPending?: boolean;
-  isSelected?: boolean;
-  isCursor?: boolean;
-  cursorHorizontal?: boolean;
-  onClick?: () => void;
+  )
 }
 
-export const BoardSquare = memo(({
-  x,
-  y,
-  type,
-  tile,
-  tileLocked,
-  isPending,
-  isSelected,
-  isCursor,
-  cursorHorizontal,
-  onClick,
-}: BoardSquareProps) => {
-  const { setNodeRef, isOver } = useDroppable({ id: `board-${x}-${y}` });
+interface BoardSquareProps {
+  x: number
+  y: number
+  type: string
+  tile: { letter: string; score: number } | null
+  tileLocked: boolean
+  isPending?: boolean
+  isSelected?: boolean
+  isCursor?: boolean
+  cursorHorizontal?: boolean
+  onClick?: () => void
+}
 
-  const bg = SQUARE_BG[type] || SQUARE_BG.Normal;
-  const fullLabel = SQUARE_FULL[type];
-  const textColor = SQUARE_TEXT[type] || SQUARE_TEXT.Normal;
-  const isCenter = x === 7 && y === 7;
+export const BoardSquare = memo(
+  ({ x, y, type, tile, tileLocked, isPending, isSelected, isCursor, cursorHorizontal, onClick }: BoardSquareProps) => {
+    const { setNodeRef, isOver } = useDroppable({ id: `board-${x}-${y}` })
 
-  return (
-    <div
-      ref={setNodeRef}
-      onClick={onClick}
-      data-board-square
-      data-x={x}
-      data-y={y}
-      className={`
+    const bg = SQUARE_BG[type] || SQUARE_BG.Normal
+    const fullLabel = SQUARE_FULL[type]
+    const textColor = SQUARE_TEXT[type] || SQUARE_TEXT.Normal
+    const isCenter = x === 7 && y === 7
+
+    return (
+      <div
+        ref={setNodeRef}
+        onClick={onClick}
+        data-board-square
+        data-x={x}
+        data-y={y}
+        className={`
         relative flex items-center justify-center
         border border-dotted border-[#AAA38E]
         ${bg}
         ${isOver ? 'ring-2 ring-yellow-400' : ''}
         aspect-square overflow-hidden
       `}
-    >
-      {tile ? (
-        isPending ? (
-          <DraggablePendingTile x={x} y={y} tile={tile} isSelected={isSelected} />
+      >
+        {tile ? (
+          isPending ? (
+            <DraggablePendingTile x={x} y={y} tile={tile} isSelected={isSelected} />
+          ) : (
+            <Tile
+              letter={tile.letter}
+              score={tile.score}
+              isBlank={tile.score === 0}
+              isSelected={isSelected}
+              isNew={!tileLocked}
+            />
+          )
         ) : (
-          <Tile
-            letter={tile.letter}
-            score={tile.score}
-            isBlank={tile.score === 0}
-            isSelected={isSelected}
-            isNew={!tileLocked}
-          />
-        )
-      ) : (
-        <>
-          {fullLabel && (
-            <span className={`font-bold ${textColor} leading-tight text-center text-[clamp(0.25rem,1.1cqw,0.5rem)] uppercase`}>
-              {fullLabel}
-            </span>
-          )}
-          {isCenter && !fullLabel && (
-            <span className={`text-[clamp(0.5rem,3.5cqw,1rem)] ${textColor}`}>★</span>
-          )}
-        </>
-      )}
-      {isCursor && (
-        <span className="absolute inset-0 flex items-center justify-center text-[clamp(0.7rem,5cqw,1.8rem)] font-bold text-[#54534A] bg-white/50 pointer-events-none">
-          {cursorHorizontal ? '\u25b6' : '\u25bc'}
-        </span>
-      )}
-    </div>
-  );
-});
-BoardSquare.displayName = 'BoardSquare';
+          <>
+            {fullLabel && (
+              <span
+                className={`font-bold ${textColor} leading-tight text-center text-[clamp(0.25rem,1.1cqw,0.5rem)] uppercase`}
+              >
+                {fullLabel}
+              </span>
+            )}
+            {isCenter && !fullLabel && <span className={`text-[clamp(0.5rem,3.5cqw,1rem)] ${textColor}`}>★</span>}
+          </>
+        )}
+        {isCursor && (
+          <span className="absolute inset-0 flex items-center justify-center text-[clamp(0.7rem,5cqw,1.8rem)] font-bold text-[#54534A] bg-white/50 pointer-events-none">
+            {cursorHorizontal ? '\u25b6' : '\u25bc'}
+          </span>
+        )}
+      </div>
+    )
+  },
+)
+BoardSquare.displayName = 'BoardSquare'

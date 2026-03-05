@@ -16,18 +16,29 @@
         "node": ">=20.0.0"
     },
     "packageManager": "pnpm@10.12.3",
+    "type": "module",
     "license": "MIT/X11",
     "scripts": {
         "dev": "pnpm --filter @scrabble/client dev",
         "dev:server": "pnpm --filter @scrabble/server dev",
         "build": "pnpm -r build",
         "test": "pnpm --filter @scrabble/shared test",
-        "test:all": "pnpm -r test"
+        "test:all": "pnpm -r test",
+        "lint": "eslint packages/*/src/",
+        "format:check": "prettier --check 'packages/*/src/**/*.{ts,tsx}'"
     },
     "pnpm": {
         "onlyBuiltDependencies": [
             "esbuild",
             "ejs"
         ]
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.3",
+        "eslint": "^9.39.3",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-react-hooks": "^7.0.1",
+        "prettier": "^3.8.1",
+        "typescript-eslint": "^8.56.1"
     }
 }

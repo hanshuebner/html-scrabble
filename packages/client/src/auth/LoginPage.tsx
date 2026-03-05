@@ -1,22 +1,22 @@
-import { useState } from 'react';
-import { useAuth } from './AuthContext.js';
+import { useState } from 'react'
+import { useAuth } from './AuthContext.js'
 
 export const LoginPage = () => {
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState('');
+  const { login } = useAuth()
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault()
+    setError('')
     try {
-      await login(email);
-      setSent(true);
+      await login(email)
+      setSent(true)
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message)
     }
-  };
+  }
 
   if (sent) {
     return (
@@ -28,7 +28,7 @@ export const LoginPage = () => {
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -55,10 +55,8 @@ export const LoginPage = () => {
             Send Login Link
           </button>
         </form>
-        <p className="text-xs text-[#AAA38E] mt-4 text-center">
-          No password needed. We'll send you a magic link.
-        </p>
+        <p className="text-xs text-[#AAA38E] mt-4 text-center">No password needed. We'll send you a magic link.</p>
       </div>
     </div>
-  );
-};
+  )
+}
