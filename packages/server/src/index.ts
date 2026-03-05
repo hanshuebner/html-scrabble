@@ -10,6 +10,7 @@ import { db } from './db/connection.js'
 import { gameRoutes } from './game/game-routes.js'
 import { statsRoutes } from './stats/stats-routes.js'
 import { setupGameSocket } from './game/game-socket.js'
+import { startScheduler } from './scheduler/index.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const clientDist = path.join(__dirname, '../../client/dist')
@@ -48,6 +49,7 @@ db.execute(sql`SELECT 1`)
 
 server.listen(config.port, () => {
   console.log(`Scrabble server running on port ${config.port}`)
+  startScheduler()
 })
 
 export { app, io, server }

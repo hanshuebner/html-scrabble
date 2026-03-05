@@ -179,7 +179,8 @@ export const findActiveGames = async (): Promise<
     language: string
     whosTurn: number | null
     createdAt: Date
-    players: { playerIndex: number; name: string; key: string }[]
+    updatedAt: Date
+    players: { playerIndex: number; name: string; email: string; key: string }[]
   }[]
 > => {
   const gameRows = await db
@@ -189,6 +190,7 @@ export const findActiveGames = async (): Promise<
       language: games.language,
       whosTurn: games.whosTurn,
       createdAt: games.createdAt,
+      updatedAt: games.updatedAt,
     })
     .from(games)
     .where(and(isNull(games.endMessage), isNotNull(games.whosTurn)))
@@ -196,11 +198,23 @@ export const findActiveGames = async (): Promise<
   const result = []
   for (const g of gameRows) {
     const playerRows = await db
-      .select({ playerIndex: gamePlayers.playerIndex, name: gamePlayers.name, key: gamePlayers.key })
+      .select({
+        playerIndex: gamePlayers.playerIndex,
+        name: gamePlayers.name,
+        email: gamePlayers.email,
+        key: gamePlayers.key,
+      })
       .from(gamePlayers)
       .where(eq(gamePlayers.gameId, g.id))
       .orderBy(gamePlayers.playerIndex)
-    result.push({ key: g.key, language: g.language, whosTurn: g.whosTurn, createdAt: g.createdAt, players: playerRows })
+    result.push({
+      key: g.key,
+      language: g.language,
+      whosTurn: g.whosTurn,
+      createdAt: g.createdAt,
+      updatedAt: g.updatedAt,
+      players: playerRows,
+    })
   }
   return result
 }

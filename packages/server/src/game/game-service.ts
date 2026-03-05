@@ -786,6 +786,19 @@ export const importGame = async (data: any): Promise<Game> => {
   return game
 }
 
+export const timeoutGame = async (gameKey: string): Promise<void> => {
+  const game = await loadGame(gameKey)
+  if (!game || game.endMessage) return
+
+  finish(game, 'timed out')
+
+  await updateGameState(game.dbId, {
+    endMessage: game.endMessage,
+  })
+
+  console.log(`[scheduler] Timed out game ${gameKey}`)
+}
+
 export const listActiveGames = async () => {
   const dbGames = await findActiveGames()
 
