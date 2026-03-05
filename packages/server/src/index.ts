@@ -3,7 +3,6 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { sql } from 'drizzle-orm';
 import { config } from './config.js';
@@ -18,14 +17,8 @@ const clientDist = path.join(__dirname, '../../client/dist');
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.NODE_ENV === 'production' ? false : ['http://localhost:5173'],
-    credentials: true,
-  },
-});
+const io = new Server(server);
 
-app.use(cors({ origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:5173', credentials: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
 

@@ -14,7 +14,6 @@
   "dependencies": {
     "@scrabble/shared": "workspace:*",
     "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
     "drizzle-orm": "^0.38.4",
     "express": "^5.0.1",
     "jose": "^6.0.8",
@@ -24,7 +23,6 @@
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
-    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.12.0",
     "@types/nodemailer": "^6.4.17",
