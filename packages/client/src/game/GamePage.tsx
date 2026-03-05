@@ -418,7 +418,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
     >
       <div className="min-h-screen bg-woodgrain flex flex-col">
         {/* Desktop layout */}
-        <div className="max-w-[59rem] mx-auto p-2 flex flex-col lg:flex-row gap-4 flex-1 w-full">
+        <div className="max-w-[74rem] mx-auto p-2 flex flex-col lg:flex-row gap-4 flex-1 w-full">
           {/* Controls sidebar - hidden on mobile, shown on desktop */}
           <div className="hidden lg:block lg:w-[20rem] space-y-3 order-1">
             <Scoreboard />
@@ -444,7 +444,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
               <Board />
               {/* Rack with Shuffle/Recall buttons to the left */}
               {!isSpectator && (
-                <div className="flex items-center gap-1 w-[calc(100vw-1rem)] max-w-[min(37rem,100%)] lg:w-[37rem]">
+                <div className="flex items-center gap-1 w-[calc(100vw-1rem)] max-w-[min(50rem,100%)] lg:w-[50rem]">
                   <div className="flex flex-col gap-1 shrink-0">
                     <button
                       onClick={shuffleRack}
@@ -511,7 +511,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
           <div
             className="@container"
             style={{
-              width: isDesktop ? 592 : 480,
+              width: isDesktop ? 800 : 480,
               transform: isDesktop ? undefined : 'translateY(-30px)',
             }}
           >

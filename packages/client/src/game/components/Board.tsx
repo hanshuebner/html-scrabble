@@ -84,7 +84,7 @@ export const Board = () => {
   }
 
   return (
-    <div className="@container grid grid-cols-[repeat(15,1fr)] gap-0 w-[calc(100vw-1rem)] max-w-[min(37rem,100%)] aspect-square bg-[#54534A] p-[2px] rounded shadow-lg lg:w-[37rem]">
+    <div className="@container grid grid-cols-[repeat(15,1fr)] gap-0 w-[calc(100vw-1rem)] max-w-[min(50rem,100%)] aspect-square bg-[#54534A] p-[2px] rounded shadow-lg lg:w-[50rem]">
       {squares}
     </div>
   )
