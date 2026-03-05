@@ -83,12 +83,12 @@ The server requires PostgreSQL. On FreeBSD:
 
 ```bash
 # Install PostgreSQL
-pkg install postgresql16-server
+sudo pkg install postgresql16-server
 
 # Enable and start the service
-sysrc postgresql_enable=YES
-service postgresql initdb
-service postgresql start
+sudo sysrc postgresql_enable=YES
+sudo service postgresql initdb
+sudo service postgresql start
 
 # Create the database and user
 sudo -u postgres createuser scrabble
@@ -112,7 +112,7 @@ Clone the repository and build:
 ```bash
 sudo mkdir -p /opt/scrabble
 sudo chown -R scrabble:scrabble /opt/scrabble
-git clone https://github.com/hanshuebner/html-scrabble.git /opt/scrabble
+sudo -u scrabble git clone https://github.com/hanshuebner/html-scrabble.git /opt/scrabble
 cd /opt/scrabble
 sudo -u scrabble pnpm install --frozen-lockfile
 sudo -u scrabble pnpm -r build
@@ -135,7 +135,7 @@ sudo sysrc scrabble_enable=YES
 Create `/opt/scrabble/.env` with the service configuration:
 
 ```bash
-# /opt/scrabble/.env
+sudo -u scrabble tee /opt/scrabble/.env <<'EOF'
 DATABASE_URL=postgres://scrabble@localhost:5432/scrabble
 PORT=3000
 BASE_URL=https://your-domain.com/
@@ -144,6 +144,7 @@ SMTP_HOST=smtp.your-domain.com
 SMTP_PORT=587
 SMTP_USER=...
 SMTP_PASS=...
+EOF
 ```
 
 ### Initial start
@@ -181,42 +182,43 @@ To enable automated deployment, configure these GitHub repository secrets:
 
 #### Setting up the deploy SSH key
 
-Generate a dedicated key pair on your local machine:
+On the production server, generate a dedicated key pair and configure it
+for the `scrabble` user:
 
 ```bash
 ssh-keygen -t ed25519 -f scrabble-deploy -C "github-actions-deploy" -N ""
+sudo mkdir -p /opt/scrabble/.ssh
+sudo cp scrabble-deploy.pub /opt/scrabble/.ssh/authorized_keys
+sudo chmod 700 /opt/scrabble/.ssh
+sudo chmod 600 /opt/scrabble/.ssh/authorized_keys
+sudo chown -R scrabble:scrabble /opt/scrabble/.ssh
 ```
 
-On the FreeBSD server, add the public key to the `scrabble` user's
-authorized keys:
+Copy the private key content for the next step, then delete the key files:
 
 ```bash
-mkdir -p /opt/scrabble/.ssh
-cat scrabble-deploy.pub >> /opt/scrabble/.ssh/authorized_keys
-chmod 700 /opt/scrabble/.ssh
-chmod 600 /opt/scrabble/.ssh/authorized_keys
-chown -R scrabble:scrabble /opt/scrabble/.ssh
+cat scrabble-deploy
+# Copy this output — you will paste it into GitHub below
+rm scrabble-deploy scrabble-deploy.pub
 ```
 
 In GitHub, go to the repository **Settings > Secrets and variables > Actions**
 and add the following repository secrets:
 
-* `SSH_PRIVATE_KEY` — paste the contents of `scrabble-deploy` (the private
-  key file)
+* `SSH_PRIVATE_KEY` — paste the private key content copied above
 * `DEPLOY_HOST` — the server hostname or IP
 * `DEPLOY_USER` — `scrabble`
-
-After adding the secrets, delete the local key files:
-
-```bash
-rm scrabble-deploy scrabble-deploy.pub
-```
 
 #### Sudoers for service restart
 
 The deploy script uses `sudo service scrabble restart`, so the `scrabble`
-user needs passwordless sudo for that command. Add this to
-`/usr/local/etc/sudoers` (via `visudo`):
+user needs passwordless sudo for that command:
+
+```bash
+sudo visudo -f /usr/local/etc/sudoers
+```
+
+Add this line:
 
 ```
 scrabble ALL=(root) NOPASSWD: /usr/sbin/service scrabble *
