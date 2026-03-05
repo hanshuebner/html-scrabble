@@ -9,11 +9,11 @@ declare global {
   }
 }
 
-export async function authMiddleware(
+export const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   const token = req.cookies?.session;
   if (!token) {
     res.status(401).json({ error: 'not authenticated' });
@@ -26,13 +26,13 @@ export async function authMiddleware(
   } catch {
     res.status(401).json({ error: 'invalid session' });
   }
-}
+};
 
-export async function optionalAuth(
+export const optionalAuth = async (
   req: Request,
   _res: Response,
   next: NextFunction,
-): Promise<void> {
+): Promise<void> => {
   const token = req.cookies?.session;
   if (token) {
     try {
@@ -42,4 +42,4 @@ export async function optionalAuth(
     }
   }
   next();
-}
+};

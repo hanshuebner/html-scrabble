@@ -1,6 +1,6 @@
 import { useGameState } from '../hooks/useGameState.js';
 
-export function Scoreboard() {
+export const Scoreboard = () => {
   const players = useGameState((s) => s.players);
   const whosTurn = useGameState((s) => s.whosTurn);
   const remainingTileCounts = useGameState((s) => s.remainingTileCounts);
@@ -34,4 +34,4 @@ export function Scoreboard() {
       )}
     </div>
   );
-}
+};

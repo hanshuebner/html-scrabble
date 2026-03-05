@@ -4,23 +4,23 @@ import { LobbyPage } from './lobby/LobbyPage.js';
 import { GamePage } from './game/GamePage.js';
 import { StatsPage } from './stats/StatsPage.js';
 
-function GameRoute() {
+const GameRoute = () => {
   const { gameKey, playerKey } = useParams<{ gameKey: string; playerKey?: string }>();
   if (!gameKey) return <div>Game not found</div>;
   return <GamePage gameKey={gameKey} playerKey={playerKey} />;
-}
+};
 
-function LobbyRoute() {
+const LobbyRoute = () => {
   const navigate = useNavigate();
   return <LobbyPage onSelectGame={(key) => navigate(`/game/${key}`)} onSelectPlayer={(gameKey, playerKey) => navigate(`/game/${gameKey}/${playerKey}`)} onViewStats={() => navigate('/stats')} />;
-}
+};
 
-function StatsRoute() {
+const StatsRoute = () => {
   const navigate = useNavigate();
   return <StatsPage onBack={() => navigate('/')} />;
-}
+};
 
-export default function App() {
+const App = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -33,4 +33,5 @@ export default function App() {
       </BrowserRouter>
     </AuthProvider>
   );
-}
+};
+export default App;

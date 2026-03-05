@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { useGameState } from '../hooks/useGameState.js';
 import { api } from '../../api/client.js';
 
-export function GameEndOverlay() {
+export const GameEndOverlay = () => {
   const endMessage = useGameState((s) => s.endMessage);
   const gameKey = useGameState((s) => s.gameKey);
   const playerKey = useGameState((s) => s.playerKey);
@@ -83,4 +83,4 @@ export function GameEndOverlay() {
       </div>
     </div>
   );
-}
+};

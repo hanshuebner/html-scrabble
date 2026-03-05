@@ -1,7 +1,7 @@
 import type { Server } from 'socket.io';
 import { loadGame, lookupPlayer, setNotifyFn, setNotifyPlayerFn } from './game-service.js';
 
-export function setupGameSocket(io: Server): void {
+export const setupGameSocket = (io: Server): void => {
   // Wire up the notify function so game-service can broadcast
   setNotifyFn((gameKey, event, data) => {
     io.to(`game:${gameKey}`).emit(event, data);
@@ -71,4 +71,4 @@ export function setupGameSocket(io: Server): void {
       }
     });
   });
-}
+};

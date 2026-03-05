@@ -14,7 +14,7 @@ interface PlayerStats {
   bingoCount: number;
 }
 
-export function StatsPage({ onBack }: { onBack: () => void }) {
+export const StatsPage = ({ onBack }: { onBack: () => void }) => {
   const [allStats, setAllStats] = useState<PlayerStats[]>([]);
   const [selected, setSelected] = useState<PlayerStats | null>(null);
   const [h2h, setH2h] = useState<{ opponent: string; wins: number; losses: number; draws: number }[]>([]);
@@ -142,13 +142,13 @@ export function StatsPage({ onBack }: { onBack: () => void }) {
       </div>
     </div>
   );
-}
+};
 
-function StatCard({ label, value }: { label: string; value: string | number }) {
+const StatCard = ({ label, value }: { label: string; value: string | number }) => {
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 flex justify-between items-center">
       <span className="text-sm text-[#626258]">{label}</span>
       <span className="font-bold text-[#474633]">{value}</span>
     </div>
   );
-}
+};

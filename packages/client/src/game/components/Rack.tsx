@@ -9,7 +9,7 @@ const animateLayoutChanges: AnimateLayoutChanges = (args) => {
   return defaultAnimateLayoutChanges(args);
 };
 
-function SortableRackTile({
+const SortableRackTile = ({
   tile,
   index,
   isSelected,
@@ -19,7 +19,7 @@ function SortableRackTile({
   index: number;
   isSelected: boolean;
   onClick: () => void;
-}) {
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: `rack-${index}`, animateLayoutChanges });
 
@@ -46,9 +46,9 @@ function SortableRackTile({
       />
     </div>
   );
-}
+};
 
-function EmptyRackSlot({ index }: { index: number }) {
+const EmptyRackSlot = ({ index }: { index: number }) => {
   const { setNodeRef } = useDroppable({ id: `rack-${index}` });
   return (
     <div
@@ -57,9 +57,9 @@ function EmptyRackSlot({ index }: { index: number }) {
       style={{ width: 'calc(100cqw / 15)' }}
     />
   );
-}
+};
 
-export function Rack() {
+export const Rack = () => {
   const selectedSquare = useGameState((s) => s.selectedSquare);
   const selectSquare = useGameState((s) => s.selectSquare);
   const clearSelection = useGameState((s) => s.clearSelection);
@@ -122,4 +122,4 @@ export function Rack() {
       })}
     </div>
   );
-}
+};

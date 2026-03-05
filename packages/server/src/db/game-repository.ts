@@ -36,10 +36,10 @@ export interface TurnInsertData {
 
 // ── Insert game with players in a single transaction ────────────────────────
 
-export async function insertGameWithPlayers(
+export const insertGameWithPlayers = async (
   gameData: GameInsertData,
   players: PlayerInsertData[],
-): Promise<string> {
+): Promise<string> => {
   return await db.transaction(async (tx) => {
     const [gameRow] = await tx
       .insert(games)
@@ -73,11 +73,11 @@ export async function insertGameWithPlayers(
 
     return gameRow.id;
   });
-}
+};
 
 // ── Persist a turn (update game state + player rows + insert turn) ──────────
 
-export async function persistTurn(
+export const persistTurn = async (
   gameId: string,
   gameUpdate: {
     boardState: unknown;
@@ -89,7 +89,7 @@ export async function persistTurn(
   },
   playerUpdates: { playerIndex: number; score: number; rack: unknown; tallyScore: number | undefined }[],
   turnRecord: TurnInsertData,
-): Promise<void> {
+): Promise<void> => {
   await db.transaction(async (tx) => {
     await tx
       .update(games)
@@ -124,22 +124,22 @@ export async function persistTurn(
       moveData: turnRecord.moveData,
     });
   });
-}
+};
 
 // ── Update game state (e.g. nextGameKey) ────────────────────────────────────
 
-export async function updateGameState(
+export const updateGameState = async (
   gameId: string,
   data: Partial<{
     nextGameKey: string | null;
     endMessage: unknown;
   }>,
-): Promise<void> {
+): Promise<void> => {
   await db
     .update(games)
     .set({ ...data, updatedAt: new Date() })
     .where(eq(games.id, gameId));
-}
+};
 
 // ── Find game by key (with players and turns) ───────────────────────────────
 
@@ -176,9 +176,9 @@ export interface TurnDbRow {
   timestamp: Date;
 }
 
-export async function findActiveGames(): Promise<
+export const findActiveGames = async (): Promise<
   { key: string; language: string; whosTurn: number | null; createdAt: Date; players: { playerIndex: number; name: string; key: string }[] }[]
-> {
+> => {
   const gameRows = await db
     .select({
       id: games.id,
@@ -200,11 +200,11 @@ export async function findActiveGames(): Promise<
     result.push({ key: g.key, language: g.language, whosTurn: g.whosTurn, createdAt: g.createdAt, players: playerRows });
   }
   return result;
-}
+};
 
-export async function findGameByKey(
+export const findGameByKey = async (
   key: string,
-): Promise<{ game: GameDbRow; players: PlayerDbRow[]; turns: TurnDbRow[] } | null> {
+): Promise<{ game: GameDbRow; players: PlayerDbRow[]; turns: TurnDbRow[] } | null> => {
   const [gameRow] = await db
     .select()
     .from(games)
@@ -257,4 +257,4 @@ export async function findGameByKey(
       timestamp: r.timestamp,
     })),
   };
-}
+};

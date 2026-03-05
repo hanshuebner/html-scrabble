@@ -26,9 +26,9 @@ import {
 } from '../db/game-repository.js';
 import type { PlayerInsertData, TurnInsertData } from '../db/game-repository.js';
 
-function makeKey(): string {
+const makeKey = (): string => {
   return crypto.randomBytes(8).toString('hex');
-}
+};
 
 // ── In-memory game representation ───────────────────────────────────────────
 
@@ -70,20 +70,20 @@ export interface Game {
 type NotifyFn = (gameKey: string, event: string, data: unknown) => void;
 let notifyListeners: NotifyFn = () => {};
 
-export function setNotifyFn(fn: NotifyFn): void {
+export const setNotifyFn = (fn: NotifyFn): void => {
   notifyListeners = fn;
-}
+};
 
 type NotifyPlayerFn = (gameKey: string, playerIndex: number, event: string, data: unknown) => void;
 let notifyPlayer: NotifyPlayerFn = () => {};
 
-export function setNotifyPlayerFn(fn: NotifyPlayerFn): void {
+export const setNotifyPlayerFn = (fn: NotifyPlayerFn): void => {
   notifyPlayer = fn;
-}
+};
 
 // ── Serialization helpers for DB persistence ────────────────────────────────
 
-function serializeBoardState(board: Board): unknown {
+const serializeBoardState = (board: Board): unknown => {
   return board.squares.map((col) =>
     col.map((sq) => ({
       type: sq.type,
@@ -93,9 +93,9 @@ function serializeBoardState(board: Board): unknown {
       tileLocked: sq.tileLocked,
     })),
   );
-}
+};
 
-function deserializeBoardState(data: any): Board {
+const deserializeBoardState = (data: any): Board => {
   const board = new Board();
   for (let x = 0; x < 15; x++) {
     for (let y = 0; y < 15; y++) {
@@ -107,29 +107,29 @@ function deserializeBoardState(data: any): Board {
     }
   }
   return board;
-}
+};
 
-function serializeLetterBag(bag: LetterBag): unknown {
+const serializeLetterBag = (bag: LetterBag): unknown => {
   return {
     tiles: bag.tiles.map((t) => ({ letter: t.letter, score: t.score })),
     legalLetters: bag.legalLetters,
   };
-}
+};
 
-function deserializeLetterBag(data: any, language: Language = 'English'): LetterBag {
+const deserializeLetterBag = (data: any, language: Language = 'English'): LetterBag => {
   const bag = LetterBag.create(language);
   bag.tiles = data.tiles.map((t: any) => new Tile(t.letter, t.score));
   bag.legalLetters = data.legalLetters;
   return bag;
-}
+};
 
-function serializeRack(rack: Rack): unknown {
+const serializeRack = (rack: Rack): unknown => {
   return rack.squares.map((sq) => ({
     tile: sq.tile ? { letter: sq.tile.letter, score: sq.tile.score } : null,
   }));
-}
+};
 
-function deserializeRack(data: any): Rack {
+const deserializeRack = (data: any): Rack => {
   const rack = new Rack(data.length);
   for (let i = 0; i < data.length; i++) {
     if (data[i].tile) {
@@ -139,11 +139,11 @@ function deserializeRack(data: any): Rack {
     }
   }
   return rack;
-}
+};
 
 // ── DB serialization helpers ─────────────────────────────────────────────────
 
-function serializePreviousMove(pm: PreviousMove | null): unknown {
+const serializePreviousMove = (pm: PreviousMove | null): unknown => {
   if (!pm) return null;
   return {
     placements: pm.placements.map(([rackSq, boardSq]) => ({
@@ -155,9 +155,9 @@ function serializePreviousMove(pm: PreviousMove | null): unknown {
     score: pm.score,
     playerIndex: pm.player.index,
   };
-}
+};
 
-function deserializePreviousMove(data: any, game: Game): PreviousMove | null {
+const deserializePreviousMove = (data: any, game: Game): PreviousMove | null => {
   if (!data) return null;
   try {
     return {
@@ -172,12 +172,12 @@ function deserializePreviousMove(data: any, game: Game): PreviousMove | null {
   } catch {
     return null;
   }
-}
+};
 
-function serializeGameForDb(game: Game): {
+const serializeGameForDb = (game: Game): {
   gameData: Parameters<typeof insertGameWithPlayers>[0];
   players: PlayerInsertData[];
-} {
+} => {
   return {
     gameData: {
       key: game.key,
@@ -200,11 +200,11 @@ function serializeGameForDb(game: Game): {
       tallyScore: p.tallyScore,
     })),
   };
-}
+};
 
-function deserializeGameFromDb(
+const deserializeGameFromDb = (
   dbRows: NonNullable<Awaited<ReturnType<typeof findGameByKey>>>,
-): Game {
+): Game => {
   const { game: g, players: pRows, turns: tRows } = dbRows;
   const language = g.language as Language;
   const board = deserializeBoardState(g.boardState);
@@ -246,14 +246,14 @@ function deserializeGameFromDb(
 
   game.previousMove = deserializePreviousMove(g.previousMove, game);
   return game;
-}
+};
 
 // ── Core game operations ────────────────────────────────────────────────────
 
-export async function createGame(
+export const createGame = async (
   language: Language,
   playerInputs: { name: string; email: string; key?: string }[],
-): Promise<Game> {
+): Promise<Game> => {
   const letterBag = LetterBag.create(language);
   const board = new Board();
 
@@ -300,34 +300,34 @@ export async function createGame(
   }
 
   return game;
-}
+};
 
-export async function loadGame(key: string): Promise<Game | null> {
+export const loadGame = async (key: string): Promise<Game | null> => {
   const dbRows = await findGameByKey(key);
   if (!dbRows) return null;
   return deserializeGameFromDb(dbRows);
-}
+};
 
-export function makeGameLink(gameKey: string, playerKey?: string): string {
+export const makeGameLink = (gameKey: string, playerKey?: string): string => {
   let url = config.baseUrl + 'game/' + gameKey;
   if (playerKey) url += '/' + playerKey;
   return url;
-}
+};
 
-export function lookupPlayer(game: Game, playerKey: string): Player | null {
+export const lookupPlayer = (game: Game, playerKey: string): Player | null => {
   return game.players.find((p) => p.key === playerKey) || null;
-}
+};
 
-function ensurePlayerAndGame(game: Game, player: Player): void {
+const ensurePlayerAndGame = (game: Game, player: Player): void => {
   if (game.endMessage) {
     throw new Error(`this game has ended: ${game.endMessage.reason}`);
   }
   if (game.whosTurn === undefined || player !== game.players[game.whosTurn]) {
     throw new Error("not this player's turn");
   }
-}
+};
 
-export function remainingTileCounts(game: Game): { letterBag: number; players: number[] } {
+export const remainingTileCounts = (game: Game): { letterBag: number; players: number[] } => {
   return {
     letterBag: game.letterBag.remainingTileCount(),
     players: game.players.map((player) => {
@@ -338,15 +338,15 @@ export function remainingTileCounts(game: Game): { letterBag: number; players: n
       return count;
     }),
   };
-}
+};
 
 // ── makeMove ────────────────────────────────────────────────────────────────
 
-export function makeMove(
+export const makeMove = (
   game: Game,
   player: Player,
   placementList: TilePlacement[],
-): { newTiles: Tile[]; turn: TurnData } {
+): { newTiles: Tile[]; turn: TurnData } => {
   ensurePlayerAndGame(game, player);
 
   const rackSquares = player.rack.squares.slice();
@@ -431,15 +431,15 @@ export function makeMove(
   };
 
   return { newTiles, turn };
-}
+};
 
 // ── challengeOrTakeBack ─────────────────────────────────────────────────────
 
-export function challengeOrTakeBackMove(
+export const challengeOrTakeBackMove = (
   game: Game,
   type: 'challenge' | 'takeBack',
   player: Player,
-): { newTiles: Tile[]; turn: TurnData } {
+): { newTiles: Tile[]; turn: TurnData } => {
   if (!game.previousMove) {
     throw new Error(`cannot ${type === 'challenge' ? 'challenge' : 'take back'} - no previous move to undo`);
   }
@@ -475,11 +475,11 @@ export function challengeOrTakeBackMove(
   };
 
   return { newTiles: [], turn };
-}
+};
 
 // ── pass ────────────────────────────────────────────────────────────────────
 
-export function pass(game: Game, player: Player): { newTiles: Tile[]; turn: TurnData } {
+export const pass = (game: Game, player: Player): { newTiles: Tile[]; turn: TurnData } => {
   ensurePlayerAndGame(game, player);
   game.previousMove = null;
   game.passes++;
@@ -488,15 +488,15 @@ export function pass(game: Game, player: Player): { newTiles: Tile[]; turn: Turn
     newTiles: [],
     turn: { type: 'pass', score: 0, player: player.index },
   };
-}
+};
 
 // ── swapTiles ───────────────────────────────────────────────────────────────
 
-export function swapTiles(
+export const swapTiles = (
   game: Game,
   player: Player,
   letters: string[],
-): { newTiles: Tile[]; turn: TurnData } {
+): { newTiles: Tile[]; turn: TurnData } => {
   ensurePlayerAndGame(game, player);
 
   if (game.letterBag.remainingTileCount() < 7) {
@@ -537,9 +537,9 @@ export function swapTiles(
       player: player.index,
     },
   };
-}
+};
 
-function returnPlayerLetters(game: Game, player: Player, letters: string[]): void {
+const returnPlayerLetters = (game: Game, player: Player, letters: string[]): void => {
   const lettersToReturn = new Bag(letters);
   const tilesToReturn: Tile[] = [];
 
@@ -558,16 +558,16 @@ function returnPlayerLetters(game: Game, player: Player, letters: string[]): voi
       `could not find letters ${lettersToReturn.contents} to return on player's rack`,
     );
   }
-}
+};
 
 // ── finishTurn ──────────────────────────────────────────────────────────────
 
-export async function finishTurn(
+export const finishTurn = async (
   game: Game,
   player: Player,
   newTiles: Tile[],
   turn: TurnData,
-): Promise<{ newTiles: Tile[] }> {
+): Promise<{ newTiles: Tile[] }> => {
   // Timestamp
   turn.timestamp = new Date().toISOString();
 
@@ -632,11 +632,11 @@ export async function finishTurn(
   );
 
   return { newTiles };
-}
+};
 
 // ── finish ──────────────────────────────────────────────────────────────────
 
-export function finish(game: Game, reason: string): void {
+export const finish = (game: Game, reason: string): void => {
   game.whosTurn = undefined;
 
   let playerWithNoTiles: Player | null = null;
@@ -683,14 +683,14 @@ export function finish(game: Game, reason: string): void {
       },
     })),
   };
-}
+};
 
 // ── createFollowonGame ──────────────────────────────────────────────────────
 
-export async function createFollowonGame(
+export const createFollowonGame = async (
   game: Game,
   startPlayer: Player,
-): Promise<Game> {
+): Promise<Game> => {
   if (game.nextGameKey) {
     throw new Error(
       `followon game already created: old ${game.key} new ${game.nextGameKey}`,
@@ -722,11 +722,11 @@ export async function createFollowonGame(
   notifyListeners(game.key, 'nextGame', newGame.key);
 
   return newGame;
-}
+};
 
 // ── getGameState (for client) ───────────────────────────────────────────────
 
-export function getGameState(game: Game, playerKey?: string) {
+export const getGameState = (game: Game, playerKey?: string) => {
   const thisPlayer = playerKey ? lookupPlayer(game, playerKey) : null;
 
   return {
@@ -744,7 +744,7 @@ export function getGameState(game: Game, playerKey?: string) {
     })),
     endMessage: game.endMessage,
   };
-}
+};
 
 // ── listActiveGames ─────────────────────────────────────────────────────────
 
@@ -752,7 +752,7 @@ export function getGameState(game: Game, playerKey?: string) {
  * Import a game from the migration script's JSON output.
  * Reconstructs Board, Rack, and LetterBag from plain data.
  */
-export async function importGame(data: any): Promise<Game> {
+export const importGame = async (data: any): Promise<Game> => {
   const board = deserializeBoardState(data.board);
 
   // Reconstruct letter bag
@@ -823,9 +823,9 @@ export async function importGame(data: any): Promise<Game> {
   }
 
   return game;
-}
+};
 
-export async function listActiveGames() {
+export const listActiveGames = async () => {
   const dbGames = await findActiveGames();
 
   return dbGames.map((g) => ({
@@ -838,4 +838,4 @@ export async function listActiveGames() {
     })),
     createdAt: g.createdAt.toISOString(),
   }));
-}
+};

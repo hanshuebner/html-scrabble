@@ -10,7 +10,7 @@ interface TileProps {
   onClick?: () => void;
 }
 
-export const Tile = memo(function Tile({
+export const Tile = memo(({
   letter,
   score,
   isBlank,
@@ -18,7 +18,7 @@ export const Tile = memo(function Tile({
   isNew,
   isDragging,
   onClick,
-}: TileProps) {
+}: TileProps) => {
   return (
     <div
       onClick={onClick}
@@ -55,3 +55,4 @@ export const Tile = memo(function Tile({
     </div>
   );
 });
+Tile.displayName = 'Tile';

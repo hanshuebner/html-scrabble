@@ -15,7 +15,7 @@ export const authRoutes = Router();
 const users = new Map<string, { id: string; email: string; name: string }>();
 let nextId = 1;
 
-function findOrCreateUser(email: string, name?: string): { id: string; email: string; name: string } {
+const findOrCreateUser = (email: string, name?: string): { id: string; email: string; name: string } => {
   for (const user of users.values()) {
     if (user.email === email) return user;
   }
@@ -23,11 +23,11 @@ function findOrCreateUser(email: string, name?: string): { id: string; email: st
   const user = { id, email, name: name || email.split('@')[0] };
   users.set(id, user);
   return user;
-}
+};
 
-function findUserById(id: string) {
+const findUserById = (id: string) => {
   return users.get(id) || null;
-}
+};
 
 // Request magic link
 authRoutes.post('/magic-link', async (req: Request, res: Response) => {

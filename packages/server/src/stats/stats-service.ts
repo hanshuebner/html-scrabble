@@ -20,7 +20,7 @@ interface HeadToHeadData {
   draws: number;
 }
 
-export async function getAllPlayerStats(): Promise<PlayerStatsData[]> {
+export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
   const rows = await db.execute<{
     name: string;
     games_played: string;
@@ -110,15 +110,15 @@ export async function getAllPlayerStats(): Promise<PlayerStatsData[]> {
     highestWord: r.highest_word,
     highestWordScore: Number(r.highest_word_score),
   }));
-}
+};
 
-export async function getPlayerStats(name: string): Promise<PlayerStatsData | null> {
+export const getPlayerStats = async (name: string): Promise<PlayerStatsData | null> => {
   const all = await getAllPlayerStats();
   const norm = name.trim().toLowerCase();
   return all.find((s) => s.name.trim().toLowerCase() === norm) ?? null;
-}
+};
 
-export async function getHeadToHead(name1: string, name2: string): Promise<HeadToHeadData> {
+export const getHeadToHead = async (name1: string, name2: string): Promise<HeadToHeadData> => {
   const norm1 = name1.trim().toLowerCase();
   const norm2 = name2.trim().toLowerCase();
 
@@ -156,4 +156,4 @@ export async function getHeadToHead(name1: string, name2: string): Promise<HeadT
     losses: Number(row?.losses ?? 0),
     draws: Number(row?.draws ?? 0),
   };
-}
+};

@@ -21,10 +21,10 @@ import { readFileSync, writeFileSync } from 'fs';
 
 // --- Icebox thaw (ported from icebox.js) ---
 
-function thaw(object: any, prototypeMap: Record<string, any>): any {
+const thaw = (object: any, prototypeMap: Record<string, any>): any => {
   const objectsThawed: any[] = [];
 
-  function thawTree(obj: any): any {
+  const thawTree = (obj: any): any => {
     if (obj && typeof obj === 'object') {
       if (obj._ref !== undefined) {
         return objectsThawed[obj._ref] ?? obj;
@@ -54,10 +54,10 @@ function thaw(object: any, prototypeMap: Record<string, any>): any {
       return thawed;
     }
     return obj;
-  }
+  };
 
   return thawTree(object);
-}
+};
 
 // Stub prototypes so icebox thaw doesn't discard properties
 const prototypeMap: Record<string, any> = {
@@ -72,19 +72,19 @@ const prototypeMap: Record<string, any> = {
 
 // --- Safe extraction helpers (avoid following circular refs) ---
 
-function extractTile(tile: any): { letter: string; score: number } | null {
+const extractTile = (tile: any): { letter: string; score: number } | null => {
   if (!tile || typeof tile !== 'object') return null;
   return { letter: String(tile.letter ?? ''), score: Number(tile.score ?? 0) };
-}
+};
 
-function extractRackSquares(rack: any): { tile: { letter: string; score: number } | null }[] {
+const extractRackSquares = (rack: any): { tile: { letter: string; score: number } | null }[] => {
   if (!rack?.squares || !Array.isArray(rack.squares)) return [];
   return rack.squares.map((sq: any) => ({
     tile: extractTile(sq?.tile),
   }));
-}
+};
 
-function extractEndMessage(msg: any): any {
+const extractEndMessage = (msg: any): any => {
   if (!msg || typeof msg !== 'object') return null;
   // Build a plain copy with only the fields we need
   return {
@@ -98,9 +98,9 @@ function extractEndMessage(msg: any): any {
         }))
       : [],
   };
-}
+};
 
-function extractMove(move: any): any {
+const extractMove = (move: any): any => {
   if (!move || typeof move !== 'object') return null;
   // Only keep serializable parts
   const result: any = {};
@@ -123,11 +123,11 @@ function extractMove(move: any): any {
       : [];
   }
   return result;
-}
+};
 
 // --- Conversion ---
 
-function convertGame(key: string, frozenData: any) {
+const convertGame = (key: string, frozenData: any) => {
   const game = thaw(frozenData, prototypeMap);
 
   // Board: 15x15 grid
@@ -186,11 +186,11 @@ function convertGame(key: string, frozenData: any) {
     createdAt: game.creationTimestamp || null,
     turns,
   };
-}
+};
 
 // --- Main ---
 
-function main() {
+const main = () => {
   const dbPath = process.argv[2];
   if (!dbPath) {
     console.error(
@@ -252,6 +252,6 @@ function main() {
       `    -H "Content-Type: application/json" \\\n` +
       `    -d @${outputPath}`,
   );
-}
+};
 
 main();

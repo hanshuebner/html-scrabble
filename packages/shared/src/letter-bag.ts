@@ -2,14 +2,14 @@ import { Tile } from './tile.js';
 import { letterDistributions } from './letter-distributions.js';
 import type { Language } from './types.js';
 
-function shuffle<T>(array: T[]): T[] {
+const shuffle = <T>(array: T[]): T[] => {
   const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
-}
+};
 
 export class LetterBag {
   tiles: Tile[];

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useGameState } from '../hooks/useGameState.js';
 
-export function MoveLog() {
+export const MoveLog = () => {
   const turns = useGameState((s) => s.turns);
   const players = useGameState((s) => s.players);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -58,4 +58,4 @@ export function MoveLog() {
       </div>
     </div>
   );
-}
+};

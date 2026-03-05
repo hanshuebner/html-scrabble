@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useGameState } from '../hooks/useGameState.js';
 import { sendMessage } from '../../api/socket.js';
 
-export function ChatPanel() {
+export const ChatPanel = () => {
   const chatMessages = useGameState((s) => s.chatMessages);
   const gameKey = useGameState((s) => s.gameKey);
   const players = useGameState((s) => s.players);
@@ -54,4 +54,4 @@ export function ChatPanel() {
       </div>
     </div>
   );
-}
+};

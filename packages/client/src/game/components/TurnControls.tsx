@@ -4,7 +4,7 @@ import { api } from '../../api/client.js';
 import { calculateMove, Tile, Square } from '@scrabble/shared';
 import type { MoveResult } from '@scrabble/shared';
 
-export function TurnControls() {
+export const TurnControls = () => {
   const gameKey = useGameState((s) => s.gameKey);
   const whosTurn = useGameState((s) => s.whosTurn);
   const playerIndex = useGameState((s) => s.playerIndex);
@@ -314,4 +314,4 @@ export function TurnControls() {
       </div>
     </div>
   );
-}
+};

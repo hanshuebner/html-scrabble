@@ -5,7 +5,7 @@ interface BlankLetterPickerProps {
   onCancel: () => void;
 }
 
-export function BlankLetterPicker({ onSelect, onCancel }: BlankLetterPickerProps) {
+export const BlankLetterPicker = ({ onSelect, onCancel }: BlankLetterPickerProps) => {
   const legalLetters = useGameState((s) => s.legalLetters);
 
   const letters = legalLetters.split('');
@@ -34,4 +34,4 @@ export function BlankLetterPicker({ onSelect, onCancel }: BlankLetterPickerProps
       </div>
     </div>
   );
-}
+};

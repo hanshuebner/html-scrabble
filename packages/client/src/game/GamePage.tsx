@@ -16,7 +16,7 @@ import { getSocket, joinGame } from '../api/socket.js';
 import { useNotifications } from './hooks/useNotifications.js';
 import { useIsDesktop } from './hooks/useIsDesktop.js';
 
-function SpectatorTurnStatus() {
+const SpectatorTurnStatus = () => {
   const players = useGameState((s) => s.players);
   const whosTurn = useGameState((s) => s.whosTurn);
   const endMessage = useGameState((s) => s.endMessage);
@@ -28,14 +28,14 @@ function SpectatorTurnStatus() {
       {endMessage ? 'Game over' : currentPlayer ? `${currentPlayer}'s turn` : 'Loading...'}
     </div>
   );
-}
+};
 
 interface GamePageProps {
   gameKey: string;
   playerKey?: string;
 }
 
-export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
+export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) => {
   const setGameData = useGameState((s) => s.setGameData);
   const applyTurn = useGameState((s) => s.applyTurn);
   const addChatMessage = useGameState((s) => s.addChatMessage);
@@ -486,4 +486,4 @@ export function GamePage({ gameKey, playerKey: playerKeyProp }: GamePageProps) {
       </DragOverlay>
     </DndContext>
   );
-}
+};

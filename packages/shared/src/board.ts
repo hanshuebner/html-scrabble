@@ -2,13 +2,13 @@ import { Square } from './square.js';
 
 const DIMENSION = 15;
 
-function makeBoardArray(): Square[][] {
+const makeBoardArray = (): Square[][] => {
   const arr: Square[][] = new Array(DIMENSION);
   for (let x = 0; x < DIMENSION; x++) {
     arr[x] = new Array(DIMENSION);
   }
   return arr;
-}
+};
 
 export { makeBoardArray };
 

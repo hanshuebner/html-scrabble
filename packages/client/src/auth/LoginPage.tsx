@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from './AuthContext.js';
 
-export function LoginPage() {
+export const LoginPage = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
@@ -61,4 +61,4 @@ export function LoginPage() {
       </div>
     </div>
   );
-}
+};

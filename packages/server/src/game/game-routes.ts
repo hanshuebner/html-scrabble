@@ -18,9 +18,9 @@ import type { Language } from '@scrabble/shared';
 
 export const gameRoutes = Router();
 
-function param(val: string | string[] | undefined): string {
+const param = (val: string | string[] | undefined): string => {
   return Array.isArray(val) ? val[0] : val || '';
-}
+};
 
 // List active games
 gameRoutes.get('/', async (_req: Request, res: Response) => {

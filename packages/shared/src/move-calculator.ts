@@ -1,15 +1,15 @@
 import type { Square } from './square.js';
 import type { MoveResult, WordScore } from './types.js';
 
-function makeBoardArray(): boolean[][] {
+const makeBoardArray = (): boolean[][] => {
   const arr: boolean[][] = new Array(15);
   for (let x = 0; x < 15; x++) {
     arr[x] = new Array(15).fill(false);
   }
   return arr;
-}
+};
 
-export function calculateMove(squares: Square[][]): MoveResult {
+export const calculateMove = (squares: Square[][]): MoveResult => {
   // Check that the start field is occupied
   if (!squares[7][7].tile) {
     return { error: 'start field must be used' };
@@ -38,14 +38,14 @@ export function calculateMove(squares: Square[][]): MoveResult {
   const legalPlacements = makeBoardArray();
   legalPlacements[topLeftX][topLeftY] = true;
 
-  function touchingOld(x: number, y: number): boolean {
+  const touchingOld = (x: number, y: number): boolean => {
     return (
       (x > 0 && !!squares[x - 1][y].tile && squares[x - 1][y].tileLocked) ||
       (x < 14 && !!squares[x + 1][y].tile && squares[x + 1][y].tileLocked) ||
       (y > 0 && !!squares[x][y - 1].tile && squares[x][y - 1].tileLocked) ||
       (y < 14 && !!squares[x][y + 1].tile && squares[x][y + 1].tileLocked)
     );
-  }
+  };
 
   let isTouchingOld = touchingOld(topLeftX, topLeftY);
   let horizontal = false;
@@ -96,7 +96,7 @@ export function calculateMove(squares: Square[][]): MoveResult {
   const words: WordScore[] = [];
 
   // The move was legal, calculate scores
-  function horizontalWordScores(sq: Square[][]): number {
+  const horizontalWordScores = (sq: Square[][]): number => {
     let score = 0;
     for (let y = 0; y < 15; y++) {
       for (let x = 0; x < 14; x++) {
@@ -137,7 +137,7 @@ export function calculateMove(squares: Square[][]): MoveResult {
       }
     }
     return score;
-  }
+  };
 
   let moveScore = horizontalWordScores(squares);
 
@@ -179,4 +179,4 @@ export function calculateMove(squares: Square[][]): MoveResult {
     tilesPlaced,
     allTilesBonus,
   };
-}
+};

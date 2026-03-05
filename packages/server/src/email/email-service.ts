@@ -8,14 +8,14 @@ if (config.mail.smtp) {
   transporter = nodemailer.createTransport(config.mail.smtp);
 }
 
-export function joinProse(array: string[]): string {
+export const joinProse = (array: string[]): string => {
   const length = array.length;
   if (length === 0) return '';
   if (length === 1) return array[0];
   return array.slice(0, -1).join(', ') + ' and ' + array[length - 1];
-}
+};
 
-export async function sendEmail(to: string, subject: string, text: string, html: string): Promise<void> {
+export const sendEmail = async (to: string, subject: string, text: string, html: string): Promise<void> => {
   if (!transporter) {
     console.log(`[email] No transport configured. Would send to ${to}: ${subject}`);
     return;
@@ -33,28 +33,28 @@ export async function sendEmail(to: string, subject: string, text: string, html:
   } catch (e) {
     console.error('[email] Failed to send:', e);
   }
-}
+};
 
-export async function sendGameInvitation(
+export const sendGameInvitation = async (
   playerEmail: string,
   playerName: string,
   gameLink: string,
   otherPlayerNames: string[],
-): Promise<void> {
+): Promise<void> => {
   const subject = `You have been invited to play Scrabble with ${joinProse(otherPlayerNames)}`;
   const text = `Make your move:\n\n${gameLink}`;
   const html = `Click <a href="${gameLink}">here</a> to make your move.`;
   await sendEmail(playerEmail, subject, text, html);
-}
+};
 
-export async function sendTurnReminder(
+export const sendTurnReminder = async (
   playerEmail: string,
   playerName: string,
   gameLink: string,
   otherPlayerNames: string[],
-): Promise<void> {
+): Promise<void> => {
   const subject = `It is your turn in your Scrabble game with ${joinProse(otherPlayerNames)}`;
   const text = `Make your move:\n\n${gameLink}`;
   const html = `Click <a href="${gameLink}">here</a> to make your move.`;
   await sendEmail(playerEmail, subject, text, html);
-}
+};

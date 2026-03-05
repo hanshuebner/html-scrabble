@@ -3,9 +3,9 @@ import { getPlayerStats, getHeadToHead, getAllPlayerStats } from './stats-servic
 
 const router = Router();
 
-function param(val: string | string[] | undefined): string {
+const param = (val: string | string[] | undefined): string => {
   return Array.isArray(val) ? val[0] : val || '';
-}
+};
 
 // GET /api/stats - list all players' stats
 router.get('/', async (_req: Request, res: Response) => {

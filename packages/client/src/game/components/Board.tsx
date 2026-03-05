@@ -3,7 +3,7 @@ import { BoardSquare } from './BoardSquare.js';
 import { useGameState } from '../hooks/useGameState.js';
 import { useIsDesktop } from '../hooks/useIsDesktop.js';
 
-export function Board() {
+export const Board = () => {
   const board = useGameState((s) => s.board);
   const pendingPlacements = useGameState((s) => s.pendingPlacements);
   const cursor = useGameState((s) => s.cursor);
@@ -93,4 +93,4 @@ export function Board() {
       {squares}
     </div>
   );
-}
+};

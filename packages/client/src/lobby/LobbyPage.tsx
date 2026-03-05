@@ -9,7 +9,7 @@ interface GameSummary {
   createdAt: string;
 }
 
-export function LobbyPage({ onSelectGame, onSelectPlayer, onViewStats }: { onSelectGame: (key: string) => void; onSelectPlayer: (gameKey: string, playerKey: string) => void; onViewStats: () => void }) {
+export const LobbyPage = ({ onSelectGame, onSelectPlayer, onViewStats }: { onSelectGame: (key: string) => void; onSelectPlayer: (gameKey: string, playerKey: string) => void; onViewStats: () => void }) => {
   const { user, logout } = useAuth();
   const [games, setGames] = useState<GameSummary[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -88,15 +88,15 @@ export function LobbyPage({ onSelectGame, onSelectPlayer, onViewStats }: { onSel
       </div>
     </div>
   );
-}
+};
 
-function CreateGameForm({
+const CreateGameForm = ({
   onCreated,
   onCancel,
 }: {
   onCreated: (key: string) => void;
   onCancel: () => void;
-}) {
+}) => {
   const [language, setLanguage] = useState('English');
   const [players, setPlayers] = useState([
     { name: '', email: '' },
@@ -201,4 +201,4 @@ function CreateGameForm({
       </form>
     </div>
   );
-}
+};

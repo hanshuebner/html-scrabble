@@ -25,7 +25,7 @@ const SQUARE_TEXT: Record<string, string> = {
   TripleLetter: 'text-[#000080]',
 };
 
-function DraggablePendingTile({
+const DraggablePendingTile = ({
   x,
   y,
   tile,
@@ -35,7 +35,7 @@ function DraggablePendingTile({
   y: number;
   tile: { letter: string; score: number };
   isSelected?: boolean;
-}) {
+}) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `pending-${x}-${y}`,
   });
@@ -52,7 +52,7 @@ function DraggablePendingTile({
       />
     </div>
   );
-}
+};
 
 interface BoardSquareProps {
   x: number;
@@ -67,7 +67,7 @@ interface BoardSquareProps {
   onClick?: () => void;
 }
 
-export const BoardSquare = memo(function BoardSquare({
+export const BoardSquare = memo(({
   x,
   y,
   type,
@@ -78,7 +78,7 @@ export const BoardSquare = memo(function BoardSquare({
   isCursor,
   cursorHorizontal,
   onClick,
-}: BoardSquareProps) {
+}: BoardSquareProps) => {
   const { setNodeRef, isOver } = useDroppable({ id: `board-${x}-${y}` });
 
   const bg = SQUARE_BG[type] || SQUARE_BG.Normal;
@@ -133,3 +133,4 @@ export const BoardSquare = memo(function BoardSquare({
     </div>
   );
 });
+BoardSquare.displayName = 'BoardSquare';

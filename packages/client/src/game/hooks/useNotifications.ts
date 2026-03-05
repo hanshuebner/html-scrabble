@@ -4,7 +4,7 @@ import { useGameState } from './useGameState.js';
 const yourTurnAudio = new Audio('/audio/yourturn.wav');
 const applauseAudio = new Audio('/audio/applause.wav');
 
-export function useNotifications() {
+export const useNotifications = () => {
   const gameKey = useGameState((s) => s.gameKey);
   const whosTurn = useGameState((s) => s.whosTurn);
   const playerIndex = useGameState((s) => s.playerIndex);
@@ -67,4 +67,4 @@ export function useNotifications() {
       Notification.requestPermission();
     }
   }, []);
-}
+};
