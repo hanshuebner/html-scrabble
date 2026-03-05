@@ -46,3 +46,15 @@ export const sendGameInvitation = async (
   const html = `Click <a href="${gameLink}">here</a> to make your move.`
   await sendEmail(playerEmail, subject, text, html)
 }
+
+export const sendTurnReminder = async (
+  playerEmail: string,
+  playerName: string,
+  gameLink: string,
+  otherPlayerNames: string[],
+): Promise<void> => {
+  const subject = `It is your turn in your Scrabble game with ${joinProse(otherPlayerNames)}`
+  const text = `Make your move:\n\n${gameLink}`
+  const html = `Click <a href="${gameLink}">here</a> to make your move.`
+  await sendEmail(playerEmail, subject, text, html)
+}
