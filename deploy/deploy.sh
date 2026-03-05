@@ -1,4 +1,4 @@
-yesle restart
+sudo service scrabble restart
 
 echo "Waiting for service to start..."
 sleep 5
