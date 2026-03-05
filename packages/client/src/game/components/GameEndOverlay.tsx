@@ -41,16 +41,18 @@ export const GameEndOverlay = () => {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#F7F7E3] rounded-lg p-6 max-w-md shadow-xl text-center">
         <h2 className="text-2xl font-bold text-[#474633] mb-2">{t('Game Over')}</h2>
-        <p className="text-sm text-[#626258] mb-4">{(() => {
-          const reason = endMessage.reason as string
-          const playerMatch = reason.match(/^player (\d+) ended the game$/)
-          if (playerMatch) {
-            const pi = parseInt(playerMatch[1], 10)
-            const name = endMessage.players[pi]?.name ?? `Player ${pi + 1}`
-            return t('{{name}} ended the game', { name })
-          }
-          return t(reason)
-        })()}</p>
+        <p className="text-sm text-[#626258] mb-4">
+          {(() => {
+            const reason = endMessage.reason as string
+            const playerMatch = reason.match(/^player (\d+) ended the game$/)
+            if (playerMatch) {
+              const pi = parseInt(playerMatch[1], 10)
+              const name = endMessage.players[pi]?.name ?? `Player ${pi + 1}`
+              return t('{{name}} ended the game', { name })
+            }
+            return t(reason)
+          })()}
+        </p>
 
         <div className="space-y-2 mb-4">
           {endMessage.players.map((p: any, i: number) => (

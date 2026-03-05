@@ -55,6 +55,17 @@ Players create/join games in the lobby. Tiles are placed on the board client-sid
 
 `DATABASE_URL` (default: `postgres://localhost:5432/scrabble`), `PORT` (default: 3000), `JWT_SECRET`, `BASE_URL`, `MAIL_SENDER`, `SMTP_HOST/PORT/SECURE/USER/PASS`.
 
+## Pre-commit Checks
+
+Before committing, always run:
+
+```bash
+pnpm format:check                    # Prettier formatting check
+pnpm prettier --write 'packages/*/src/**/*.{ts,tsx}'  # Auto-fix formatting
+pnpm -r build                        # TypeScript + Vite build
+pnpm test                            # Shared package tests
+```
+
 ## Coding Conventions
 
 - **Arrow functions only:** Use arrow function syntax (`const fn = () => { ... }`) for all standalone functions. Do not use `function` declarations.

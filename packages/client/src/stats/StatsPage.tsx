@@ -92,7 +92,10 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
               <div className="space-y-3">
                 <StatCard label={t('Games Played')} value={selected.gamesPlayed} />
                 <StatCard label={t('Games Won')} value={selected.gamesWon} />
-                <StatCard label={t('Win Rate')} value={`${Math.round((selected.gamesWon / selected.gamesPlayed) * 100)}%`} />
+                <StatCard
+                  label={t('Win Rate')}
+                  value={`${Math.round((selected.gamesWon / selected.gamesPlayed) * 100)}%`}
+                />
                 <StatCard label={t('Average Score')} value={selected.averageScore} />
                 <StatCard label={t('Highest Game Score')} value={selected.highestScore} />
                 <StatCard

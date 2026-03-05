@@ -27,7 +27,9 @@ export const Scoreboard = () => {
         </tbody>
       </table>
       {remainingTileCounts && (
-        <div className="text-xs text-[#AAA38E] mt-2">{t('Bag: {{num}} tiles', { num: remainingTileCounts.letterBag })}</div>
+        <div className="text-xs text-[#AAA38E] mt-2">
+          {t('Bag: {{num}} tiles', { num: remainingTileCounts.letterBag })}
+        </div>
       )}
     </div>
   )

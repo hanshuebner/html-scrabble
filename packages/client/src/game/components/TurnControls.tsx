@@ -186,7 +186,9 @@ export const TurnControls = () => {
     return (
       <div ref={swapContainerRef} className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 space-y-2">
         {error && <div className="text-red-600 text-xs p-2 bg-red-50 rounded">{error}</div>}
-        <div className="text-sm text-[#474633] text-center">{t('Select tiles in your rack to swap (or type letters)')}</div>
+        <div className="text-sm text-[#474633] text-center">
+          {t('Select tiles in your rack to swap (or type letters)')}
+        </div>
 
         {/* Swap tray showing selected tiles */}
         {swapIndices.size > 0 && (
@@ -218,7 +220,9 @@ export const TurnControls = () => {
             disabled={loading || swapIndices.size === 0}
             className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {swapIndices.size > 0 ? t(swapIndices.size === 1 ? 'Swap {{num}} tile' : 'Swap {{num}} tiles', { num: swapIndices.size }) : t('Swap')}
+            {swapIndices.size > 0
+              ? t(swapIndices.size === 1 ? 'Swap {{num}} tile' : 'Swap {{num}} tiles', { num: swapIndices.size })
+              : t('Swap')}
           </button>
           <button
             onClick={() => setSwapMode(false)}
@@ -249,7 +253,9 @@ export const TurnControls = () => {
 
       {!isMyTurn && (
         <div className="text-sm text-[#AAA38E] text-center">
-          {t('Waiting for {{name}} to make their move...', { name: whosTurn !== null ? players[whosTurn]?.name : 'opponent' })}
+          {t('Waiting for {{name}} to make their move...', {
+            name: whosTurn !== null ? players[whosTurn]?.name : 'opponent',
+          })}
         </div>
       )}
 

@@ -65,12 +65,17 @@ export const useNotifications = () => {
         if (Notification.permission === 'granted') {
           const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null
           const action =
-            lastTurn.type === 'pass' ? t('passed') :
-            lastTurn.type === 'swap' ? t('swapped {{num}}', { num: lastTurn.count }) :
-            lastTurn.type === 'challenge' ? t('challenged') :
-            t('made a move')
+            lastTurn.type === 'pass'
+              ? t('passed')
+              : lastTurn.type === 'swap'
+                ? t('swapped {{num}}', { num: lastTurn.count })
+                : lastTurn.type === 'challenge'
+                  ? t('challenged')
+                  : t('made a move')
           new Notification('Scrabble', {
-            body: opponentName ? t("{{name}} {{action}}. It's your turn!", { name: opponentName, action }) : t("It's your turn!"),
+            body: opponentName
+              ? t("{{name}} {{action}}. It's your turn!", { name: opponentName, action })
+              : t("It's your turn!"),
           })
         }
       }

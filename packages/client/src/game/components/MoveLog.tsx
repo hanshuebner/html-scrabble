@@ -28,7 +28,9 @@ export const MoveLog = () => {
                 <span className="font-medium">{playerName}</span>
                 {turn.type === 'move' && <span className="text-green-700 font-bold">+{turn.score}</span>}
                 {turn.type === 'pass' && <span className="text-[#AAA38E]">{t('passed')}</span>}
-                {turn.type === 'swap' && <span className="text-blue-600">{t('swapped {{num}}', { num: turn.count })}</span>}
+                {turn.type === 'swap' && (
+                  <span className="text-blue-600">{t('swapped {{num}}', { num: turn.count })}</span>
+                )}
                 {turn.type === 'challenge' && <span className="text-red-600">{turn.score}</span>}
                 {turn.type === 'takeBack' && <span className="text-orange-600">{turn.score}</span>}
               </div>
