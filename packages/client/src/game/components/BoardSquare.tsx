@@ -111,7 +111,7 @@ export const BoardSquare = memo(
               <span
                 className={`font-bold font-board-label ${textColor} leading-tight text-center text-[clamp(0.25rem,1.1cqw,0.5rem)] uppercase`}
               >
-                {t(fullLabel)}
+                {t(fullLabel).split(' ').map((word, i) => <div key={i}>{word}</div>)}
               </span>
             )}
             {isCenter && !fullLabel && <span className={`text-[clamp(0.5rem,3.5cqw,1rem)] ${textColor}`}>★</span>}
