@@ -1,3 +1,8 @@
+set -euo pipefail
+
+cd /opt/scrabble
+pnpm install --frozen-lockfile
+
 sudo service scrabble restart
 
 echo "Waiting for service to start..."
