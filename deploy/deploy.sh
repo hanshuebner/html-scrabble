@@ -5,7 +5,8 @@ git pull
 pnpm install --frozen-lockfile
 pnpm -r build
 
-sudo service scrabble restart
+# Close inherited file descriptors so daemon doesn't hold SSH session open
+sudo service scrabble restart > /dev/null 2>&1
 
 echo "Waiting for service to start..."
 sleep 5
