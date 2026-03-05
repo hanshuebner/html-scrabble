@@ -3,8 +3,8 @@ set -euo pipefail
 
 cd /opt/scrabble
 
-echo "Installing production dependencies..."
-pnpm install --prod --frozen-lockfile
+echo "Installing dependencies..."
+pnpm install --frozen-lockfile
 
 echo "Restarting scrabble service..."
 sudo service scrabble restart
