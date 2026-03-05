@@ -15,35 +15,41 @@ export const Tile = memo(({ letter, score, isBlank, isSelected, isNew, isDraggin
     <div
       onClick={onClick}
       className={`
-        relative w-full h-full rounded-sm cursor-pointer select-none overflow-hidden
+        font-tile w-full h-full rounded-sm cursor-pointer select-none
         bg-[#F7F7E3] border border-[#DCDCC6]
         text-[#474633]
+        flex items-center justify-center
         ${isBlank ? 'border-l-[#ADFF2F] border-r-[#ADFF2F] border-l-2 border-r-2' : ''}
         ${isSelected ? 'ring-2 ring-orange-400 animate-pulse' : ''}
         ${isNew ? 'shadow-md' : ''}
         ${isDragging ? 'opacity-0' : ''}
         transition-shadow duration-150
       `}
+      style={{ fontSize: '3.5cqw' }}
     >
-      <span
-        className="block font-normal leading-none"
-        style={{
-          fontSize: '4.2cqw',
-          marginTop: '0.15em',
-          paddingLeft: letter === 'I' ? '0.55em' : '0.22em',
-          textAlign: 'left',
-        }}
-      >
-        {letter}
-      </span>
-      {score > 0 && (
+      <span style={{ display: 'inline' }}>
         <span
-          className="absolute font-normal leading-none"
-          style={{ fontSize: '2.0cqw', bottom: '0.1em', right: '0.15em' }}
+          className="font-normal"
+          style={{
+            fontSize: '1.2em',
+            paddingLeft: '0.2em',
+          }}
         >
-          {score}
+          {letter}
         </span>
-      )}
+        {score > 0 && (
+          <span
+            className="font-normal"
+            style={{
+              fontSize: '0.6em',
+              verticalAlign: 'sub',
+              paddingLeft: '0.2em',
+            }}
+          >
+            {score}
+          </span>
+        )}
+      </span>
     </div>
   )
 })
