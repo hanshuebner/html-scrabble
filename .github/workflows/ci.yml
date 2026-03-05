@@ -47,46 +47,12 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm -r build
-
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Rsync to server
-        run: |
-          rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key" \
-            --include='package.json' \
-            --include='pnpm-workspace.yaml' \
-            --include='pnpm-lock.yaml' \
-            --include='packages/' \
-            --include='packages/server/' \
-            --include='packages/server/dist/***' \
-            --include='packages/server/package.json' \
-            --include='packages/client/' \
-            --include='packages/client/dist/***' \
-            --include='packages/client/package.json' \
-            --include='packages/shared/' \
-            --include='packages/shared/dist/***' \
-            --include='packages/shared/package.json' \
-            --include='deploy/' \
-            --include='deploy/deploy.sh' \
-            --exclude='*' \
-            ./ ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/scrabble/
 
       - name: Deploy
         run: |

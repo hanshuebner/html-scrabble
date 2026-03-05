@@ -1,7 +1,9 @@
 set -euo pipefail
 
 cd /opt/scrabble
+git pull
 pnpm install --frozen-lockfile
+pnpm -r build
 
 sudo service scrabble restart
 
