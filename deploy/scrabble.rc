@@ -17,8 +17,9 @@ load_rc_config $name
 : ${scrabble_env_file:="/opt/scrabble/.env"}
 
 pidfile="${scrabble_dir}/${name}.pid"
+procname="/usr/local/bin/node"
 command="/usr/sbin/daemon"
-command_args="-p ${pidfile} -o /var/log/${name}.log ${scrabble_dir}/deploy/scrabble-start.sh"
+command_args="-u ${scrabble_user} -p ${pidfile} -o /var/log/${name}.log ${procname} ${scrabble_dir}/packages/server/dist/index.js"
 
 start_precmd="${name}_prestart"
 
