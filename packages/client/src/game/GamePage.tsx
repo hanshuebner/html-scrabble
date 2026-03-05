@@ -504,7 +504,13 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       <GameEndOverlay />
       <DragOverlay dropAnimation={null}>
         {activeDragTile && (
-          <div className="@container" style={{ width: 592 }}>
+          <div
+            className="@container"
+            style={{
+              width: isDesktop ? 592 : 480,
+              transform: isDesktop ? undefined : 'translateY(-30px)',
+            }}
+          >
             <div style={{ width: 'calc(100cqw / 15)', aspectRatio: '1' }}>
               <Tile letter={activeDragTile.letter} score={activeDragTile.score} isBlank={activeDragTile.score === 0} />
             </div>
