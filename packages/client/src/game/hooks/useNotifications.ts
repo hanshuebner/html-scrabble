@@ -49,13 +49,26 @@ export const useNotifications = () => {
         applauseAudio.play().catch(() => {})
       }
 
+      // Notify when opponent takes back their move (it's no longer your turn)
+      if (lastTurn?.type === 'takeBack' && turnPlayerIndex !== playerIndex && Notification.permission === 'granted') {
+        const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null
+        if (opponentName) {
+          new Notification('Scrabble', { body: `${opponentName} took back their move.` })
+        }
+      }
+
       // Notify when it becomes your turn
       if (whosTurn === playerIndex && turnPlayerIndex !== playerIndex) {
         yourTurnAudio.play().catch(() => {})
         if (Notification.permission === 'granted') {
           const opponentName = turnPlayerIndex != null ? players[turnPlayerIndex]?.name : null
+          const action =
+            lastTurn.type === 'pass' ? 'passed' :
+            lastTurn.type === 'swap' ? `swapped ${lastTurn.count} tile${lastTurn.count === 1 ? '' : 's'}` :
+            lastTurn.type === 'challenge' ? 'challenged' :
+            'made a move'
           new Notification('Scrabble', {
-            body: opponentName ? `${opponentName} made a move. It's your turn!` : "It's your turn!",
+            body: opponentName ? `${opponentName} ${action}. It's your turn!` : "It's your turn!",
           })
         }
       }
