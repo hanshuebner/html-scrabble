@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, useParams, useNavigate } from 'react-router'
-import { AuthProvider } from './auth/AuthContext.js'
 import { LobbyPage } from './lobby/LobbyPage.js'
 import { GamePage } from './game/GamePage.js'
 import { StatsPage } from './stats/StatsPage.js'
@@ -28,16 +27,14 @@ const StatsRoute = () => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LobbyRoute />} />
-          <Route path="/stats" element={<StatsRoute />} />
-          <Route path="/game/:gameKey" element={<GameRoute />} />
-          <Route path="/game/:gameKey/:playerKey" element={<GameRoute />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LobbyRoute />} />
+        <Route path="/stats" element={<StatsRoute />} />
+        <Route path="/game/:gameKey" element={<GameRoute />} />
+        <Route path="/game/:gameKey/:playerKey" element={<GameRoute />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 export default App

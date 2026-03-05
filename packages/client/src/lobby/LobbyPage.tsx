@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client.js'
-import { useAuth } from '../auth/AuthContext.js'
 
 interface GameSummary {
   key: string
@@ -18,7 +17,6 @@ export const LobbyPage = ({
   onSelectPlayer: (gameKey: string, playerKey: string) => void
   onViewStats: () => void
 }) => {
-  const { user, logout } = useAuth()
   const [games, setGames] = useState<GameSummary[]>([])
   const [showCreate, setShowCreate] = useState(false)
 
@@ -32,7 +30,6 @@ export const LobbyPage = ({
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-[#474633]">Scrabble</h1>
           <div className="flex items-center gap-3">
-            {user && <span className="text-sm text-[#626258]">{user.name}</span>}
             <button
               onClick={onViewStats}
               className="px-4 py-2 bg-[#474633] text-white rounded text-sm hover:bg-[#626258]"
@@ -45,11 +42,6 @@ export const LobbyPage = ({
             >
               New Game
             </button>
-            {user && (
-              <button onClick={logout} className="text-sm text-[#AAA38E] hover:text-[#474633]">
-                Logout
-              </button>
-            )}
           </div>
         </div>
 

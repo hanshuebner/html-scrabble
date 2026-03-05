@@ -8,7 +8,7 @@ if (config.mail.smtp) {
   transporter = nodemailer.createTransport(config.mail.smtp)
 }
 
-export const joinProse = (array: string[]): string => {
+const joinProse = (array: string[]): string => {
   const length = array.length
   if (length === 0) return ''
   if (length === 1) return array[0]
@@ -42,18 +42,6 @@ export const sendGameInvitation = async (
   otherPlayerNames: string[],
 ): Promise<void> => {
   const subject = `You have been invited to play Scrabble with ${joinProse(otherPlayerNames)}`
-  const text = `Make your move:\n\n${gameLink}`
-  const html = `Click <a href="${gameLink}">here</a> to make your move.`
-  await sendEmail(playerEmail, subject, text, html)
-}
-
-export const sendTurnReminder = async (
-  playerEmail: string,
-  playerName: string,
-  gameLink: string,
-  otherPlayerNames: string[],
-): Promise<void> => {
-  const subject = `It is your turn in your Scrabble game with ${joinProse(otherPlayerNames)}`
   const text = `Make your move:\n\n${gameLink}`
   const html = `Click <a href="${gameLink}">here</a> to make your move.`
   await sendEmail(playerEmail, subject, text, html)

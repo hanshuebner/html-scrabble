@@ -14,11 +14,6 @@ const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
 }
 
 export const api = {
-  // Auth
-  requestMagicLink: (email: string) => request('/auth/magic-link', { method: 'POST', body: JSON.stringify({ email }) }),
-  logout: () => request('/auth/logout', { method: 'POST' }),
-  me: () => request<{ id: string; email: string; name: string }>('/auth/me'),
-
   // Games
   listGames: () =>
     request<

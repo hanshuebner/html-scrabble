@@ -7,7 +7,6 @@ import cookieParser from 'cookie-parser'
 import { sql } from 'drizzle-orm'
 import { config } from './config.js'
 import { db } from './db/connection.js'
-import { authRoutes } from './auth/routes.js'
 import { gameRoutes } from './game/game-routes.js'
 import { statsRoutes } from './stats/stats-routes.js'
 import { setupGameSocket } from './game/game-socket.js'
@@ -28,7 +27,6 @@ app.get('/api/health', (_req, res) => {
 })
 
 // Routes
-app.use('/api/auth', authRoutes)
 app.use('/api/games', gameRoutes)
 app.use('/api/stats', statsRoutes)
 

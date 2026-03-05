@@ -16,7 +16,6 @@
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "^0.38.4",
     "express": "^5.0.1",
-    "jose": "^6.0.8",
     "nodemailer": "^6.9.16",
     "postgres": "^3.4.5",
     "socket.io": "^4.8.1"
