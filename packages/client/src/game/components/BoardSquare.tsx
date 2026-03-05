@@ -109,7 +109,7 @@ export const BoardSquare = memo(
           <>
             {fullLabel && (
               <span
-                className={`font-bold ${textColor} leading-tight text-center text-[clamp(0.25rem,1.1cqw,0.5rem)] uppercase`}
+                className={`font-bold font-board-label ${textColor} leading-tight text-center text-[clamp(0.25rem,1.1cqw,0.5rem)] uppercase`}
               >
                 {t(fullLabel)}
               </span>
