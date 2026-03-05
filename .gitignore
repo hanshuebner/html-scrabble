@@ -10,3 +10,10 @@ dist/
 logs/
 .mcp.json
 data-migrated.json
+.cache/
+.env
+.local/
+.npm/
+.npmrc
+.ssh/
+*.pid
