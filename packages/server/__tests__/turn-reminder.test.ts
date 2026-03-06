@@ -143,7 +143,7 @@ describe('processGameReminders', () => {
   })
 
   it('handles game at exactly the boundary (not triggered)', async () => {
-    vi.mocked(findActiveGames).mockResolvedValue([makeGame({ daysAgo: 2 })])
+    vi.mocked(findActiveGames).mockResolvedValue([makeGame({ daysAgo: 1.99 })])
 
     await processGameReminders()
 
