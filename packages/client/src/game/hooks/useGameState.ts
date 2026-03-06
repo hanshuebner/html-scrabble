@@ -70,7 +70,7 @@ interface GameState {
   // UI state
   selectedSquare: { x: number; y: number; fromRack: boolean } | null
   cursor: CursorState | null
-  pendingPlacements: { letter: string; score: number; x: number; y: number; blank: boolean; rackIndex: number }[]
+  pendingPlacements: { letter: string; score: number; x: number; y: number; blank: boolean; rackSlotId: string }[]
   chatMessages: ChatMessage[]
   onlinePlayers: Set<number>
   swapMode: boolean
@@ -90,9 +90,9 @@ interface GameState {
     x: number
     y: number
     blank: boolean
-    rackIndex: number
+    rackSlotId: string
   }) => void
-  removePendingPlacement: (x: number, y: number) => number
+  removePendingPlacement: (x: number, y: number) => string
   clearPendingPlacements: () => void
   updateMyRack: (rack: { tile: TileData | null; id?: string }[]) => void
   reorderRack: (fromIndex: number, toIndex: number) => void
@@ -209,9 +209,24 @@ export const useGameState = create<GameState>((set, get) => ({
   setCursor: (cursor) => set({ cursor }),
 
   addPendingPlacement: (placement) =>
-    set((state) => ({
-      pendingPlacements: [...state.pendingPlacements, placement],
-    })),
+    set((state) => {
+      const updates: Partial<GameState> = {
+        pendingPlacements: [...state.pendingPlacements, placement],
+      }
+      // Null out the tile in the rack slot
+      if (state.playerIndex !== null) {
+        const player = state.players[state.playerIndex]
+        if (player?.rack) {
+          const newRack = player.rack.map((s) =>
+            s.id === placement.rackSlotId ? { ...s, tile: null } : s,
+          )
+          const newPlayers = [...state.players]
+          newPlayers[state.playerIndex] = { ...player, rack: newRack }
+          updates.players = newPlayers
+        }
+      }
+      return updates
+    }),
 
   removePendingPlacement: (x, y) => {
     const state = get()
@@ -221,39 +236,43 @@ export const useGameState = create<GameState>((set, get) => ({
       const updates: Partial<GameState> = {
         pendingPlacements: state.pendingPlacements.filter((_, i) => i !== idx),
       }
-      // Clear letter on blank tiles returning to rack
-      if (placement.blank && state.playerIndex !== null) {
+      // Restore tile back into its rack slot
+      if (state.playerIndex !== null) {
         const player = state.players[state.playerIndex]
         if (player?.rack) {
-          const newRack = player.rack.map((sq) => ({ ...sq }))
-          const tile = newRack[placement.rackIndex]?.tile
-          if (tile && tile.score === 0) {
-            newRack[placement.rackIndex] = { ...newRack[placement.rackIndex], tile: { ...tile, letter: ' ' } }
-            const newPlayers = [...state.players]
-            newPlayers[state.playerIndex] = { ...player, rack: newRack }
-            updates.players = newPlayers
-          }
+          const restoredTile = placement.blank
+            ? { letter: ' ', score: 0 }
+            : { letter: placement.letter, score: placement.score }
+          const newRack = player.rack.map((s) =>
+            s.id === placement.rackSlotId ? { ...s, tile: restoredTile } : s,
+          )
+          const newPlayers = [...state.players]
+          newPlayers[state.playerIndex] = { ...player, rack: newRack }
+          updates.players = newPlayers
         }
       }
       set(updates)
-      return placement.rackIndex
+      return placement.rackSlotId
     }
-    return -1
+    return ''
   },
 
   clearPendingPlacements: () => {
     const state = get()
-    const blanks = state.pendingPlacements.filter((p) => p.blank)
-    if (blanks.length > 0 && state.playerIndex !== null) {
+    if (state.pendingPlacements.length === 0) {
+      set({ pendingPlacements: [] })
+      return
+    }
+    if (state.playerIndex !== null) {
       const player = state.players[state.playerIndex]
       if (player?.rack) {
-        const newRack = player.rack.map((sq) => ({ ...sq }))
-        for (const b of blanks) {
-          const tile = newRack[b.rackIndex]?.tile
-          if (tile && tile.score === 0) {
-            newRack[b.rackIndex] = { ...newRack[b.rackIndex], tile: { ...tile, letter: ' ' } }
-          }
-        }
+        const placementsBySlotId = new Map(state.pendingPlacements.map((p) => [p.rackSlotId, p]))
+        const newRack = player.rack.map((s) => {
+          const p = placementsBySlotId.get(s.id)
+          if (!p) return s
+          const restoredTile = p.blank ? { letter: ' ', score: 0 } : { letter: p.letter, score: p.score }
+          return { ...s, tile: restoredTile }
+        })
         const newPlayers = [...state.players]
         newPlayers[state.playerIndex] = { ...player, rack: newRack }
         set({ pendingPlacements: [], players: newPlayers })
@@ -276,8 +295,7 @@ export const useGameState = create<GameState>((set, get) => ({
     const player = state.players[state.playerIndex]
     if (!player?.rack) return
     const newRack = [...player.rack]
-    const placedIndices = new Set(state.pendingPlacements.map((p) => p.rackIndex))
-    if (!newRack[toIndex]?.tile || placedIndices.has(toIndex)) {
+    if (!newRack[toIndex]?.tile) {
       // Target is empty — swap
       ;[newRack[fromIndex], newRack[toIndex]] = [newRack[toIndex], newRack[fromIndex]]
     } else {
@@ -295,9 +313,13 @@ export const useGameState = create<GameState>((set, get) => ({
     const player = state.players[state.playerIndex]
     if (!player?.rack) return
     const newRack = [...player.rack]
-    for (let i = newRack.length - 1; i > 0; i--) {
+    // Only shuffle slots that have tiles (leave empty slots in place)
+    const filledIndices = newRack.map((s, i) => (s.tile ? i : -1)).filter((i) => i !== -1)
+    for (let i = filledIndices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-      ;[newRack[i], newRack[j]] = [newRack[j], newRack[i]]
+      const a = filledIndices[i]
+      const b = filledIndices[j]
+      ;[newRack[a], newRack[b]] = [newRack[b], newRack[a]]
     }
     const newPlayers = [...state.players]
     newPlayers[state.playerIndex] = { ...player, rack: newRack }

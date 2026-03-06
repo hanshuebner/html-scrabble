@@ -68,7 +68,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const isSpectator = playerIndex === null
 
   const [blankPicker, setBlankPicker] = useState<{
-    rackIndex: number
+    rackSlotId: string
     x: number
     y: number
   } | null>(null)
@@ -196,25 +196,25 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       if (!state.selectedSquare?.fromRack) return
 
       const rackIndex = state.selectedSquare.x
-      const rack = state.getMyRack()
-      const tile = rack[rackIndex]
-      if (!tile) return
+      const slots = state.getMyRackSlots()
+      const slot = slots[rackIndex]
+      if (!slot?.tile) return
 
       // Check board square is empty
       if (state.board?.[x]?.[y]?.tile) return
       if (state.pendingPlacements.find((p) => p.x === x && p.y === y)) return
 
-      if (tile.score === 0) {
+      if (slot.tile.score === 0) {
         // Blank tile - show picker
-        setBlankPicker({ rackIndex, x, y })
+        setBlankPicker({ rackSlotId: slot.id, x, y })
       } else {
         addPendingPlacement({
-          letter: tile.letter,
-          score: tile.score,
+          letter: slot.tile.letter,
+          score: slot.tile.score,
           x,
           y,
           blank: false,
-          rackIndex,
+          rackSlotId: slot.id,
         })
       }
       clearSelection()
@@ -230,7 +230,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       x: blankPicker.x,
       y: blankPicker.y,
       blank: true,
-      rackIndex: blankPicker.rackIndex,
+      rackSlotId: blankPicker.rackSlotId,
     })
     setBlankPicker(null)
   }
@@ -292,24 +292,22 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       if (dragTileId && overId.startsWith('board-')) {
         if (!useGameState.getState().isMyTurn()) return
         const state = useGameState.getState()
-        const rackIndex = state.getMyRackSlots().findIndex((s) => s.id === dragTileId)
-        if (rackIndex === -1) return
-        const tile = state.getMyRack()[rackIndex]
-        if (!tile) return
+        const slot = state.getMyRackSlots().find((s) => s.id === dragTileId)
+        if (!slot?.tile) return
         const [, bx, by] = overId.split('-').map(Number)
         if (state.board?.[bx]?.[by]?.tile) return
         if (state.pendingPlacements.find((p) => p.x === bx && p.y === by)) return
 
-        if (tile.score === 0) {
-          setBlankPicker({ rackIndex, x: bx, y: by })
+        if (slot.tile.score === 0) {
+          setBlankPicker({ rackSlotId: dragTileId, x: bx, y: by })
         } else {
           addPendingPlacement({
-            letter: tile.letter,
-            score: tile.score,
+            letter: slot.tile.letter,
+            score: slot.tile.score,
             x: bx,
             y: by,
             blank: false,
-            rackIndex,
+            rackSlotId: dragTileId,
           })
         }
       }
@@ -334,9 +332,12 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
         const activeId = String(event.active.id)
         if (!activeId.startsWith('pending-')) return
         const [, px, py] = activeId.split('-').map(Number)
-        const originalRackIndex = removePendingPlacement(px, py)
+        const restoredSlotId = removePendingPlacement(px, py)
+        if (!restoredSlotId) return
         const state = useGameState.getState()
-        const targetRackIndex = state.getMyRackSlots().findIndex((s) => s.id === overId)
+        const slots = state.getMyRackSlots()
+        const originalRackIndex = slots.findIndex((s) => s.id === restoredSlotId)
+        const targetRackIndex = slots.findIndex((s) => s.id === overId)
         if (targetRackIndex !== -1 && originalRackIndex !== -1 && originalRackIndex !== targetRackIndex) {
           reorderRack(originalRackIndex, targetRackIndex)
         }
@@ -360,27 +361,26 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
 
       if (legalLetters.includes(letter)) {
         // Find this letter in the rack
-        const rack = state.getMyRack()
-        const placedIndices = new Set(state.pendingPlacements.map((p) => p.rackIndex))
-        let rackIndex = rack.findIndex((t, i) => t && !placedIndices.has(i) && t.letter === letter)
+        const slots = state.getMyRackSlots()
+        let slot = slots.find((s) => s.tile && s.tile.letter === letter)
 
         // If no matching letter tile, use a blank tile instead
         let useBlank = false
-        if (rackIndex === -1) {
-          rackIndex = rack.findIndex((t, i) => t && !placedIndices.has(i) && t.score === 0)
-          if (rackIndex !== -1) useBlank = true
+        if (!slot) {
+          slot = slots.find((s) => s.tile && s.tile.score === 0)
+          if (slot) useBlank = true
         }
 
-        if (rackIndex !== -1) {
+        if (slot?.tile) {
           const sq = state.board[cursor.x]?.[cursor.y]
           if (sq && !sq.tile && !state.pendingPlacements.find((p) => p.x === cursor.x && p.y === cursor.y)) {
             addPendingPlacement({
               letter,
-              score: useBlank ? 0 : rack[rackIndex]!.score,
+              score: useBlank ? 0 : slot.tile.score,
               x: cursor.x,
               y: cursor.y,
               blank: useBlank,
-              rackIndex,
+              rackSlotId: slot.id,
             })
 
             // Advance cursor to next free square in cursor direction
@@ -506,10 +506,9 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
     [isDesktop],
   )
 
-  // Rack tile IDs for sortable (only include tiles actually present, not placed on board)
+  // Rack tile IDs for sortable (only include tiles actually present)
   const rackSlots = getMyRackSlots()
-  const placedIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
-  const rackIds = rackSlots.filter((slot, i) => slot.tile && !placedIndices.has(i)).map((slot) => slot.id)
+  const rackIds = rackSlots.filter((s) => s.tile !== null).map((s) => s.id)
 
   const { t } = useTranslation()
 

@@ -74,7 +74,6 @@ export const Rack = () => {
   const clearSelection = useGameState((s) => s.clearSelection)
   const removePendingPlacement = useGameState((s) => s.removePendingPlacement)
   const reorderRack = useGameState((s) => s.reorderRack)
-  const pendingPlacements = useGameState((s) => s.pendingPlacements)
   const swapMode = useGameState((s) => s.swapMode)
   const swapIndices = useGameState((s) => s.swapIndices)
   const toggleSwapTile = useGameState((s) => s.toggleSwapTile)
@@ -83,17 +82,18 @@ export const Rack = () => {
   const whosTurn = useGameState((s) => s.whosTurn)
   const rackSlots = useGameState((s) => (s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null))
 
-  // Tiles that are not currently placed on the board
-  const placedRackIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
-
   const isMyTurn = whosTurn === playerIndex
 
   const handleEmptySlotClick = (targetIndex: number) => {
     if (selectedSquare && !selectedSquare.fromRack) {
       // Return a pending board tile to this rack position
-      const originalRackIndex = removePendingPlacement(selectedSquare.x, selectedSquare.y)
-      if (originalRackIndex !== -1 && originalRackIndex !== targetIndex) {
-        reorderRack(originalRackIndex, targetIndex)
+      const restoredSlotId = removePendingPlacement(selectedSquare.x, selectedSquare.y)
+      if (restoredSlotId) {
+        const slots = useGameState.getState().getMyRackSlots()
+        const originalRackIndex = slots.findIndex((s) => s.id === restoredSlotId)
+        if (originalRackIndex !== -1 && originalRackIndex !== targetIndex) {
+          reorderRack(originalRackIndex, targetIndex)
+        }
       }
       clearSelection()
     } else if (selectedSquare?.fromRack) {
@@ -129,7 +129,7 @@ export const Rack = () => {
   return (
     <div className="flex gap-1 justify-center">
       {(rackSlots ?? []).map((slot, i) => {
-        if (!slot.tile || placedRackIndices.has(i)) {
+        if (!slot.tile) {
           return <EmptyRackSlot key={slot.id} id={slot.id} onClick={() => handleEmptySlotClick(i)} />
         }
 
