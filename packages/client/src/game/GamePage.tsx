@@ -9,6 +9,8 @@ import {
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
+  type Modifier,
+  type CollisionDetection,
 } from '@dnd-kit/core'
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { useGameState } from './hooks/useGameState.js'
@@ -75,6 +77,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting'>('connected')
   const boardAreaRef = useRef<HTMLDivElement>(null)
   const [boardAreaHeight, setBoardAreaHeight] = useState<number | null>(null)
+  const [boardTileSize, setBoardTileSize] = useState<number | null>(null)
 
   // Clear stale state immediately when game key changes (prevents old endMessage flashing)
   useEffect(() => {
@@ -166,12 +169,19 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
 
   useNotifications()
 
-  // Measure board+rack area height to constrain sidebar
+  // Measure board+rack area height to constrain sidebar, and board tile size
   useEffect(() => {
     const el = boardAreaRef.current
     if (!el) return
     const observer = new ResizeObserver((entries) => {
       setBoardAreaHeight(entries[0].contentRect.height)
+      // The board grid is the first child; measure tile size from it
+      const boardGrid = el.querySelector('.grid')
+      if (boardGrid) {
+        // Board has 2px padding on each side, grid fills the rest
+        const gridWidth = boardGrid.clientWidth - 4 // subtract p-[2px] * 2
+        setBoardTileSize(gridWidth / 15)
+      }
     })
     observer.observe(el)
     return () => observer.disconnect()
@@ -449,6 +459,30 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   })
   const sensors = useSensors(pointerSensor, touchSensor)
 
+  const MOBILE_Y_OFFSET = -30
+
+  const mobileLiftModifier: Modifier = useCallback(
+    ({ transform }) => {
+      if (isDesktop) return transform
+      return { ...transform, y: transform.y + MOBILE_Y_OFFSET }
+    },
+    [isDesktop],
+  )
+
+  const offsetPointerWithin: CollisionDetection = useCallback(
+    (args) => {
+      if (isDesktop || !args.pointerCoordinates) return pointerWithin(args)
+      return pointerWithin({
+        ...args,
+        pointerCoordinates: {
+          x: args.pointerCoordinates.x,
+          y: args.pointerCoordinates.y + MOBILE_Y_OFFSET,
+        },
+      })
+    },
+    [isDesktop],
+  )
+
   // Rack tile IDs for sortable (only include tiles actually present, not placed on board)
   const rack = getMyRack()
   const placedIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
@@ -465,7 +499,8 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={pointerWithin}
+      collisionDetection={offsetPointerWithin}
+      modifiers={[mobileLiftModifier]}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
@@ -505,6 +540,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
             <div
               ref={boardAreaRef}
               className="flex flex-col items-center gap-2"
+              style={boardTileSize ? ({ '--tile-size': `${boardTileSize}px` } as React.CSSProperties) : undefined}
               onClick={(e) => {
                 const target = e.target as HTMLElement
                 const boardSquare = target.closest('[data-board-square]')
@@ -579,17 +615,9 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       {blankPicker && <BlankLetterPicker onSelect={handleBlankSelect} onCancel={() => setBlankPicker(null)} />}
       <GameEndOverlay />
       <DragOverlay dropAnimation={null}>
-        {activeDragTile && (
-          <div
-            className="@container"
-            style={{
-              width: isDesktop ? Math.min(700, ((window.innerHeight - 48) * 15) / 16) : 480,
-              transform: isDesktop ? undefined : 'translateY(-30px)',
-            }}
-          >
-            <div style={{ width: 'calc(100cqw / 15)', aspectRatio: '1' }}>
-              <Tile letter={activeDragTile.letter} score={activeDragTile.score} isBlank={activeDragTile.score === 0} />
-            </div>
+        {activeDragTile && boardTileSize && (
+          <div style={{ width: boardTileSize, height: boardTileSize }}>
+            <Tile letter={activeDragTile.letter} score={activeDragTile.score} isBlank={activeDragTile.score === 0} />
           </div>
         )}
       </DragOverlay>

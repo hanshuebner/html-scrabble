@@ -34,11 +34,11 @@ const SortableRackTile = ({
   return (
     <div
       ref={setNodeRef}
-      style={{ ...style, width: 'calc(100cqw / 15)', touchAction: 'none' }}
+      style={{ ...style, width: 'var(--tile-size, calc(100cqw / 15))', touchAction: 'none' }}
       {...attributes}
       {...listeners}
       onClick={onClick}
-      className="aspect-square"
+      className={`aspect-square ${isDragging ? 'bg-[#F7F7E3]/20 border border-[#DCDCC6]/30 rounded-sm' : ''}`}
     >
       <Tile
         letter={tile.letter}
@@ -51,13 +51,14 @@ const SortableRackTile = ({
   )
 }
 
-const EmptyRackSlot = ({ index }: { index: number }) => {
+const EmptyRackSlot = ({ index, onClick }: { index: number; onClick?: () => void }) => {
   const { setNodeRef } = useDroppable({ id: `rack-${index}` })
   return (
     <div
       ref={setNodeRef}
-      className="aspect-square border border-dashed border-[#AAA38E] rounded-sm"
-      style={{ width: 'calc(100cqw / 15)' }}
+      className="aspect-square bg-[#F7F7E3]/20 border border-[#DCDCC6]/30 rounded-sm"
+      style={{ width: 'var(--tile-size, calc(100cqw / 15))' }}
+      onClick={onClick}
     />
   )
 }
@@ -66,19 +67,40 @@ export const Rack = () => {
   const selectedSquare = useGameState((s) => s.selectedSquare)
   const selectSquare = useGameState((s) => s.selectSquare)
   const clearSelection = useGameState((s) => s.clearSelection)
+  const removePendingPlacement = useGameState((s) => s.removePendingPlacement)
+  const reorderRack = useGameState((s) => s.reorderRack)
   const pendingPlacements = useGameState((s) => s.pendingPlacements)
   const swapMode = useGameState((s) => s.swapMode)
   const swapIndices = useGameState((s) => s.swapIndices)
   const toggleSwapTile = useGameState((s) => s.toggleSwapTile)
 
   const playerIndex = useGameState((s) => s.playerIndex)
+  const whosTurn = useGameState((s) => s.whosTurn)
   const rackData = useGameState((s) => (s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null))
   const rack = rackData ? rackData.map((sq) => sq.tile) : []
 
   // Tiles that are not currently placed on the board
   const placedRackIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
 
+  const isMyTurn = whosTurn === playerIndex
+
+  const handleEmptySlotClick = (targetIndex: number) => {
+    if (selectedSquare && !selectedSquare.fromRack) {
+      // Return a pending board tile to this rack position
+      const originalRackIndex = removePendingPlacement(selectedSquare.x, selectedSquare.y)
+      if (originalRackIndex !== -1 && originalRackIndex !== targetIndex) {
+        reorderRack(originalRackIndex, targetIndex)
+      }
+      clearSelection()
+    } else if (selectedSquare?.fromRack) {
+      // Move a selected rack tile to this empty slot
+      reorderRack(selectedSquare.x, targetIndex)
+      clearSelection()
+    }
+  }
+
   const handleTileClick = (index: number) => {
+    if (!isMyTurn) return
     if (swapMode) {
       toggleSwapTile(index)
       return
@@ -104,7 +126,7 @@ export const Rack = () => {
     <div className="flex gap-1 justify-center">
       {rack.map((tile, i) => {
         if (!tile || placedRackIndices.has(i)) {
-          return <EmptyRackSlot key={i} index={i} />
+          return <EmptyRackSlot key={i} index={i} onClick={() => handleEmptySlotClick(i)} />
         }
 
         // In swap mode, selected tiles show as empty slots
