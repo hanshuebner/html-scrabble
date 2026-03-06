@@ -65,12 +65,25 @@ interface BoardSquareProps {
   isSelected?: boolean
   isCursor?: boolean
   cursorHorizontal?: boolean
+  isMyTurn?: boolean
   onClick?: () => void
 }
 
 export const BoardSquare = memo(
-  ({ x, y, type, tile, tileLocked, isPending, isSelected, isCursor, cursorHorizontal, onClick }: BoardSquareProps) => {
-    const { setNodeRef, isOver } = useDroppable({ id: `board-${x}-${y}` })
+  ({
+    x,
+    y,
+    type,
+    tile,
+    tileLocked,
+    isPending,
+    isSelected,
+    isCursor,
+    cursorHorizontal,
+    isMyTurn,
+    onClick,
+  }: BoardSquareProps) => {
+    const { setNodeRef, isOver } = useDroppable({ id: `board-${x}-${y}`, disabled: !isMyTurn })
     const { t } = useTranslation()
 
     const bg = SQUARE_BG[type] || SQUARE_BG.Normal
@@ -89,7 +102,6 @@ export const BoardSquare = memo(
         relative flex items-center justify-center
         border border-dotted border-[#AAA38E]
         ${bg}
-        ${isOver ? 'ring-2 ring-yellow-400' : ''}
         aspect-square overflow-hidden
       `}
       >
@@ -121,6 +133,7 @@ export const BoardSquare = memo(
             {isCenter && !fullLabel && <span className={`text-[clamp(0.5rem,3.5cqw,1rem)] ${textColor}`}>★</span>}
           </>
         )}
+        {isOver && <span className="absolute inset-0 bg-white/50 pointer-events-none" />}
         {isCursor && (
           <span className="absolute inset-0 flex items-center justify-center text-[clamp(0.7rem,5cqw,1.8rem)] font-bold text-[#54534A] bg-white/50 pointer-events-none">
             {cursorHorizontal ? '\u25b6' : '\u25bc'}

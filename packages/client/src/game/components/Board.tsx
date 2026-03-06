@@ -54,6 +54,7 @@ export const Board = () => {
   if (!board) return null
 
   // Build flat list of squares for the grid
+  const myTurn = isMyTurn()
   const squares: React.ReactElement[] = []
   for (let y = 0; y < 15; y++) {
     for (let x = 0; x < 15; x++) {
@@ -77,6 +78,7 @@ export const Board = () => {
           isSelected={isSelected}
           isCursor={isCursor && !displayTile}
           cursorHorizontal={cursor?.horizontal}
+          isMyTurn={myTurn}
           onClick={() => handleSquareClick(x, y)}
         />,
       )
