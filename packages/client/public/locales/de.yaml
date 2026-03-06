@@ -37,7 +37,9 @@ Swap: Tauschen
 Submit Move: Zug absenden
 Pass: Passen
 Challenge: Wort ablehnen
+"Are you sure you want to challenge the last move?": "Möchtest du den letzten Zug wirklich anfechten?"
 Take Back: Zurücknehmen
+"Are you sure you want to take back your move?": "Möchtest du deinen Zug wirklich zurücknehmen?"
 "Waiting for {{name}} to make their move...": "Warte auf {{name}}..."
 "{{score}} pts": "{{score}} Pkt."
 "(incl. 50 bonus)": "(inkl. 50 Bonus)"

@@ -156,6 +156,7 @@ export const TurnControls = () => {
   }
 
   const handleChallenge = async () => {
+    if (!window.confirm(t('Are you sure you want to challenge the last move?'))) return
     setLoading(true)
     setError(null)
     try {
@@ -168,6 +169,7 @@ export const TurnControls = () => {
   }
 
   const handleTakeBack = async () => {
+    if (!window.confirm(t('Are you sure you want to take back your move?'))) return
     setLoading(true)
     setError(null)
     try {

@@ -37,7 +37,9 @@ Swap: Swap
 Submit Move: Submit Move
 Pass: Pass
 Challenge: Challenge
+"Are you sure you want to challenge the last move?": "Are you sure you want to challenge the last move?"
 Take Back: Take Back
+"Are you sure you want to take back your move?": "Are you sure you want to take back your move?"
 "Waiting for {{name}} to make their move...": "Waiting for {{name}} to make their move..."
 "{{score}} pts": "{{score}} pts"
 "(incl. 50 bonus)": "(incl. 50 bonus)"
