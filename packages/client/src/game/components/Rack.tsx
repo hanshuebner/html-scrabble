@@ -100,8 +100,8 @@ export const Rack = () => {
   }
 
   const handleTileClick = (index: number) => {
-    if (!isMyTurn) return
     if (swapMode) {
+      if (!isMyTurn) return
       toggleSwapTile(index)
       return
     }
