@@ -101,7 +101,7 @@ export const Rack = () => {
   }
 
   return (
-    <div className="flex gap-1 justify-center p-2 bg-[#54534A] rounded shadow-md">
+    <div className="flex gap-1 justify-center">
       {rack.map((tile, i) => {
         if (!tile || placedRackIndices.has(i)) {
           return <EmptyRackSlot key={i} index={i} />

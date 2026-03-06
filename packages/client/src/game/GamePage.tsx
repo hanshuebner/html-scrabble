@@ -70,6 +70,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   } | null>(null)
 
   const [activeDragTile, setActiveDragTile] = useState<{ letter: string; score: number } | null>(null)
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting'>('connected')
 
   // Clear stale state immediately when game key changes (prevents old endMessage flashing)
   useEffect(() => {
@@ -92,6 +93,26 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       }
     })
 
+    // Connection status tracking
+    const onDisconnect = () => setConnectionStatus('disconnected')
+    const onReconnecting = () => setConnectionStatus('reconnecting')
+    const onConnect = () => {
+      setConnectionStatus('connected')
+      // Re-join room and re-fetch game state on reconnect
+      joinGame(gameKey, playerKeyProp || playerKey || undefined).then(() => {
+        if (cancelled) return
+        api
+          .getGame(gameKey, playerKeyProp)
+          .then((data) => {
+            if (!cancelled) setGameData(data, playerKeyProp)
+          })
+          .catch(() => {})
+      })
+    }
+    socket.on('disconnect', onDisconnect)
+    socket.io.on('reconnect_attempt', onReconnecting)
+    socket.on('connect', onConnect)
+
     // Join socket room first, then load game data so we never miss events
     joinGame(gameKey, playerKeyProp || playerKey || undefined).then(() => {
       if (cancelled) return
@@ -112,6 +133,9 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       socket.off('gameEnded')
       socket.off('message')
       socket.off('nextGame')
+      socket.off('disconnect', onDisconnect)
+      socket.io.off('reconnect_attempt', onReconnecting)
+      socket.off('connect', onConnect)
     }
   }, [gameKey, playerKeyProp, playerKey, applyTurn, updateMyRack, setEndMessage, addChatMessage, setGameData, setError])
 
@@ -417,6 +441,11 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       onDragEnd={handleDragEnd}
     >
       <div className="min-h-screen desktop:h-dvh bg-woodgrain flex flex-col desktop:justify-center">
+        {connectionStatus !== 'connected' && (
+          <div className="bg-red-600 text-white text-sm text-center py-2 px-4">
+            {connectionStatus === 'reconnecting' ? t('Reconnecting...') : t('Connection lost. Trying to reconnect...')}
+          </div>
+        )}
         {/* Desktop layout */}
         <div className="max-w-[74rem] mx-auto p-2 desktop:p-1 flex flex-col desktop:flex-row gap-4 flex-1 desktop:flex-initial desktop:max-h-[calc(100dvh-0.5rem)] w-full">
           {/* Controls sidebar - hidden on mobile, shown on desktop */}
@@ -450,34 +479,32 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
               }}
             >
               <Board />
-              {/* Rack with Shuffle/Recall buttons to the left */}
+              {/* Rack with Recall/Shuffle buttons inside the frame */}
               {!isSpectator && (
-                <div className="flex items-center gap-1 w-[calc(100vw-1rem)] max-w-[min(50rem,100%)] desktop:w-[min(50rem,calc((100dvh-3rem)*15/16))]">
-                  <div className="flex flex-col gap-1 shrink-0">
+                <div className="@container w-[calc(100vw-1rem)] max-w-[min(37.5rem,100%)] desktop:w-[min(37.5rem,calc((100dvh-3rem)*15/16))] bg-[#54534A] rounded shadow-md p-[2px]">
+                  <div className="flex items-center px-1">
+                    <button
+                      onClick={() => {
+                        clearPendingPlacements()
+                        useGameState.getState().setCursor(null)
+                      }}
+                      className={`px-2 py-1 text-sm text-[#AAA38E] hover:text-white shrink-0 ${pendingPlacements.length === 0 ? 'invisible' : ''}`}
+                      title={t('Recall')}
+                    >
+                      {t('Recall')}
+                    </button>
+                    <div className="flex-1 flex justify-center min-w-0">
+                      <SortableContext items={rackIds} strategy={horizontalListSortingStrategy}>
+                        <Rack />
+                      </SortableContext>
+                    </div>
                     <button
                       onClick={shuffleRack}
-                      className="px-2 py-1 text-xs bg-[#54534A] text-[#AAA38E] rounded hover:text-white"
+                      className="px-2 py-1 text-sm text-[#AAA38E] hover:text-white shrink-0"
                       title="Shuffle"
                     >
                       {t('Shuffle')}
                     </button>
-                    {pendingPlacements.length > 0 && (
-                      <button
-                        onClick={() => {
-                          clearPendingPlacements()
-                          useGameState.getState().setCursor(null)
-                        }}
-                        className="px-2 py-1 text-xs bg-[#54534A] text-[#AAA38E] rounded hover:text-white"
-                        title={t('Recall')}
-                      >
-                        {t('Recall')}
-                      </button>
-                    )}
-                  </div>
-                  <div className="@container flex-1 min-w-0">
-                    <SortableContext items={rackIds} strategy={horizontalListSortingStrategy}>
-                      <Rack />
-                    </SortableContext>
                   </div>
                 </div>
               )}
@@ -491,7 +518,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
                   <button
                     key={tab}
                     onClick={() => setMobileTab(tab as typeof mobileTab)}
-                    className={`flex-1 py-2 text-xs font-medium capitalize ${
+                    className={`flex-1 py-2 text-sm font-medium capitalize ${
                       mobileTab === tab ? 'text-[#474633] border-b-2 border-[#474633]' : 'text-[#AAA38E]'
                     }`}
                   >
@@ -519,7 +546,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
           <div
             className="@container"
             style={{
-              width: isDesktop ? Math.min(800, ((window.innerHeight - 48) * 15) / 16) : 480,
+              width: isDesktop ? Math.min(600, ((window.innerHeight - 48) * 15) / 16) : 480,
               transform: isDesktop ? undefined : 'translateY(-30px)',
             }}
           >

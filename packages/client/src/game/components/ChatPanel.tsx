@@ -27,8 +27,8 @@ export const ChatPanel = () => {
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 flex flex-col min-h-0 h-full">
-      <h3 className="font-bold text-sm text-[#474633] mb-2 shrink-0">{t('Chat')}</h3>
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto text-xs space-y-1 mb-2">
+      <h3 className="font-bold text-base text-[#474633] mb-2 shrink-0">{t('Chat')}</h3>
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto text-sm space-y-1 mb-2">
         {chatMessages.length === 0 && <div className="text-[#AAA38E] italic">{t('No messages')}</div>}
         {chatMessages.map((msg, i) => (
           <div key={i}>
@@ -43,9 +43,9 @@ export const ChatPanel = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder={t('Type a message...')}
-          className="flex-1 text-xs px-2 py-1 border border-[#DCDCC6] rounded bg-white"
+          className="flex-1 text-sm px-2 py-1 border border-[#DCDCC6] rounded bg-white"
         />
-        <button onClick={handleSend} className="text-xs px-2 py-1 bg-[#474633] text-white rounded hover:bg-[#626258]">
+        <button onClick={handleSend} className="text-sm px-2 py-1 bg-[#474633] text-white rounded hover:bg-[#626258]">
           {t('Send')}
         </button>
       </div>
