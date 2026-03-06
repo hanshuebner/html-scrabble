@@ -481,7 +481,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
               <Board />
               {/* Rack with Recall/Shuffle buttons inside the frame */}
               {!isSpectator && (
-                <div className="@container w-[calc(100vw-1rem)] max-w-[min(37.5rem,100%)] desktop:w-[min(37.5rem,calc((100dvh-3rem)*15/16))] bg-[#54534A] rounded shadow-md p-[2px]">
+                <div className="@container w-[calc(100vw-1rem)] max-w-[min(43.75rem,100%)] desktop:w-[min(43.75rem,calc((100dvh-3rem)*15/16))] bg-[#54534A] rounded shadow-md p-[2px]">
                   <div className="flex items-center px-1">
                     <button
                       onClick={() => {
@@ -546,7 +546,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
           <div
             className="@container"
             style={{
-              width: isDesktop ? Math.min(600, ((window.innerHeight - 48) * 15) / 16) : 480,
+              width: isDesktop ? Math.min(700, ((window.innerHeight - 48) * 15) / 16) : 480,
               transform: isDesktop ? undefined : 'translateY(-30px)',
             }}
           >
