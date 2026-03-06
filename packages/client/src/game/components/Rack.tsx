@@ -26,7 +26,7 @@ const SortableRackTile = ({
     animateLayoutChanges,
   })
 
-  const style = {
+  const tileStyle = {
     transform: CSS.Transform.toString(transform),
     transition,
   }
@@ -34,19 +34,24 @@ const SortableRackTile = ({
   return (
     <div
       ref={setNodeRef}
-      style={{ ...style, width: 'var(--tile-size, calc(100cqw / 15))', touchAction: 'none' }}
-      {...attributes}
-      {...listeners}
-      onClick={onClick}
-      className={`aspect-square ${isDragging ? 'bg-[#F7F7E3]/20 border border-[#DCDCC6]/30 rounded-sm' : ''}`}
+      style={{ width: 'var(--tile-size, calc(100cqw / 15))' }}
+      className="aspect-square bg-[#F7F7E3]/20 border border-[#DCDCC6]/30 rounded-sm"
     >
-      <Tile
-        letter={tile.letter}
-        score={tile.score}
-        isBlank={tile.score === 0}
-        isSelected={isSelected}
-        isDragging={isDragging}
-      />
+      <div
+        style={{ ...tileStyle, touchAction: 'none' }}
+        className="w-full h-full"
+        {...attributes}
+        {...listeners}
+        onClick={onClick}
+      >
+        <Tile
+          letter={tile.letter}
+          score={tile.score}
+          isBlank={tile.score === 0}
+          isSelected={isSelected}
+          isDragging={isDragging}
+        />
+      </div>
     </div>
   )
 }
