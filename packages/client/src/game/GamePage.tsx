@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -71,6 +71,8 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
 
   const [activeDragTile, setActiveDragTile] = useState<{ letter: string; score: number } | null>(null)
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting'>('connected')
+  const boardAreaRef = useRef<HTMLDivElement>(null)
+  const [boardAreaHeight, setBoardAreaHeight] = useState<number | null>(null)
 
   // Clear stale state immediately when game key changes (prevents old endMessage flashing)
   useEffect(() => {
@@ -143,6 +145,17 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const isDesktop = useIsDesktop()
 
   useNotifications()
+
+  // Measure board+rack area height to constrain sidebar
+  useEffect(() => {
+    const el = boardAreaRef.current
+    if (!el) return
+    const observer = new ResizeObserver((entries) => {
+      setBoardAreaHeight(entries[0].contentRect.height)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [board])
 
   // Place tile from rack to board via click-to-select
   const handleBoardClickForPlacement = useCallback(
@@ -449,24 +462,32 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
         {/* Desktop layout */}
         <div className="max-w-[74rem] mx-auto p-2 desktop:p-1 flex flex-col desktop:flex-row gap-4 flex-1 desktop:flex-initial desktop:max-h-[calc(100dvh-0.5rem)] w-full">
           {/* Controls sidebar - hidden on mobile, shown on desktop */}
-          <div className="hidden desktop:flex desktop:flex-col desktop:w-[20rem] gap-3 order-1 overflow-hidden">
-            <div className="shrink-0">
-              <Scoreboard />
-            </div>
-            <div className="flex-1 shrink min-h-0 overflow-hidden [@media(max-height:470px)]:hidden">
-              <MoveLog />
-            </div>
-            {!isSpectator && (
-              <div className="flex-[0.85] shrink-[2] min-h-0 overflow-hidden [@media(max-height:630px)]:hidden">
-                <ChatPanel />
+          <div
+            className="hidden desktop:flex desktop:flex-col desktop:w-[20rem] order-1 overflow-hidden desktop:self-start"
+            style={boardAreaHeight ? { height: `${boardAreaHeight}px` } : undefined}
+          >
+            <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden">
+              <div className="shrink-0">
+                <Scoreboard />
               </div>
-            )}
-            <div className="shrink-0">{isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}</div>
+              <div className="flex-1 shrink min-h-0 overflow-hidden [@media(max-height:470px)]:hidden">
+                <MoveLog />
+              </div>
+              {!isSpectator && (
+                <div className="flex-[0.85] shrink-[2] min-h-0 overflow-hidden [@media(max-height:630px)]:hidden">
+                  <ChatPanel />
+                </div>
+              )}
+            </div>
+            <div className="shrink-0 mt-auto pt-3">
+              {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
+            </div>
           </div>
 
           {/* Board area */}
           <div className="flex-1 flex flex-col items-center desktop:items-start gap-3 order-1 desktop:order-2">
             <div
+              ref={boardAreaRef}
               className="flex flex-col items-center gap-2"
               onClick={(e) => {
                 const target = e.target as HTMLElement
