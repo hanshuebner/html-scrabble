@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGameState } from '../hooks/useGameState.js'
 import { api } from '../../api/client.js'
@@ -28,6 +28,7 @@ export const TurnControls = () => {
   const setSwapMode = useGameState((s) => s.setSwapMode)
   const toggleSwapTile = useGameState((s) => s.toggleSwapTile)
   const swapContainerRef = useRef<HTMLDivElement>(null)
+  const [confirmAction, setConfirmAction] = useState<{ message: string; onConfirm: () => void } | null>(null)
 
   const lastTurn = turns.length > 0 ? turns[turns.length - 1] : null
   const hasPreviousMove = lastTurn?.type === 'move'
@@ -155,8 +156,8 @@ export const TurnControls = () => {
     }
   }
 
-  const handleChallenge = async () => {
-    if (!window.confirm(t('Are you sure you want to challenge the last move?'))) return
+  const doChallenge = useCallback(async () => {
+    setConfirmAction(null)
     setLoading(true)
     setError(null)
     try {
@@ -166,10 +167,17 @@ export const TurnControls = () => {
     } finally {
       setLoading(false)
     }
+  }, [gameKey, playerKey, setLoading, setError])
+
+  const handleChallenge = () => {
+    setConfirmAction({
+      message: t('Are you sure you want to challenge the last move?'),
+      onConfirm: doChallenge,
+    })
   }
 
-  const handleTakeBack = async () => {
-    if (!window.confirm(t('Are you sure you want to take back your move?'))) return
+  const doTakeBack = useCallback(async () => {
+    setConfirmAction(null)
     setLoading(true)
     setError(null)
     try {
@@ -179,6 +187,13 @@ export const TurnControls = () => {
     } finally {
       setLoading(false)
     }
+  }, [gameKey, playerKey, setLoading, setError])
+
+  const handleTakeBack = () => {
+    setConfirmAction({
+      message: t('Are you sure you want to take back your move?'),
+      onConfirm: doTakeBack,
+    })
   }
 
   // Swap mode UI — rack handles tile selection, we just show swap tray + buttons
@@ -311,6 +326,28 @@ export const TurnControls = () => {
           </button>
         )}
       </div>
+
+      {confirmAction && (
+        <div className="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-xl shadow-lg p-6 max-w-sm mx-4 space-y-4">
+            <div className="text-[#474633] text-center">{confirmAction.message}</div>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={confirmAction.onConfirm}
+                className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                {t('Confirm')}
+              </button>
+              <button
+                onClick={() => setConfirmAction(null)}
+                className="px-4 py-2 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+              >
+                {t('Cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
