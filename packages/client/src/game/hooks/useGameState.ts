@@ -217,9 +217,7 @@ export const useGameState = create<GameState>((set, get) => ({
       if (state.playerIndex !== null) {
         const player = state.players[state.playerIndex]
         if (player?.rack) {
-          const newRack = player.rack.map((s) =>
-            s.id === placement.rackSlotId ? { ...s, tile: null } : s,
-          )
+          const newRack = player.rack.map((s) => (s.id === placement.rackSlotId ? { ...s, tile: null } : s))
           const newPlayers = [...state.players]
           newPlayers[state.playerIndex] = { ...player, rack: newRack }
           updates.players = newPlayers
@@ -243,9 +241,7 @@ export const useGameState = create<GameState>((set, get) => ({
           const restoredTile = placement.blank
             ? { letter: ' ', score: 0 }
             : { letter: placement.letter, score: placement.score }
-          const newRack = player.rack.map((s) =>
-            s.id === placement.rackSlotId ? { ...s, tile: restoredTile } : s,
-          )
+          const newRack = player.rack.map((s) => (s.id === placement.rackSlotId ? { ...s, tile: restoredTile } : s))
           const newPlayers = [...state.players]
           newPlayers[state.playerIndex] = { ...player, rack: newRack }
           updates.players = newPlayers
