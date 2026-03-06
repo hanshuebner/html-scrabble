@@ -5,6 +5,11 @@ export interface TileData {
   score: number
 }
 
+export interface RackSlot {
+  tile: TileData | null
+  id: string
+}
+
 export interface SquareData {
   type: string
   x: number
@@ -16,8 +21,12 @@ export interface SquareData {
 export interface PlayerData {
   name: string
   score: number
-  rack: { tile: TileData | null }[] | null
+  rack: RackSlot[] | null
 }
+
+let rackIdCounter = 0
+const assignRackIds = (rack: { tile: TileData | null }[]): RackSlot[] =>
+  rack.map((slot) => ({ ...slot, id: `t${++rackIdCounter}` }))
 
 export interface TurnData {
   type: string
@@ -85,7 +94,7 @@ interface GameState {
   }) => void
   removePendingPlacement: (x: number, y: number) => number
   clearPendingPlacements: () => void
-  updateMyRack: (rack: { tile: TileData | null }[]) => void
+  updateMyRack: (rack: { tile: TileData | null; id?: string }[]) => void
   reorderRack: (fromIndex: number, toIndex: number) => void
   shuffleRack: () => void
   addChatMessage: (msg: ChatMessage) => void
@@ -100,6 +109,7 @@ interface GameState {
   // Helpers
   isMyTurn: () => boolean
   getMyRack: () => (TileData | null)[]
+  getMyRackSlots: () => RackSlot[]
 }
 
 export const useGameState = create<GameState>((set, get) => ({
@@ -128,13 +138,18 @@ export const useGameState = create<GameState>((set, get) => ({
   setGameData: (data, playerKey) => {
     const playerIndex = playerKey ? data.players.findIndex((_: any, i: number) => data.players[i].rack !== null) : null
 
+    const players = data.players.map((p: any) => ({
+      ...p,
+      rack: p.rack ? assignRackIds(p.rack) : null,
+    }))
+
     set({
       gameKey: data.key,
       playerKey: playerKey || null,
       playerIndex,
       language: data.language,
       board: data.board,
-      players: data.players,
+      players,
       turns: data.turns || [],
       whosTurn: data.whosTurn ?? null,
       legalLetters: data.legalLetters || '',
@@ -213,7 +228,7 @@ export const useGameState = create<GameState>((set, get) => ({
           const newRack = player.rack.map((sq) => ({ ...sq }))
           const tile = newRack[placement.rackIndex]?.tile
           if (tile && tile.score === 0) {
-            newRack[placement.rackIndex] = { tile: { ...tile, letter: ' ' } }
+            newRack[placement.rackIndex] = { ...newRack[placement.rackIndex], tile: { ...tile, letter: ' ' } }
             const newPlayers = [...state.players]
             newPlayers[state.playerIndex] = { ...player, rack: newRack }
             updates.players = newPlayers
@@ -236,7 +251,7 @@ export const useGameState = create<GameState>((set, get) => ({
         for (const b of blanks) {
           const tile = newRack[b.rackIndex]?.tile
           if (tile && tile.score === 0) {
-            newRack[b.rackIndex] = { tile: { ...tile, letter: ' ' } }
+            newRack[b.rackIndex] = { ...newRack[b.rackIndex], tile: { ...tile, letter: ' ' } }
           }
         }
         const newPlayers = [...state.players]
@@ -251,7 +266,7 @@ export const useGameState = create<GameState>((set, get) => ({
     set((state) => {
       if (state.playerIndex === null) return {}
       const newPlayers = [...state.players]
-      newPlayers[state.playerIndex] = { ...newPlayers[state.playerIndex], rack }
+      newPlayers[state.playerIndex] = { ...newPlayers[state.playerIndex], rack: assignRackIds(rack) }
       return { players: newPlayers, pendingPlacements: [], swapMode: false, swapIndices: new Set() }
     })
   },
@@ -327,5 +342,11 @@ export const useGameState = create<GameState>((set, get) => ({
     const rackData = state.players[state.playerIndex]?.rack
     if (!rackData) return []
     return rackData.map((sq) => sq.tile)
+  },
+
+  getMyRackSlots: () => {
+    const state = get()
+    if (state.playerIndex === null) return []
+    return state.players[state.playerIndex]?.rack ?? []
   },
 }))

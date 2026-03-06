@@ -62,6 +62,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const clearSelection = useGameState((s) => s.clearSelection)
   const addPendingPlacement = useGameState((s) => s.addPendingPlacement)
   const getMyRack = useGameState((s) => s.getMyRack)
+  const getMyRackSlots = useGameState((s) => s.getMyRackSlots)
   const pendingPlacements = useGameState((s) => s.pendingPlacements)
   const playerKey = useGameState((s) => s.playerKey)
   const playerIndex = useGameState((s) => s.playerIndex)
@@ -74,6 +75,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   } | null>(null)
 
   const [activeDragTile, setActiveDragTile] = useState<{ letter: string; score: number } | null>(null)
+  const dragRackTileIdRef = useRef<string | null>(null)
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'reconnecting'>('connected')
   const boardAreaRef = useRef<HTMLDivElement>(null)
   const [boardAreaHeight, setBoardAreaHeight] = useState<number | null>(null)
@@ -243,42 +245,59 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   // DnD handlers
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const activeId = String(event.active.id)
-    if (activeId.startsWith('rack-')) {
-      const rackIndex = parseInt(activeId.replace('rack-', ''), 10)
-      const state = useGameState.getState()
-      const rack = state.getMyRack()
-      const tile = rack[rackIndex]
-      if (tile) {
-        setActiveDragTile({ letter: tile.letter, score: tile.score })
-      }
-    } else if (activeId.startsWith('pending-')) {
+    if (activeId.startsWith('pending-')) {
       const [, px, py] = activeId.split('-').map(Number)
       const state = useGameState.getState()
       const pending = state.pendingPlacements.find((p) => p.x === px && p.y === py)
       if (pending) {
         setActiveDragTile({ letter: pending.letter, score: pending.score })
       }
+    } else {
+      // Stable tile ID from rack
+      dragRackTileIdRef.current = activeId
+      const slots = useGameState.getState().getMyRackSlots()
+      const slot = slots.find((s) => s.id === activeId)
+      if (slot?.tile) {
+        setActiveDragTile({ letter: slot.tile.letter, score: slot.tile.score })
+      }
     }
   }, [])
+
+  const handleDragOver = useCallback(
+    (event: { active: { id: string | number }; over: { id: string | number } | null }) => {
+      if (!dragRackTileIdRef.current) return
+      const overId = event.over ? String(event.over.id) : null
+      if (!overId || overId.startsWith('pending-') || overId.startsWith('board-')) return
+      // overId is a stable tile ID — find both indices
+      const slots = useGameState.getState().getMyRackSlots()
+      const fromIndex = slots.findIndex((s) => s.id === dragRackTileIdRef.current)
+      const overIndex = slots.findIndex((s) => s.id === overId)
+      if (fromIndex !== -1 && overIndex !== -1 && fromIndex !== overIndex) {
+        reorderRack(fromIndex, overIndex)
+      }
+    },
+    [reorderRack],
+  )
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       setActiveDragTile(null)
-      const { active, over } = event
+      const dragTileId = dragRackTileIdRef.current
+      dragRackTileIdRef.current = null
+      const { over } = event
       if (!over) return
 
-      const activeId = String(active.id)
       const overId = String(over.id)
 
       // Rack tile dragged to a board square (only when it's my turn)
-      if (activeId.startsWith('rack-') && overId.startsWith('board-')) {
+      if (dragTileId && overId.startsWith('board-')) {
         if (!useGameState.getState().isMyTurn()) return
-        const rackIndex = parseInt(activeId.replace('rack-', ''), 10)
-        const [, bx, by] = overId.split('-').map(Number)
         const state = useGameState.getState()
-        const rack = state.getMyRack()
-        const tile = rack[rackIndex]
+        const rackIndex = state.getMyRackSlots().findIndex((s) => s.id === dragTileId)
+        if (rackIndex === -1) return
+        const tile = state.getMyRack()[rackIndex]
         if (!tile) return
+        const [, bx, by] = overId.split('-').map(Number)
         if (state.board?.[bx]?.[by]?.tile) return
         if (state.pendingPlacements.find((p) => p.x === bx && p.y === by)) return
 
@@ -297,8 +316,9 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       }
 
       // Pending board tile dragged to another board square (only when it's my turn)
-      if (activeId.startsWith('pending-') && overId.startsWith('board-')) {
+      if (!dragTileId && overId.startsWith('board-')) {
         if (!useGameState.getState().isMyTurn()) return
+        const activeId = String(event.active.id)
         const [, px, py] = activeId.split('-').map(Number)
         const [, bx, by] = overId.split('-').map(Number)
         const state = useGameState.getState()
@@ -310,24 +330,20 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
         addPendingPlacement({ ...pending, x: bx, y: by })
       }
 
-      // Pending board tile dragged back to rack
-      if (activeId.startsWith('pending-') && overId.startsWith('rack-')) {
+      // Pending board tile dragged back to rack — overId is a stable tile ID
+      if (!dragTileId && !overId.startsWith('board-') && !overId.startsWith('pending-')) {
+        const activeId = String(event.active.id)
+        if (!activeId.startsWith('pending-')) return
         const [, px, py] = activeId.split('-').map(Number)
         const originalRackIndex = removePendingPlacement(px, py)
-        const targetRackIndex = parseInt(overId.replace('rack-', ''), 10)
-        if (originalRackIndex !== -1 && originalRackIndex !== targetRackIndex) {
+        const state = useGameState.getState()
+        const targetRackIndex = state.getMyRackSlots().findIndex((s) => s.id === overId)
+        if (targetRackIndex !== -1 && originalRackIndex !== -1 && originalRackIndex !== targetRackIndex) {
           reorderRack(originalRackIndex, targetRackIndex)
         }
       }
 
-      // Rack reorder
-      if (activeId.startsWith('rack-') && overId.startsWith('rack-')) {
-        const fromIndex = parseInt(activeId.replace('rack-', ''), 10)
-        const toIndex = parseInt(overId.replace('rack-', ''), 10)
-        if (fromIndex !== toIndex) {
-          reorderRack(fromIndex, toIndex)
-        }
-      }
+      // Rack-to-rack reorder is handled live in onDragOver
     },
     [addPendingPlacement, removePendingPlacement, reorderRack],
   )
@@ -492,11 +508,11 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   )
 
   // Rack tile IDs for sortable (only include tiles actually present, not placed on board)
-  const rack = getMyRack()
+  const rackSlots = getMyRackSlots()
   const placedIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
-  const rackIds = rack
-    .map((tile, i) => (tile && !placedIndices.has(i) ? `rack-${i}` : null))
-    .filter((id): id is string => id !== null)
+  const rackIds = rackSlots
+    .filter((slot, i) => slot.tile && !placedIndices.has(i))
+    .map((slot) => slot.id)
 
   const { t } = useTranslation()
 
@@ -510,6 +526,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       collisionDetection={offsetPointerWithin}
       modifiers={[mobileLiftModifier]}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
       <div className="min-h-screen desktop:h-dvh bg-woodgrain flex flex-col desktop:justify-center">

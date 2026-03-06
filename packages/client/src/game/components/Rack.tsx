@@ -1,6 +1,6 @@
 import { useSortable, defaultAnimateLayoutChanges, type AnimateLayoutChanges } from '@dnd-kit/sortable'
-import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
+import { useDroppable } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { Tile } from './Tile.js'
 import { useGameState, type TileData } from '../hooks/useGameState.js'
@@ -12,17 +12,19 @@ const animateLayoutChanges: AnimateLayoutChanges = (args) => {
 
 const SortableRackTile = ({
   tile,
+  id,
   index,
   isSelected,
   onClick,
 }: {
   tile: TileData
+  id: string
   index: number
   isSelected: boolean
   onClick: () => void
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: `rack-${index}`,
+    id,
     animateLayoutChanges,
   })
 
@@ -56,8 +58,8 @@ const SortableRackTile = ({
   )
 }
 
-const EmptyRackSlot = ({ index, onClick }: { index: number; onClick?: () => void }) => {
-  const { setNodeRef } = useDroppable({ id: `rack-${index}` })
+const EmptyRackSlot = ({ id, onClick }: { id: string; onClick?: () => void }) => {
+  const { setNodeRef } = useDroppable({ id })
   return (
     <div
       ref={setNodeRef}
@@ -81,8 +83,7 @@ export const Rack = () => {
 
   const playerIndex = useGameState((s) => s.playerIndex)
   const whosTurn = useGameState((s) => s.whosTurn)
-  const rackData = useGameState((s) => (s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null))
-  const rack = rackData ? rackData.map((sq) => sq.tile) : []
+  const rackSlots = useGameState((s) => (s.playerIndex !== null ? s.players[s.playerIndex]?.rack : null))
 
   // Tiles that are not currently placed on the board
   const placedRackIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
@@ -129,22 +130,23 @@ export const Rack = () => {
 
   return (
     <div className="flex gap-1 justify-center">
-      {rack.map((tile, i) => {
-        if (!tile || placedRackIndices.has(i)) {
-          return <EmptyRackSlot key={i} index={i} onClick={() => handleEmptySlotClick(i)} />
+      {(rackSlots ?? []).map((slot, i) => {
+        if (!slot.tile || placedRackIndices.has(i)) {
+          return <EmptyRackSlot key={slot.id} id={slot.id} onClick={() => handleEmptySlotClick(i)} />
         }
 
         // In swap mode, selected tiles show as empty slots
         if (swapMode && swapIndices.has(i)) {
-          return <EmptyRackSlot key={i} index={i} />
+          return <EmptyRackSlot key={slot.id} id={slot.id} />
         }
 
         const isSelected = selectedSquare?.fromRack && selectedSquare.x === i
 
         return (
           <SortableRackTile
-            key={i}
-            tile={tile}
+            key={slot.id}
+            id={slot.id}
+            tile={slot.tile}
             index={i}
             isSelected={!!isSelected}
             onClick={() => handleTileClick(i)}
