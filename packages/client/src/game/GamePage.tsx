@@ -624,8 +624,10 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       <GameEndOverlay />
       <DragOverlay dropAnimation={null}>
         {activeDragTile && boardTileSize && (
-          <div style={{ width: boardTileSize, height: boardTileSize }}>
-            <Tile letter={activeDragTile.letter} score={activeDragTile.score} isBlank={activeDragTile.score === 0} />
+          <div className="@container" style={{ width: boardTileSize * 15 }}>
+            <div style={{ width: boardTileSize, height: boardTileSize }}>
+              <Tile letter={activeDragTile.letter} score={activeDragTile.score} isBlank={activeDragTile.score === 0} />
+            </div>
           </div>
         )}
       </DragOverlay>
