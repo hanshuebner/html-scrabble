@@ -459,12 +459,20 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   })
   const sensors = useSensors(pointerSensor, touchSensor)
 
-  const MOBILE_Y_OFFSET = -30
+  const MOBILE_Y_OFFSET = -60
 
   const mobileLiftModifier: Modifier = useCallback(
-    ({ transform }) => {
+    ({ transform, activatorEvent, activeNodeRect }) => {
       if (isDesktop) return transform
-      return { ...transform, y: transform.y + MOBILE_Y_OFFSET }
+      // Zero out X offset: snap overlay center horizontally to pointer
+      let xCorrection = 0
+      if (activatorEvent && activeNodeRect) {
+        const event = activatorEvent as TouchEvent | PointerEvent
+        const pointerX = 'touches' in event ? event.touches[0].clientX : event.clientX
+        const nodeCenterX = activeNodeRect.left + activeNodeRect.width / 2
+        xCorrection = pointerX - nodeCenterX
+      }
+      return { ...transform, x: transform.x + xCorrection, y: transform.y + MOBILE_Y_OFFSET }
     },
     [isDesktop],
   )
