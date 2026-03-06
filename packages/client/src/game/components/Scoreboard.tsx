@@ -13,14 +13,7 @@ export const Scoreboard = () => {
       <table className="w-full text-base">
         <tbody>
           {players.map((player, i) => (
-            <tr
-              key={i}
-              className={
-                whosTurn === i
-                  ? 'font-bold bg-green-100 border-l-3 border-green-500'
-                  : ''
-              }
-            >
+            <tr key={i} className={whosTurn === i ? 'font-bold bg-green-100 border-l-3 border-green-500' : ''}>
               <td className="py-1 pl-1">
                 {whosTurn === i && <span className="text-green-600 mr-1 animate-pulse">●</span>}
                 {player.name}

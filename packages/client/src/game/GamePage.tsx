@@ -479,9 +479,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
                 </div>
               )}
             </div>
-            <div className="shrink-0 mt-auto pt-3">
-              {isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}
-            </div>
+            <div className="shrink-0 mt-auto pt-3">{isSpectator ? <SpectatorTurnStatus /> : <TurnControls />}</div>
           </div>
 
           {/* Board area */}
