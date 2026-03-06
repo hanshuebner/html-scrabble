@@ -241,14 +241,10 @@ export const TurnControls = () => {
       {error && <div className="text-red-600 text-xs p-2 bg-red-50 rounded">{error}</div>}
 
       {moveResult && !moveResult.error && moveResult.words && moveResult.words.length > 0 && (
-        <div className="text-sm text-[#474633] text-center">
+        <div className="text-base font-medium text-[#474633] text-center">
           {moveResult.words.map((w) => w.word).join(', ')} — {t('{{score}} pts', { score: moveResult.score })}
           {moveResult.allTilesBonus ? ` ${t('(incl. 50 bonus)')}` : ''}
         </div>
-      )}
-
-      {moveResult?.error && pendingPlacements.length > 0 && (
-        <div className="text-xs text-[#AAA38E] text-center">{moveResult.error}</div>
       )}
 
       {!isMyTurn && (
@@ -259,7 +255,10 @@ export const TurnControls = () => {
         </div>
       )}
 
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex gap-2 flex-wrap justify-center items-center min-h-[2.25rem]">
+        {moveResult?.error && pendingPlacements.length > 0 && (
+          <div className="text-xs text-[#AAA38E] text-center w-full">{t(moveResult.error)}</div>
+        )}
         {isValidPlacement && (
           <button
             onClick={handleSubmitMove}

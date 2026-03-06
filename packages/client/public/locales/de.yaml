@@ -42,6 +42,16 @@ Take Back: Zurücknehmen
 "{{score}} pts": "{{score}} Pkt."
 "(incl. 50 bonus)": "(inkl. 50 Bonus)"
 
+# Move validation errors (from shared move-calculator)
+"start field must be used": "Das Startfeld muss belegt werden"
+"no new tile found": "Kein neuer Stein gefunden"
+"unconnected placement": "Nicht zusammenhängende Platzierung"
+"first word must consist of at least two letters": "Das erste Wort muss mindestens zwei Buchstaben haben"
+
+# Connection status
+"Reconnecting...": "Verbindung wird wiederhergestellt..."
+"Connection lost. Trying to reconnect...": "Verbindung verloren. Versuche neu zu verbinden..."
+
 # GamePage
 Game over: Spiel beendet
 "{{name}}'s turn": "{{name}} ist dran"

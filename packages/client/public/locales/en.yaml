@@ -42,6 +42,16 @@ Take Back: Take Back
 "{{score}} pts": "{{score}} pts"
 "(incl. 50 bonus)": "(incl. 50 bonus)"
 
+# Move validation errors (from shared move-calculator)
+"start field must be used": "Start field must be used"
+"no new tile found": "No new tile found"
+"unconnected placement": "Unconnected placement"
+"first word must consist of at least two letters": "First word must consist of at least two letters"
+
+# Connection status
+"Reconnecting...": "Reconnecting..."
+"Connection lost. Trying to reconnect...": "Connection lost. Trying to reconnect..."
+
 # GamePage
 Game over: Game over
 "{{name}}'s turn": "{{name}}'s turn"

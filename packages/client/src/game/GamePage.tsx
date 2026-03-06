@@ -457,7 +457,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
               <MoveLog />
             </div>
             {!isSpectator && (
-              <div className="flex-1 shrink-[2] min-h-0 overflow-hidden [@media(max-height:630px)]:hidden">
+              <div className="flex-[0.85] shrink-[2] min-h-0 overflow-hidden [@media(max-height:630px)]:hidden">
                 <ChatPanel />
               </div>
             )}
