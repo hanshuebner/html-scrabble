@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGameState } from '../hooks/useGameState.js'
 import { api } from '../../api/client.js'
@@ -156,43 +156,39 @@ export const TurnControls = () => {
     }
   }
 
-  const doChallenge = useCallback(async () => {
-    setConfirmAction(null)
-    setLoading(true)
-    setError(null)
-    try {
-      await api.challenge(gameKey, playerKey!)
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [gameKey, playerKey, setLoading, setError])
-
   const handleChallenge = () => {
     setConfirmAction({
       message: t('Are you sure you want to challenge the last move?'),
-      onConfirm: doChallenge,
+      onConfirm: async () => {
+        setConfirmAction(null)
+        setLoading(true)
+        setError(null)
+        try {
+          await api.challenge(gameKey, playerKey!)
+        } catch (e: any) {
+          setError(e.message)
+        } finally {
+          setLoading(false)
+        }
+      },
     })
   }
-
-  const doTakeBack = useCallback(async () => {
-    setConfirmAction(null)
-    setLoading(true)
-    setError(null)
-    try {
-      await api.takeBack(gameKey, playerKey!)
-    } catch (e: any) {
-      setError(e.message)
-    } finally {
-      setLoading(false)
-    }
-  }, [gameKey, playerKey, setLoading, setError])
 
   const handleTakeBack = () => {
     setConfirmAction({
       message: t('Are you sure you want to take back your move?'),
-      onConfirm: doTakeBack,
+      onConfirm: async () => {
+        setConfirmAction(null)
+        setLoading(true)
+        setError(null)
+        try {
+          await api.takeBack(gameKey, playerKey!)
+        } catch (e: any) {
+          setError(e.message)
+        } finally {
+          setLoading(false)
+        }
+      },
     })
   }
 
