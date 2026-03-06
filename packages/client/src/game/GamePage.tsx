@@ -509,9 +509,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   // Rack tile IDs for sortable (only include tiles actually present, not placed on board)
   const rackSlots = getMyRackSlots()
   const placedIndices = new Set(pendingPlacements.map((p) => p.rackIndex))
-  const rackIds = rackSlots
-    .filter((slot, i) => slot.tile && !placedIndices.has(i))
-    .map((slot) => slot.id)
+  const rackIds = rackSlots.filter((slot, i) => slot.tile && !placedIndices.has(i)).map((slot) => slot.id)
 
   const { t } = useTranslation()
 
