@@ -13,13 +13,11 @@ const animateLayoutChanges: AnimateLayoutChanges = (args) => {
 const SortableRackTile = ({
   tile,
   id,
-  index,
   isSelected,
   onClick,
 }: {
   tile: TileData
   id: string
-  index: number
   isSelected: boolean
   onClick: () => void
 }) => {
@@ -147,7 +145,6 @@ export const Rack = () => {
             key={slot.id}
             id={slot.id}
             tile={slot.tile}
-            index={i}
             isSelected={!!isSelected}
             onClick={() => handleTileClick(i)}
           />

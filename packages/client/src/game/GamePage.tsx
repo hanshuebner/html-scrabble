@@ -61,7 +61,6 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const board = useGameState((s) => s.board)
   const clearSelection = useGameState((s) => s.clearSelection)
   const addPendingPlacement = useGameState((s) => s.addPendingPlacement)
-  const getMyRack = useGameState((s) => s.getMyRack)
   const getMyRackSlots = useGameState((s) => s.getMyRackSlots)
   const pendingPlacements = useGameState((s) => s.pendingPlacements)
   const playerKey = useGameState((s) => s.playerKey)
