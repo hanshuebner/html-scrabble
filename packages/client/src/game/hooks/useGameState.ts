@@ -63,6 +63,7 @@ interface GameState {
   cursor: CursorState | null
   pendingPlacements: { letter: string; score: number; x: number; y: number; blank: boolean; rackIndex: number }[]
   chatMessages: ChatMessage[]
+  onlinePlayers: Set<number>
   swapMode: boolean
   swapIndices: Set<number>
   error: string | null
@@ -88,6 +89,8 @@ interface GameState {
   reorderRack: (fromIndex: number, toIndex: number) => void
   shuffleRack: () => void
   addChatMessage: (msg: ChatMessage) => void
+  playerJoined: (playerIndex: number) => void
+  playerLeft: (playerIndex: number) => void
   setSwapMode: (on: boolean) => void
   toggleSwapTile: (index: number) => void
   setError: (error: string | null) => void
@@ -116,6 +119,7 @@ export const useGameState = create<GameState>((set, get) => ({
   cursor: null,
   pendingPlacements: [],
   chatMessages: [],
+  onlinePlayers: new Set<number>(),
   swapMode: false,
   swapIndices: new Set<number>(),
   error: null,
@@ -285,6 +289,18 @@ export const useGameState = create<GameState>((set, get) => ({
     set({ players: newPlayers })
   },
   addChatMessage: (msg) => set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
+  playerJoined: (playerIndex) =>
+    set((state) => {
+      const next = new Set(state.onlinePlayers)
+      next.add(playerIndex)
+      return { onlinePlayers: next }
+    }),
+  playerLeft: (playerIndex) =>
+    set((state) => {
+      const next = new Set(state.onlinePlayers)
+      next.delete(playerIndex)
+      return { onlinePlayers: next }
+    }),
   setSwapMode: (on) => set({ swapMode: on, swapIndices: new Set() }),
   toggleSwapTile: (index) =>
     set((state) => {

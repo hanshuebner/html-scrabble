@@ -51,6 +51,8 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const setGameData = useGameState((s) => s.setGameData)
   const applyTurn = useGameState((s) => s.applyTurn)
   const addChatMessage = useGameState((s) => s.addChatMessage)
+  const playerJoined = useGameState((s) => s.playerJoined)
+  const playerLeft = useGameState((s) => s.playerLeft)
   const updateMyRack = useGameState((s) => s.updateMyRack)
   const setEndMessage = useGameState((s) => s.setEndMessage)
   const setError = useGameState((s) => s.setError)
@@ -88,6 +90,8 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
     socket.on('rack', (rack) => updateMyRack(rack))
     socket.on('gameEnded', (msg) => setEndMessage(msg))
     socket.on('message', (msg) => addChatMessage(msg))
+    socket.on('join', (pi: number) => playerJoined(pi))
+    socket.on('leave', (pi: number) => playerLeft(pi))
     socket.on('nextGame', (nextGameKey: string) => {
       const state = useGameState.getState()
       if (state.endMessage) {
@@ -136,12 +140,26 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
       socket.off('rack')
       socket.off('gameEnded')
       socket.off('message')
+      socket.off('join')
+      socket.off('leave')
       socket.off('nextGame')
       socket.off('disconnect', onDisconnect)
       socket.io.off('reconnect_attempt', onReconnecting)
       socket.off('connect', onConnect)
     }
-  }, [gameKey, playerKeyProp, playerKey, applyTurn, updateMyRack, setEndMessage, addChatMessage, setGameData, setError])
+  }, [
+    gameKey,
+    playerKeyProp,
+    playerKey,
+    applyTurn,
+    updateMyRack,
+    setEndMessage,
+    addChatMessage,
+    playerJoined,
+    playerLeft,
+    setGameData,
+    setError,
+  ])
 
   const [mobileTab, setMobileTab] = useState<'score' | 'log' | 'chat'>('score')
   const isDesktop = useIsDesktop()
