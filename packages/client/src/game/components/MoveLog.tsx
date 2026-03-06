@@ -23,6 +23,7 @@ export const MoveLog = () => {
   const { t } = useTranslation()
   const turns = useGameState((s) => s.turns)
   const players = useGameState((s) => s.players)
+  const playerIndex = useGameState((s) => s.playerIndex)
   const [, setTick] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -52,7 +53,7 @@ export const MoveLog = () => {
         {turns.length === 0 && <div className="text-[#AAA38E] italic">{t('No moves yet')}</div>}
         {reversedTurns.map((turn, i) => {
           const pi = turn.player ?? turn.playerIndex ?? 0
-          const playerName = players[pi]?.name || `Player ${pi + 1}`
+          const playerName = pi === playerIndex ? t('You') : players[pi]?.name || `Player ${pi + 1}`
           return (
             <div key={turns.length - 1 - i} className="border-b border-[#DCDCC6] pb-1">
               <div className="flex justify-between">
