@@ -4,7 +4,7 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
 export const games = pgTable(
@@ -20,8 +20,8 @@ export const games = pgTable(
     previousMove: jsonb('previous_move'),
     endMessage: jsonb('end_message'),
     nextGameKey: varchar('next_game_key', { length: 32 }),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [index('games_key_idx').on(table.key)],
 )
@@ -57,7 +57,7 @@ export const turns = pgTable(
     type: varchar('type', { length: 32 }).notNull(),
     score: integer('score').notNull().default(0),
     moveData: jsonb('move_data'),
-    timestamp: timestamp('timestamp').defaultNow().notNull(),
+    timestamp: timestamp('timestamp', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [index('turns_game_id_idx').on(table.gameId)],
 )

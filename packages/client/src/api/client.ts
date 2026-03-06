@@ -1,11 +1,18 @@
 const BASE = '/api'
 
+/** Offset in ms: serverTime - clientTime. Add to Date.now() to get server-relative time. */
+export let serverTimeOffset = 0
+
 const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
   const res = await fetch(`${BASE}${path}`, {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })
+  const dateHeader = res.headers.get('Date')
+  if (dateHeader) {
+    serverTimeOffset = new Date(dateHeader).getTime() - Date.now()
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }))
     throw new Error(body.error || res.statusText)

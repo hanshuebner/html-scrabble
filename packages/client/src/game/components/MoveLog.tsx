@@ -1,10 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { serverTimeOffset } from '../../api/client.js'
 import { useGameState } from '../hooks/useGameState.js'
+
+const getNewestAge = (turns: any[]) => {
+  if (turns.length === 0) return Infinity
+  const newest = turns[turns.length - 1]
+  if (!newest.timestamp) return Infinity
+  return Math.max(0, (Date.now() + serverTimeOffset - new Date(newest.timestamp).getTime()) / 1000)
+}
 
 const formatRelativeTime = (timestamp?: string) => {
   if (!timestamp) return ''
-  const diff = Math.floor((Date.now() - new Date(timestamp).getTime()) / 1000)
+  const diff = Math.max(0, Math.floor((Date.now() + serverTimeOffset - new Date(timestamp).getTime()) / 1000))
   if (diff < 60) return `${diff}s`
   if (diff < 3600) return `${Math.floor(diff / 60)}m`
   if (diff < 86400) return `${Math.floor(diff / 3600)}h`
@@ -16,12 +24,25 @@ export const MoveLog = () => {
   const turns = useGameState((s) => s.turns)
   const players = useGameState((s) => s.players)
   const [, setTick] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Re-render every 10s to update relative timestamps
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 10000)
-    return () => clearInterval(id)
-  }, [])
+    const schedule = () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+      const age = getNewestAge(turns)
+      const ms = age < 60 ? 1000 : age < 3600 ? 60000 : 3600000
+      intervalRef.current = setInterval(() => {
+        setTick((t) => t + 1)
+        const newAge = getNewestAge(turns)
+        const newMs = newAge < 60 ? 1000 : newAge < 3600 ? 60000 : 3600000
+        if (newMs !== ms) schedule()
+      }, ms)
+    }
+    schedule()
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [turns])
 
   const reversedTurns = [...turns].reverse()
 

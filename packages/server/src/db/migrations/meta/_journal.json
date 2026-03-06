@@ -15,6 +15,13 @@
       "when": 1772632728636,
       "tag": "0001_known_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772804903686,
+      "tag": "0002_dizzy_titania",
+      "breakpoints": true
     }
   ]
 }

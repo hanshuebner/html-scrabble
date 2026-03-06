@@ -17,6 +17,7 @@ Send: Senden
 
 # Scoreboard
 Scoreboard: Punktestand
+You: Du
 "{{num}} tiles": "{{num}} Steine"
 "Bag: {{num}} tiles": "Beutel: {{num}} Steine"
 

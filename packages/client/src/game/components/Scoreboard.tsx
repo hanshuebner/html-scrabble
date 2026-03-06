@@ -20,10 +20,8 @@ export const Scoreboard = () => {
                   ●
                 </span>
               </td>
-              <td className="py-1 pl-1 w-5">
-                {whosTurn === i ? <span>▸</span> : null}
-                <span className={i === playerIndex ? 'text-[#2d6a2e]' : ''}>{player.name}</span>
-              </td>
+              <td className="py-1 pl-1 w-5 text-center">{whosTurn === i ? '▸' : ''}</td>
+              <td className="py-1">{i === playerIndex ? t('You') : player.name}</td>
               <td className="text-right py-1 tabular-nums">{player.score}</td>
               <td className="text-right py-1 text-[#AAA38E] text-sm tabular-nums">
                 {t('{{num}} tiles', { num: remainingTileCounts?.players[i] ?? '?' })}

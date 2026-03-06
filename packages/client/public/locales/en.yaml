@@ -17,6 +17,7 @@ Send: Send
 
 # Scoreboard
 Scoreboard: Scoreboard
+You: You
 "{{num}} tiles": "{{num}} tiles"
 "Bag: {{num}} tiles": "Bag: {{num}} tiles"
 
