@@ -99,14 +99,16 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
     const onDisconnect = () => setConnectionStatus('disconnected')
     const onReconnecting = () => setConnectionStatus('reconnecting')
     const onConnect = () => {
-      setConnectionStatus('connected')
-      // Re-join room and re-fetch game state on reconnect
+      // Re-join room and re-fetch game state before removing overlay
       joinGame(gameKey, playerKeyProp || playerKey || undefined).then(() => {
         if (cancelled) return
         api
           .getGame(gameKey, playerKeyProp)
           .then((data) => {
-            if (!cancelled) setGameData(data, playerKeyProp)
+            if (!cancelled) {
+              setGameData(data, playerKeyProp)
+              setConnectionStatus('connected')
+            }
           })
           .catch(() => {})
       })
@@ -439,11 +441,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
   const { t } = useTranslation()
 
   if (!board) {
-    return (
-      <div className="min-h-screen bg-woodgrain flex items-center justify-center">
-        <div className="text-amber-700">{t('Loading game...')}</div>
-      </div>
-    )
+    return <div className="min-h-screen bg-woodgrain" />
   }
 
   return (
@@ -455,8 +453,10 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
     >
       <div className="min-h-screen desktop:h-dvh bg-woodgrain flex flex-col desktop:justify-center">
         {connectionStatus !== 'connected' && (
-          <div className="bg-red-600 text-white text-sm text-center py-2 px-4">
-            {connectionStatus === 'reconnecting' ? t('Reconnecting...') : t('Connection lost. Trying to reconnect...')}
+          <div className="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
+            <div className="bg-woodgrain text-white text-xl px-8 py-6 rounded-xl shadow-lg">
+              {t('Server not available')}
+            </div>
           </div>
         )}
         {/* Desktop layout */}

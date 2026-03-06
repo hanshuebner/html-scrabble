@@ -49,8 +49,7 @@ Take Back: Zurücknehmen
 "first word must consist of at least two letters": "Das erste Wort muss mindestens zwei Buchstaben haben"
 
 # Connection status
-"Reconnecting...": "Verbindung wird wiederhergestellt..."
-"Connection lost. Trying to reconnect...": "Verbindung verloren. Versuche neu zu verbinden..."
+"Server not available": "Server nicht erreichbar"
 
 # GamePage
 Game over: Spiel beendet

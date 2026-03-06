@@ -49,8 +49,7 @@ Take Back: Take Back
 "first word must consist of at least two letters": "First word must consist of at least two letters"
 
 # Connection status
-"Reconnecting...": "Reconnecting..."
-"Connection lost. Trying to reconnect...": "Connection lost. Trying to reconnect..."
+"Server not available": "Server not available"
 
 # GamePage
 Game over: Game over
