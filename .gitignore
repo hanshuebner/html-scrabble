@@ -17,3 +17,4 @@ data-migrated.json
 .npmrc
 .ssh/
 *.pid
+.prompt-classification-cache.json
