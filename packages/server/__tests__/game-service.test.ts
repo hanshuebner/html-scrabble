@@ -116,14 +116,31 @@ describe('Game Service', () => {
 
       // Place first two letters horizontally through center
       const placements: TilePlacement[] = [
-        { letter: letters[0], x: 7, y: 7, blank: false },
-        { letter: letters[1], x: 8, y: 7, blank: false },
+        { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
+        { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
       ];
 
       const result = makeMove(game, player, placements);
       expect(result.turn.type).toBe('move');
       expect(result.turn.score).toBeGreaterThan(0);
       expect(result.newTiles.length).toBeLessThanOrEqual(2);
+    });
+
+    it('turn placements include tile scores', async () => {
+      const game = await setupTwoPlayerGame();
+      const player = game.players[0];
+      const letters = getPlayerRackLetters(player);
+
+      const placements: TilePlacement[] = [
+        { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
+        { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
+      ];
+
+      const result = makeMove(game, player, placements);
+      for (const p of result.turn.placements!) {
+        expect(typeof p.score).toBe('number');
+        expect(p.score).toBeGreaterThanOrEqual(0);
+      }
     });
 
     it('rejects move when not player turn', async () => {
@@ -133,8 +150,8 @@ describe('Game Service', () => {
 
       expect(() =>
         makeMove(game, bob, [
-          { letter: letters[0], x: 7, y: 7, blank: false },
-          { letter: letters[1], x: 8, y: 7, blank: false },
+          { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
+          { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
         ]),
       ).toThrow("not this player's turn");
     });
@@ -145,8 +162,8 @@ describe('Game Service', () => {
 
       expect(() =>
         makeMove(game, player, [
-          { letter: '@', x: 7, y: 7, blank: false },
-          { letter: '#', x: 8, y: 7, blank: false },
+          { letter: '@', score: 0, x: 7, y: 7, blank: false },
+          { letter: '#', score: 0, x: 8, y: 7, blank: false },
         ]),
       ).toThrow('cannot find letter');
     });
@@ -238,8 +255,8 @@ describe('Game Service', () => {
 
       // Alice makes a move
       const moveResult = makeMove(game, alice, [
-        { letter: letters[0], x: 7, y: 7, blank: false },
-        { letter: letters[1], x: 8, y: 7, blank: false },
+        { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
+        { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
       ]);
       await finishTurn(game, alice, moveResult.newTiles, moveResult.turn);
 
@@ -280,6 +297,27 @@ describe('Game Service', () => {
       expect(state.players[0].rack).not.toBeNull();
       // Player 1 rack should be hidden
       expect(state.players[1].rack).toBeNull();
+    });
+
+    it('board tiles have scores after a move', async () => {
+      const game = await setupTwoPlayerGame();
+      const player = game.players[0];
+      const letters = getPlayerRackLetters(player);
+
+      const moveResult = makeMove(game, player, [
+        { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
+        { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
+      ]);
+      await finishTurn(game, player, moveResult.newTiles, moveResult.turn);
+
+      const state = getGameState(game, game.players[1].key);
+      const board = state.board as any[][];
+      const tile77 = board[7][7].tile;
+      const tile87 = board[8][7].tile;
+      expect(tile77).not.toBeNull();
+      expect(typeof tile77.score).toBe('number');
+      expect(tile87).not.toBeNull();
+      expect(typeof tile87.score).toBe('number');
     });
   });
 

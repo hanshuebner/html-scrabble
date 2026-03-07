@@ -129,6 +129,7 @@ export const TurnControls = () => {
         gameKey,
         [...pendingPlacements].map((p) => ({
           letter: p.letter,
+          score: p.score,
           x: p.x,
           y: p.y,
           blank: p.blank,

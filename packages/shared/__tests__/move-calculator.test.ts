@@ -46,6 +46,9 @@ describe('calculateMove', () => {
     expect(result.words![0].word).toBe('CAT');
     expect(result.words![0].score).toBe(10);
     expect(result.tilesPlaced).toHaveLength(3);
+    expect(result.tilesPlaced![0]).toMatchObject({ letter: 'C', score: 3 });
+    expect(result.tilesPlaced![1]).toMatchObject({ letter: 'A', score: 1 });
+    expect(result.tilesPlaced![2]).toMatchObject({ letter: 'T', score: 1 });
   });
 
   it('scores a simple vertical word on center', () => {
@@ -214,5 +217,6 @@ describe('calculateMove', () => {
     // A(0) + T(1) = 1, doubled = 2
     expect(result.score).toBe(2);
     expect(result.tilesPlaced!.find(t => t.letter === 'A')!.blank).toBe(true);
+    expect(result.tilesPlaced!.find(t => t.letter === 'A')!.score).toBe(0);
   });
 });

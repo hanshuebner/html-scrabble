@@ -35,7 +35,7 @@ export interface TurnData {
   score: number
   move?: { words: { word: string; score: number }[] }
   moveData?: { words?: { word: string; score: number }[] }
-  placements?: { letter: string; x: number; y: number; blank: boolean }[]
+  placements?: { letter: string; score: number; x: number; y: number; blank: boolean }[]
   count?: number
   timestamp?: string
   whosTurn?: number
@@ -171,7 +171,7 @@ export const useGameState = create<GameState>((set, get) => ({
         for (const p of turn.placements) {
           board[p.x][p.y] = {
             ...board[p.x][p.y],
-            tile: { letter: p.letter, score: p.blank ? 0 : (board[p.x][p.y].tile?.score ?? 1) },
+            tile: { letter: p.letter, score: p.score },
             tileLocked: true,
           }
         }

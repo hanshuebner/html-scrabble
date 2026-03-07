@@ -159,6 +159,7 @@ export const calculateMove = (squares: Square[][]): MoveResult => {
       if (square.tile && !square.tileLocked) {
         tilesPlaced.push({
           letter: square.tile.letter,
+          score: square.tile.score,
           x,
           y,
           blank: square.tile.isBlank(),

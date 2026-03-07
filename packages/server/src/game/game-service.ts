@@ -406,7 +406,7 @@ export const makeMove = (
     player: player.index,
     score: move.score!,
     move,
-    placements: placementList,
+    placements: move.tilesPlaced,
   }
 
   return { newTiles, turn }
@@ -445,6 +445,7 @@ export const challengeOrTakeBackMove = (
     whosTurn: type === 'challenge' ? game.whosTurn! : previousMove.player.index,
     placements: previousMove.placements.map(([, boardSq]) => ({
       letter: '',
+      score: 0,
       x: boardSq.x,
       y: boardSq.y,
       blank: false,

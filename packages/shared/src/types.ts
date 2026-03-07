@@ -20,6 +20,7 @@ export interface LetterDefinition {
 
 export interface TilePlacement {
   letter: string
+  score: number
   x: number
   y: number
   blank: boolean
