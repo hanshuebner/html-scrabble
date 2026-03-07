@@ -96,7 +96,7 @@ const extractEndMessage = (msg: any): any => {
   }
 }
 
-const extractMove = (move: any): any => {
+const extractMove = (move: any, turnPlacements?: any): any => {
   if (!move || typeof move !== 'object') return null
   // Only keep serializable parts
   const result: any = {}
@@ -108,9 +108,11 @@ const extractMove = (move: any): any => {
         }))
       : []
   }
-  if (move.placements) {
-    result.placements = Array.isArray(move.placements)
-      ? move.placements.map((p: any) => ({
+  // Placements live on the turn object, not inside move; fall back to move.tilesPlaced
+  const placements = turnPlacements || move.tilesPlaced || move.placements
+  if (placements) {
+    result.placements = Array.isArray(placements)
+      ? placements.map((p: any) => ({
           letter: p.letter || '',
           x: p.x ?? 0,
           y: p.y ?? 0,
@@ -164,7 +166,7 @@ const convertGame = (key: string, frozenData: any) => {
     player: t.player ?? 0,
     type: t.type || 'move',
     score: t.score || 0,
-    moveData: extractMove(t.move),
+    moveData: extractMove(t.move, t.placements),
     timestamp: t.timestamp || null,
   }))
 

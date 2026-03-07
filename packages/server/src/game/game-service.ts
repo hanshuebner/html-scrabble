@@ -754,10 +754,20 @@ export const importGame = async (data: any): Promise<Game> => {
   const { gameData, players: playerData } = serializeGameForDb(game)
   game.dbId = await insertGameWithPlayers(gameData, playerData)
 
-  // Persist turns
-  const gameTurns = game.turns || []
+  // Persist turns — imported data has moveData from migration script, normalize to match new game format
+  const gameTurns = (data.turns || []) as any[]
   for (let i = 0; i < gameTurns.length; i++) {
     const t = gameTurns[i]
+    const importedMove = t.moveData || {}
+    const moveData: Record<string, unknown> = {
+      type: t.type,
+      player: t.player,
+      score: t.score,
+    }
+    if (importedMove.words) moveData.move = { words: importedMove.words }
+    if (importedMove.placements) moveData.placements = importedMove.placements
+    if (t.timestamp) moveData.timestamp = t.timestamp
+
     await persistTurn(
       game.dbId,
       {
@@ -779,7 +789,7 @@ export const importGame = async (data: any): Promise<Game> => {
         playerIndex: t.player,
         type: t.type,
         score: t.score,
-        moveData: t,
+        moveData,
       },
     )
   }
