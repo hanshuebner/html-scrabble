@@ -49,7 +49,7 @@ export const MoveLog = () => {
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 flex flex-col min-h-0 h-full">
-      <div className="flex-1 min-h-0 overflow-auto scrollbar-none text-sm space-y-1">
+      <div className="flex-1 min-h-0 overflow-auto scrollbar-none text-xl space-y-1">
         {turns.length === 0 && <div className="text-[#AAA38E] italic">{t('No moves yet')}</div>}
         {reversedTurns.map((turn, i) => {
           const pi = turn.player ?? turn.playerIndex ?? 0
@@ -76,11 +76,11 @@ export const MoveLog = () => {
                       </span>
                     ))}
                   </span>
-                  <span className="text-[#AAA38E] text-sm">{formatRelativeTime(turn.timestamp)}</span>
+                  <span className="text-[#AAA38E] text-lg">{formatRelativeTime(turn.timestamp)}</span>
                 </div>
               )}
               {!(turn.move?.words || turn.moveData?.words) && turn.timestamp && (
-                <div className="ml-4 text-right text-[#AAA38E] text-sm">{formatRelativeTime(turn.timestamp)}</div>
+                <div className="ml-4 text-right text-[#AAA38E] text-lg">{formatRelativeTime(turn.timestamp)}</div>
               )}
             </div>
           )

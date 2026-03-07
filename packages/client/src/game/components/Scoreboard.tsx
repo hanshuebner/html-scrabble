@@ -11,7 +11,7 @@ export const Scoreboard = () => {
 
   return (
     <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3">
-      <table className="w-full text-base">
+      <table className="w-full text-xl">
         <tbody>
           {players.map((player, i) => (
             <tr key={i}>
@@ -20,10 +20,12 @@ export const Scoreboard = () => {
                   ●
                 </span>
               </td>
-              <td className="py-1 pl-1 w-5 text-center">{whosTurn === i ? '▸' : ''}</td>
+              <td className="py-1 pl-1 w-5 text-center">
+                {whosTurn === i ? <span className="text-xl font-bold text-[#474633] mr-1">→</span> : ''}
+              </td>
               <td className="py-1">
                 {i === playerIndex ? t('You') : player.name}
-                <span className="text-[#AAA38E] text-sm ml-1">({remainingTileCounts?.players[i] ?? '?'})</span>
+                <span className="text-[#AAA38E] text-xl ml-1">({remainingTileCounts?.players[i] ?? '?'})</span>
               </td>
               <td className="text-right py-1 tabular-nums">{player.score}</td>
             </tr>
@@ -31,7 +33,7 @@ export const Scoreboard = () => {
         </tbody>
       </table>
       {remainingTileCounts && (
-        <div className="text-sm text-[#AAA38E] mt-2">
+        <div className="text-xl text-[#AAA38E] mt-2">
           {t('Bag: {{num}} tiles', { num: remainingTileCounts.letterBag })}
         </div>
       )}
