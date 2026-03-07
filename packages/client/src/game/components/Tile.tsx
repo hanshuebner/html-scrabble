@@ -37,18 +37,17 @@ export const Tile = memo(({ letter, score, isBlank, isSelected, isNew, isDraggin
         >
           {letter}
         </span>
-        {score > 0 && (
-          <span
-            className="font-normal"
-            style={{
-              fontSize: '0.6em',
-              verticalAlign: 'sub',
-              paddingLeft: '0.2em',
-            }}
-          >
-            {score}
-          </span>
-        )}
+        <span
+          className="font-normal"
+          style={{
+            fontSize: '0.6em',
+            verticalAlign: 'sub',
+            paddingLeft: '0.2em',
+            visibility: score > 0 ? 'visible' : 'hidden',
+          }}
+        >
+          {score || 0}
+        </span>
       </span>
     </div>
   )
