@@ -42,7 +42,7 @@ const DraggablePendingTile = ({
   })
 
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} className="w-full h-full" style={{ touchAction: 'none' }}>
+    <div ref={setNodeRef} {...attributes} {...listeners} className="w-full h-full flex items-center justify-center" style={{ touchAction: 'none' }}>
       <Tile
         letter={tile.letter}
         score={tile.score}
@@ -90,6 +90,10 @@ export const BoardSquare = memo(
     const fullLabel = SQUARE_FULL[type]
     const textColor = SQUARE_TEXT[type] || SQUARE_TEXT.Normal
     const isCenter = x === 7 && y === 7
+    const isSpecial = type !== 'Normal'
+    const borderClass = isSpecial
+      ? 'border border-dotted border-[#54534A]'
+      : 'border border-solid border-[#AAA38E]'
 
     return (
       <div
@@ -100,7 +104,7 @@ export const BoardSquare = memo(
         data-y={y}
         className={`
         relative flex items-center justify-center
-        border border-dotted border-[#AAA38E]
+        ${borderClass}
         ${bg}
         aspect-square overflow-hidden
       `}

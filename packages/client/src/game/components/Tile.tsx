@@ -15,8 +15,8 @@ export const Tile = memo(({ letter, score, isBlank, isSelected, isNew, isDraggin
     <div
       onClick={onClick}
       className={`
-        font-tile w-full h-full rounded-sm cursor-pointer select-none
-        bg-[#F7F7E3] border border-[#DCDCC6]
+        font-tile rounded-sm cursor-pointer select-none
+        bg-[#F7F7E3] border border-[1px] border-[#D4D4B8]
         text-[#474633]
         flex items-center justify-center
         ${isBlank ? 'border-l-[#ADFF2F] border-r-[#ADFF2F] border-l-2 border-r-2' : ''}
@@ -25,13 +25,13 @@ export const Tile = memo(({ letter, score, isBlank, isSelected, isNew, isDraggin
         ${isDragging ? 'opacity-0' : ''}
         transition-shadow duration-150
       `}
-      style={{ fontSize: '3.5cqw' }}
+      style={{ fontSize: '3.5cqw', width: 'calc(100% - 2px)', height: 'calc(100% - 2px)' }}
     >
       <span style={{ display: 'inline' }}>
         <span
           className="font-normal"
           style={{
-            fontSize: '1.2em',
+            fontSize: '0.96em',
             paddingLeft: '0.2em',
           }}
         >
