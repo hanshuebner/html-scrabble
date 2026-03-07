@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client.js'
 
+interface TopMove {
+  words: string[]
+  score: number
+}
+
 interface PlayerStats {
   name: string
   gamesPlayed: number
   gamesWon: number
   totalScore: number
   highestScore: number
-  highestWordScore: number
-  highestWord: string | null
+  topMoves: TopMove[]
   averageScore: number
   totalTilesPlaced: number
   bingoCount: number
@@ -98,24 +102,42 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
                 />
                 <StatCard label={t('Average Score')} value={selected.averageScore} />
                 <StatCard label={t('Highest Game Score')} value={selected.highestScore} />
-                <StatCard
-                  label={t('Highest Word')}
-                  value={selected.highestWord ? `${selected.highestWord} (${selected.highestWordScore})` : '-'}
-                />
                 <StatCard label={t('Total Tiles Placed')} value={selected.totalTilesPlaced} />
                 <StatCard label={t('Bingos (7-tile bonus)')} value={selected.bingoCount} />
+
+                {/* Top moves */}
+                {selected.topMoves.length > 0 && (
+                  <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3">
+                    <h3 className="font-bold text-sm text-[#474633] mb-2">{t('Beste Züge')}</h3>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-[#AAA38E] text-xs">
+                          <th className="text-left py-1">{t('Words')}</th>
+                          <th className="text-right py-1">{t('Score')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selected.topMoves.map((move, i) => (
+                          <tr key={i}>
+                            <td className="py-0.5 text-[#626258]">{move.words.join(', ')}</td>
+                            <td className="text-right py-0.5 font-bold text-[#474633] tabular-nums">{move.score}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
 
                 {/* Head-to-head */}
                 {h2h.length > 0 && (
                   <div className="bg-[#F7F7E3] border border-[#DCDCC6] rounded-md p-3 mt-4">
-                    <h3 className="font-bold text-sm text-[#474633] mb-2">{t('Head-to-Head')}</h3>
+                    <h3 className="font-bold text-sm text-[#474633] mb-2">{t('Direktvergleich')}</h3>
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-[#AAA38E] text-xs">
-                          <th className="text-left py-1">{t('Opponent')}</th>
-                          <th className="text-right py-1">{t('W')}</th>
-                          <th className="text-right py-1">{t('L')}</th>
-                          <th className="text-right py-1">{t('D')}</th>
+                          <th className="text-left py-1 w-full">{t('Gegner')}</th>
+                          <th className="text-right py-1 pl-4">{t('Siege')}</th>
+                          <th className="text-right py-1 pl-4">{t('Niederlagen')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -123,10 +145,9 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
                           .filter((r) => r.wins + r.losses + r.draws > 0)
                           .map((r) => (
                             <tr key={r.opponent}>
-                              <td className="py-0.5">{r.opponent}</td>
-                              <td className="text-right py-0.5 text-green-700 tabular-nums">{r.wins}</td>
-                              <td className="text-right py-0.5 text-red-600 tabular-nums">{r.losses}</td>
-                              <td className="text-right py-0.5 text-[#AAA38E] tabular-nums">{r.draws}</td>
+                              <td className="py-0.5 w-full">{r.opponent}</td>
+                              <td className="text-right py-0.5 text-green-700 tabular-nums pl-4">{r.wins}</td>
+                              <td className="text-right py-0.5 text-red-600 tabular-nums pl-4">{r.losses}</td>
                             </tr>
                           ))}
                       </tbody>

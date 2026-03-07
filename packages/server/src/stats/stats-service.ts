@@ -1,14 +1,18 @@
 import { sql } from 'drizzle-orm'
 import { db } from '../db/connection.js'
 
+interface TopMove {
+  words: string[]
+  score: number
+}
+
 interface PlayerStatsData {
   name: string
   gamesPlayed: number
   gamesWon: number
   totalScore: number
   highestScore: number
-  highestWordScore: number
-  highestWord: string | null
+  topMoves: TopMove[]
   averageScore: number
   totalTilesPlaced: number
   bingoCount: number
@@ -30,8 +34,6 @@ export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
     average_score: string
     total_tiles_placed: string
     bingo_count: string
-    highest_word: string | null
-    highest_word_score: string
   }>(sql`
     WITH finished_games AS (
       SELECT g.id
@@ -66,18 +68,6 @@ export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
       JOIN finished_games fg ON fg.id = t.game_id
       WHERE t.type = 'move' AND t.move_data IS NOT NULL
       GROUP BY lower(trim(gp.name))
-    ),
-    word_stats AS (
-      SELECT DISTINCT ON (lower(trim(gp.name)))
-        lower(trim(gp.name)) AS norm_name,
-        w->>'word' AS highest_word,
-        (w->>'score')::int AS highest_word_score
-      FROM turns t
-      JOIN game_players gp ON gp.game_id = t.game_id AND gp.player_index = t.player_index
-      JOIN finished_games fg ON fg.id = t.game_id,
-      LATERAL jsonb_array_elements(t.move_data->'move'->'words') AS w
-      WHERE t.type = 'move' AND t.move_data IS NOT NULL
-      ORDER BY lower(trim(gp.name)), (w->>'score')::int DESC
     )
     SELECT
       pg.display_name AS name,
@@ -87,16 +77,52 @@ export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
       max(pg.score)::text AS highest_score,
       round(avg(pg.score))::text AS average_score,
       coalesce(ts.tiles_placed, 0)::text AS total_tiles_placed,
-      coalesce(ts.bingos, 0)::text AS bingo_count,
-      ws.highest_word,
-      coalesce(ws.highest_word_score, 0)::text AS highest_word_score
+      coalesce(ts.bingos, 0)::text AS bingo_count
     FROM player_games pg
     JOIN game_max_scores gms ON gms.game_id = pg.game_id
     LEFT JOIN turn_stats ts ON ts.norm_name = pg.norm_name
-    LEFT JOIN word_stats ws ON ws.norm_name = pg.norm_name
-    GROUP BY pg.norm_name, pg.display_name, ts.tiles_placed, ts.bingos, ws.highest_word, ws.highest_word_score
+    GROUP BY pg.norm_name, pg.display_name, ts.tiles_placed, ts.bingos
     ORDER BY count(*) DESC
   `)
+
+  // Fetch top 5 moves per player
+  const topMovesRows = await db.execute<{
+    norm_name: string
+    words: string
+    score: string
+  }>(sql`
+    SELECT
+      sub.norm_name,
+      sub.words,
+      sub.score::text
+    FROM (
+      SELECT
+        lower(trim(gp.name)) AS norm_name,
+        (SELECT string_agg(w->>'word', ', ' ORDER BY (w->>'score')::int DESC)
+         FROM jsonb_array_elements(t.move_data->'move'->'words') AS w
+        ) AS words,
+        t.score,
+        row_number() OVER (PARTITION BY lower(trim(gp.name)) ORDER BY t.score DESC) AS rn
+      FROM turns t
+      JOIN game_players gp ON gp.game_id = t.game_id AND gp.player_index = t.player_index
+      JOIN games g ON g.id = t.game_id
+      WHERE t.type = 'move'
+        AND t.move_data IS NOT NULL
+        AND g.end_message IS NOT NULL
+    ) sub
+    WHERE sub.rn <= 5
+    ORDER BY sub.norm_name, sub.score DESC
+  `)
+
+  const topMovesMap = new Map<string, TopMove[]>()
+  for (const r of topMovesRows) {
+    const moves = topMovesMap.get(r.norm_name) ?? []
+    moves.push({
+      words: r.words ? r.words.split(', ') : [],
+      score: Number(r.score),
+    })
+    topMovesMap.set(r.norm_name, moves)
+  }
 
   return rows.map((r) => ({
     name: r.name,
@@ -107,8 +133,7 @@ export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
     averageScore: Number(r.average_score),
     totalTilesPlaced: Number(r.total_tiles_placed),
     bingoCount: Number(r.bingo_count),
-    highestWord: r.highest_word,
-    highestWordScore: Number(r.highest_word_score),
+    topMoves: topMovesMap.get(r.name.trim().toLowerCase()) ?? [],
   }))
 }
 
