@@ -59,10 +59,10 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
     <div className="min-h-screen bg-woodgrain">
       <div className="max-w-lg mx-auto p-4">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={onBack} className="text-sm text-[#AAA38E] hover:text-[#474633]">
-            {t('Back')}
+          <button onClick={onBack} className="text-2xl font-bold text-white drop-shadow-md hover:underline">
+            {t('Scrabble')}
           </button>
-          <h1 className="text-2xl font-bold text-[#474633]">{t('Statistics')}</h1>
+          <span className="text-lg text-white drop-shadow-md">{t('Statistics')}</span>
         </div>
 
         {allStats.length === 0 ? (

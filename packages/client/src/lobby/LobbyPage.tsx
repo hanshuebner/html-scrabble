@@ -30,7 +30,10 @@ export const LobbyPage = ({
     <div className="min-h-screen bg-woodgrain">
       <div className="max-w-2xl mx-auto p-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-[#474633]">{t('Scrabble')}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-white drop-shadow-md">{t('Scrabble')}</h1>
+            <span className="text-lg text-white drop-shadow-md">{t('Lobby')}</span>
+          </div>
           <div className="flex items-center gap-3">
             <select
               value={i18n.language?.substring(0, 2)}
