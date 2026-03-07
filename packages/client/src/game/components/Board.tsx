@@ -25,8 +25,22 @@ export const Board = () => {
       // Cursor and tile selection only available on your turn
       if (!isMyTurn()) return
 
+      const isEmpty = !sq.tile && !pendingPlacements.find((p) => p.x === x && p.y === y)
+
+      // If a pending board tile is selected, clicking an empty square moves it there
+      if (selectedSquare && !selectedSquare.fromRack && isEmpty) {
+        const state = useGameState.getState()
+        const pending = state.pendingPlacements.find((p) => p.x === selectedSquare.x && p.y === selectedSquare.y)
+        if (pending) {
+          state.removePendingPlacement(selectedSquare.x, selectedSquare.y)
+          state.addPendingPlacement({ ...pending, x, y })
+          clearSelection()
+          return
+        }
+      }
+
       // Cursor mode only on desktop (keyboard entry)
-      if (isDesktop && !sq.tile && !pendingPlacements.find((p) => p.x === x && p.y === y)) {
+      if (isDesktop && isEmpty) {
         if (cursor && cursor.x === x && cursor.y === y) {
           // Toggle horizontal→vertical, then remove
           if (cursor.horizontal) {
