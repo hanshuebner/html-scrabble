@@ -39,7 +39,7 @@ const SortableRackTile = ({
     >
       <div
         style={{ ...tileStyle, touchAction: 'none' }}
-        className="w-full h-full"
+        className="w-full h-full flex items-center justify-center"
         {...attributes}
         {...listeners}
         onClick={onClick}
