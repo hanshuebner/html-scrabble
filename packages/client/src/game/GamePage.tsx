@@ -533,7 +533,7 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
         {connectionStatus !== 'connected' && (
           <div className="fixed inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
             <div className="bg-woodgrain text-white text-xl px-8 py-6 rounded-xl shadow-lg">
-              {t('Server not available')}
+              {t('Waiting for server')}
             </div>
           </div>
         )}

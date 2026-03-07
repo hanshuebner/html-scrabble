@@ -53,7 +53,7 @@ Take Back: Take Back
 "first word must consist of at least two letters": "First word must consist of at least two letters"
 
 # Connection status
-"Server not available": "Server not available"
+"Waiting for server": "Waiting for server"
 
 # GamePage
 Game over: Game over

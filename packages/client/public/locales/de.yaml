@@ -53,7 +53,7 @@ Take Back: Zurücknehmen
 "first word must consist of at least two letters": "Das erste Wort muss mindestens zwei Buchstaben haben"
 
 # Connection status
-"Server not available": "Server nicht erreichbar"
+"Waiting for server": "Warte auf Server"
 
 # GamePage
 Game over: Spiel beendet
