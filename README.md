@@ -266,6 +266,41 @@ All game state is preserved: board positions, player racks, scores, turn
 history, and end-game results. The `previousMove` field (used for challenges)
 is not migrated as its old serialization format is incompatible.
 
+### Backfilling turns for previously imported games
+
+The initial migration had two bugs that caused turn data (moves, placements)
+not to be stored in the database for imported legacy games:
+
+1. **Placement extraction** — `migrate-from-dirty.ts` looked for placements
+   inside `t.move.placements`, but the legacy data stores them on the turn
+   object itself (`t.placements`). Fixed by also checking `t.placements` and
+   `t.move.tilesPlaced`.
+2. **moveData nesting** — `importGame()` in `game-service.ts` stored the
+   entire imported turn object as `moveData`, causing placements to end up
+   one level too deep (`move_data.moveData.placements` instead of
+   `move_data.placements`). Fixed by normalizing the structure on import.
+
+If you ran the initial import before these fixes, the imported games will have
+malformed turn data in the database (placements nested incorrectly). Stats
+derived from turns (bingos, highest word, tiles placed) will be wrong.
+
+To fix this, first regenerate the migrated JSON (so placements are extracted
+correctly), then run the backfill script:
+
+```bash
+# Re-export with the fixed migration script
+cd packages/server
+npx tsx scripts/migrate-from-dirty.ts /path/to/data.db
+
+# Backfill turns for legacy games
+DATABASE_URL="postgres://..." npx tsx scripts/backfill-turns.ts /path/to/data-migrated.json
+```
+
+The backfill script matches games by key against the migrated JSON, deletes
+existing malformed turns, and re-inserts them with the correct structure. Games
+that have been modified since import (turn count differs from legacy data) are
+skipped. It is safe to run multiple times.
+
 ## Limitations
 
 * Human players only. No computer players are available.
