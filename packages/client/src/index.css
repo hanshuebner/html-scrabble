@@ -13,3 +13,10 @@
 .font-tile {
   font-family: helvetica, arial, sans-serif;
 }
+
+.scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
