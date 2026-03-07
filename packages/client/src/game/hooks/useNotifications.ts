@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useGameState } from './useGameState.js'
 
@@ -25,6 +25,26 @@ export const useNotifications = () => {
       prevChatCount.current = chatMessages.length
     }
   }, [gameKey, turns.length, chatMessages.length])
+
+  const activeNotification = useRef<Notification | null>(null)
+
+  const dismissNotification = useCallback(() => {
+    if (activeNotification.current) {
+      activeNotification.current.close()
+      activeNotification.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('click', dismissNotification)
+    window.addEventListener('keydown', dismissNotification)
+    window.addEventListener('focus', dismissNotification)
+    return () => {
+      window.removeEventListener('click', dismissNotification)
+      window.removeEventListener('keydown', dismissNotification)
+      window.removeEventListener('focus', dismissNotification)
+    }
+  }, [dismissNotification])
 
   // Notify on new chat messages from other players
   useEffect(() => {
@@ -72,7 +92,7 @@ export const useNotifications = () => {
                 : lastTurn.type === 'challenge'
                   ? t('challenged')
                   : t('made a move')
-          new Notification('Scrabble', {
+          activeNotification.current = new Notification('Scrabble', {
             body: opponentName
               ? t("{{name}} {{action}}. It's your turn!", { name: opponentName, action })
               : t("It's your turn!"),
