@@ -29,14 +29,14 @@ const backfill = async () => {
     migratedByKey.set(g.key, g)
   }
 
-  // Find all games that exist in the migrated JSON, with their current turn count
-  const allGames = await db.execute<{ id: string; key: string; turn_count: string }>(sql`
+  // Find all games with their current turn count, then filter to legacy games in JS
+  const allDbGames = await db.execute<{ id: string; key: string; turn_count: string }>(sql`
     SELECT g.id, g.key, COUNT(t.id)::text AS turn_count
     FROM games g
     LEFT JOIN turns t ON t.game_id = g.id
-    WHERE g.key = ANY(${Array.from(migratedByKey.keys())})
     GROUP BY g.id, g.key
   `)
+  const allGames = allDbGames.filter((g) => migratedByKey.has(g.key))
 
   console.log(`Found ${allGames.length} legacy games in DB`)
   console.log(`Loaded ${migratedByKey.size} games from migrated JSON`)
