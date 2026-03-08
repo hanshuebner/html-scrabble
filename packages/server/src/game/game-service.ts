@@ -790,6 +790,7 @@ export const importGame = async (data: any): Promise<Game> => {
         type: t.type,
         score: t.score,
         moveData,
+        ...(t.timestamp ? { timestamp: new Date(t.timestamp) } : {}),
       },
     )
   }

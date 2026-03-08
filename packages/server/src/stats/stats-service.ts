@@ -22,6 +22,10 @@ interface HeadToHeadData {
   wins: number
   losses: number
   draws: number
+  longestDurationMinutes: number | null
+  shortestDurationMinutes: number | null
+  mostMoves: number | null
+  fewestMoves: number | null
 }
 
 export const getAllPlayerStats = async (): Promise<PlayerStatsData[]> => {
@@ -151,28 +155,56 @@ export const getHeadToHead = async (name1: string, name2: string): Promise<HeadT
     wins: string
     losses: string
     draws: string
+    longest_duration_minutes: string | null
+    shortest_duration_minutes: string | null
+    most_moves: string | null
+    fewest_moves: string | null
   }>(sql`
-    WITH finished_games AS (
-      SELECT g.id
-      FROM games g
-      WHERE g.end_message IS NOT NULL
-    ),
-    matched_games AS (
+    WITH matched_games AS (
       SELECT
         gp1.game_id,
         gp1.score AS score1,
         gp2.score AS score2
       FROM game_players gp1
       JOIN game_players gp2 ON gp1.game_id = gp2.game_id
-      JOIN finished_games fg ON fg.id = gp1.game_id
-      WHERE lower(trim(gp1.name)) = ${norm1}
+      JOIN games g ON g.id = gp1.game_id
+      WHERE g.end_message IS NOT NULL
+        AND lower(trim(gp1.name)) = ${norm1}
         AND lower(trim(gp2.name)) = ${norm2}
+        AND (SELECT count(*) FROM turns t2 WHERE t2.game_id = g.id) >= 10
+    ),
+    game_stats AS (
+      SELECT
+        mg.game_id,
+        mg.score1,
+        mg.score2,
+        count(*) FILTER (WHERE t.type = 'move') AS total_moves
+      FROM matched_games mg
+      JOIN turns t ON t.game_id = mg.game_id
+      GROUP BY mg.game_id, mg.score1, mg.score2
+    ),
+    game_durations AS (
+      SELECT
+        gs.game_id,
+        round(extract(epoch FROM (
+          max((t.move_data->>'timestamp')::timestamptz) -
+          min((t.move_data->>'timestamp')::timestamptz)
+        )) / 60) AS duration_minutes
+      FROM game_stats gs
+      JOIN turns t ON t.game_id = gs.game_id
+      GROUP BY gs.game_id
+      HAVING count(t.move_data->>'timestamp') >= 0.5 * count(*)
+        AND max((t.move_data->>'timestamp')::timestamptz) > min((t.move_data->>'timestamp')::timestamptz)
     )
     SELECT
       count(*) FILTER (WHERE score1 > score2)::text AS wins,
       count(*) FILTER (WHERE score1 < score2)::text AS losses,
-      count(*) FILTER (WHERE score1 = score2)::text AS draws
-    FROM matched_games
+      count(*) FILTER (WHERE score1 = score2)::text AS draws,
+      (SELECT max(duration_minutes) FROM game_durations)::text AS longest_duration_minutes,
+      (SELECT min(duration_minutes) FROM game_durations)::text AS shortest_duration_minutes,
+      max(total_moves)::text AS most_moves,
+      min(total_moves)::text AS fewest_moves
+    FROM game_stats
   `)
 
   const row = rows[0]
@@ -180,5 +212,9 @@ export const getHeadToHead = async (name1: string, name2: string): Promise<HeadT
     wins: Number(row?.wins ?? 0),
     losses: Number(row?.losses ?? 0),
     draws: Number(row?.draws ?? 0),
+    longestDurationMinutes: row?.longest_duration_minutes != null ? Number(row.longest_duration_minutes) : null,
+    shortestDurationMinutes: row?.shortest_duration_minutes != null ? Number(row.shortest_duration_minutes) : null,
+    mostMoves: row?.most_moves != null ? Number(row.most_moves) : null,
+    fewestMoves: row?.fewest_moves != null ? Number(row.fewest_moves) : null,
   }
 }

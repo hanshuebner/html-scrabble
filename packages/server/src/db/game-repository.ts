@@ -32,6 +32,7 @@ export interface TurnInsertData {
   type: string
   score: number
   moveData: unknown
+  timestamp?: Date
 }
 
 // ── Insert game with players in a single transaction ────────────────────────
@@ -119,6 +120,7 @@ export const persistTurn = async (
       type: turnRecord.type,
       score: turnRecord.score,
       moveData: turnRecord.moveData,
+      ...(turnRecord.timestamp ? { timestamp: turnRecord.timestamp } : {}),
     })
   })
 }

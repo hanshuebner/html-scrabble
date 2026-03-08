@@ -23,7 +23,19 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
   const { t } = useTranslation()
   const [allStats, setAllStats] = useState<PlayerStats[]>([])
   const [selected, setSelected] = useState<PlayerStats | null>(null)
-  const [h2h, setH2h] = useState<{ opponent: string; wins: number; losses: number; draws: number }[]>([])
+  const [h2h, setH2h] = useState<
+    {
+      opponent: string
+      wins: number
+      losses: number
+      draws: number
+      longestDurationMinutes: number | null
+      shortestDurationMinutes: number | null
+      mostMoves: number | null
+      fewestMoves: number | null
+    }[]
+  >([])
+
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -135,9 +147,24 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="text-[#AAA38E] text-xs">
-                          <th className="text-left py-1 w-full">{t('Gegner')}</th>
-                          <th className="text-right py-1 pl-4">{t('Siege')}</th>
-                          <th className="text-right py-1 pl-4">{t('Niederlagen')}</th>
+                          <th className="text-left py-0.5">{t('Gegner')}</th>
+                          <th className="text-right py-0.5 pl-2">{t('Siege')}</th>
+                          <th className="text-right py-0.5 pl-2">{t('Ndl.')}</th>
+                          <th className="text-right py-0.5 pl-2" colSpan={2}>
+                            {t('Dauer')}
+                          </th>
+                          <th className="text-right py-0.5 pl-2" colSpan={2}>
+                            {t('Züge')}
+                          </th>
+                        </tr>
+                        <tr className="text-[#AAA38E] text-[10px]">
+                          <th />
+                          <th />
+                          <th />
+                          <th className="text-right pl-2 font-normal">{t('min')}</th>
+                          <th className="text-right pl-1 font-normal">{t('max')}</th>
+                          <th className="text-right pl-2 font-normal">{t('min')}</th>
+                          <th className="text-right pl-1 font-normal">{t('max')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -145,9 +172,21 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
                           .filter((r) => r.wins + r.losses + r.draws > 0)
                           .map((r) => (
                             <tr key={r.opponent}>
-                              <td className="py-0.5 w-full">{r.opponent}</td>
-                              <td className="text-right py-0.5 text-green-700 tabular-nums pl-4">{r.wins}</td>
-                              <td className="text-right py-0.5 text-red-600 tabular-nums pl-4">{r.losses}</td>
+                              <td className="py-0.5">{r.opponent}</td>
+                              <td className="text-right py-0.5 text-green-700 tabular-nums pl-2">{r.wins}</td>
+                              <td className="text-right py-0.5 text-red-600 tabular-nums pl-2">{r.losses}</td>
+                              <td className="text-right py-0.5 tabular-nums pl-2 text-[#626258] whitespace-nowrap">
+                                {r.shortestDurationMinutes != null ? formatDuration(r.shortestDurationMinutes) : '-'}
+                              </td>
+                              <td className="text-right py-0.5 tabular-nums pl-1 text-[#626258] whitespace-nowrap">
+                                {r.longestDurationMinutes != null ? formatDuration(r.longestDurationMinutes) : '-'}
+                              </td>
+                              <td className="text-right py-0.5 tabular-nums pl-2 text-[#626258]">
+                                {r.fewestMoves ?? '-'}
+                              </td>
+                              <td className="text-right py-0.5 tabular-nums pl-1 text-[#626258]">
+                                {r.mostMoves ?? '-'}
+                              </td>
                             </tr>
                           ))}
                       </tbody>
@@ -161,6 +200,12 @@ export const StatsPage = ({ onBack }: { onBack: () => void }) => {
       </div>
     </div>
   )
+}
+
+const formatDuration = (minutes: number): string => {
+  if (minutes < 60) return `${Math.round(minutes)}m`
+  if (minutes < 1440) return `${Math.round(minutes / 60)}h`
+  return `${Math.round(minutes / 1440)}d`
 }
 
 const StatCard = ({ label, value }: { label: string; value: string | number }) => {
