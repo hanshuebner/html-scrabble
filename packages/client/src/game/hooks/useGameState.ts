@@ -319,7 +319,7 @@ export const useGameState = create<GameState>((set, get) => ({
     }
     const newPlayers = [...state.players]
     newPlayers[state.playerIndex] = { ...player, rack: newRack }
-    set({ players: newPlayers })
+    set({ players: newPlayers, selectedSquare: null })
   },
   addChatMessage: (msg) => set((state) => ({ chatMessages: [...state.chatMessages, msg] })),
   playerJoined: (playerIndex) =>
