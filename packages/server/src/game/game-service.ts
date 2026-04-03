@@ -656,10 +656,15 @@ export const finish = (game: Game, reason: string): void => {
 
 // ── createFollowonGame ──────────────────────────────────────────────────────
 
-export const createFollowonGame = async (game: Game, startPlayer: Player): Promise<Game> => {
+export const createFollowonGame = async (game: Game): Promise<Game> => {
   if (game.nextGameKey) {
     throw new Error(`followon game already created: old ${game.key} new ${game.nextGameKey}`)
   }
+
+  // The loser starts the next game; if tied, choose randomly
+  const minScore = Math.min(...game.players.map((p) => p.score))
+  const losers = game.players.filter((p) => p.score === minScore)
+  const startPlayer = losers[Math.floor(Math.random() * losers.length)]
 
   const playerCount = game.players.length
   const newPlayerInputs = []

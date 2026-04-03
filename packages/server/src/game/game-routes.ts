@@ -266,7 +266,7 @@ gameRoutes.post('/:gameKey/new-game', async (req: Request, res: Response) => {
       res.json({ key: game.nextGameKey })
       return
     }
-    const newGame = await createFollowonGame(game, player)
+    const newGame = await createFollowonGame(game)
     res.json({ key: newGame.key })
   } catch (e: any) {
     res.status(400).json({ error: e.message })
