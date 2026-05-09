@@ -41,12 +41,10 @@ export const DudenLink = ({ className }: DudenLinkProps) => {
       href={url}
       target="_blank"
       rel="noreferrer"
-      className={
-        className || 'px-3 py-2 bg-[#474633] text-white rounded text-sm hover:bg-[#626258] no-underline drop-shadow-md'
-      }
+      className={className || 'inline-flex items-center rounded overflow-hidden hover:opacity-80 drop-shadow-md'}
       title="Duden"
     >
-      Duden
+      <img src="/duden-logo.svg" alt="Duden" className="h-9 w-auto block" />
     </a>
   )
 }

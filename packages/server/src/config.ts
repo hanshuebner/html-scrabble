@@ -1,22 +1,10 @@
-interface DudenConfig {
-  baseUrl: string
-  authHeader: string | null
-  publicUrl: string
-}
-
-const parseDudenUrl = (raw: string | undefined): DudenConfig | null => {
+const parseDudenUrl = (raw: string | undefined): string | null => {
   if (!raw) return null
   try {
     const url = new URL(raw)
-    let authHeader: string | null = null
-    if (url.username) {
-      const creds = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
-      authHeader = 'Basic ' + Buffer.from(creds).toString('base64')
-    }
     url.username = ''
     url.password = ''
-    const baseUrl = url.toString().replace(/\/+$/, '')
-    return { baseUrl, authHeader, publicUrl: raw }
+    return url.toString().replace(/\/+$/, '')
   } catch (e) {
     console.warn(`[duden] Invalid DUDEN_URL: ${(e as Error).message}`)
     return null
@@ -27,7 +15,7 @@ export const config = {
   port: parseInt(process.env.PORT || '3000', 10),
   baseUrl: process.env.BASE_URL || 'http://localhost:3000/',
   databaseUrl: process.env.DATABASE_URL || 'postgres://localhost:5432/scrabble',
-  duden: parseDudenUrl(process.env.DUDEN_URL),
+  dudenUrl: parseDudenUrl(process.env.DUDEN_URL),
   reminder: {
     cronSchedule: process.env.REMINDER_CRON || '0 9 * * *',
     reminderAfterDays: parseInt(process.env.REMINDER_AFTER_DAYS || '2', 10),

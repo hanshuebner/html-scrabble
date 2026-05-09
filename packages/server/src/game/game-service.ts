@@ -3,7 +3,6 @@ import { Board, LetterBag, Rack, Bag, Tile, Square, calculateMove } from '@scrab
 import type { Language, TilePlacement, TurnData, EndMessage } from '@scrabble/shared'
 import { sendGameInvitation } from '../email/email-service.js'
 import { config } from '../config.js'
-import { isDudenConfigured, validateWord } from '../duden.js'
 import {
   insertGameWithPlayers,
   persistTurn,
@@ -382,22 +381,6 @@ export const makeMove = async (
   if (move.error) {
     rollback()
     throw new Error(move.error)
-  }
-
-  if (game.language === 'German' && isDudenConfigured()) {
-    for (const w of move.words || []) {
-      const result = await validateWord(w.word)
-      if (!result.valid) {
-        rollback()
-        if (result.reason === 'eigenname') {
-          throw new Error(`"${w.word}" ist ein Eigenname und nicht zulässig`)
-        }
-        if (result.reason === 'not_found') {
-          throw new Error(`"${w.word}" wurde nicht im Duden gefunden`)
-        }
-        throw new Error(result.message || `Duden-Abfrage für "${w.word}" fehlgeschlagen`)
-      }
-    }
   }
 
   // Lock tiles
