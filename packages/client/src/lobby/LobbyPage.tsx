@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client.js'
+import { DudenLink } from '../components/DudenLink.js'
 
 interface GameSummary {
   key: string
@@ -43,6 +44,7 @@ export const LobbyPage = ({
               <option value="en">English</option>
               <option value="de">Deutsch</option>
             </select>
+            <DudenLink />
             <button
               onClick={onViewStats}
               className="px-4 py-2 bg-[#474633] text-white rounded text-sm hover:bg-[#626258]"

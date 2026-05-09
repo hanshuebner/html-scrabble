@@ -29,6 +29,7 @@ import { useNotifications } from './hooks/useNotifications.js'
 import { useIsDesktop } from './hooks/useIsDesktop.js'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
+import { DudenLink } from '../components/DudenLink.js'
 
 const SpectatorTurnStatus = () => {
   const { t } = useTranslation()
@@ -544,6 +545,9 @@ export const GamePage = ({ gameKey, playerKey: playerKeyProp }: GamePageProps) =
               {t('Scrabble')}
             </Link>
             {playerNames && <span className="text-lg text-white drop-shadow-md">{playerNames}</span>}
+            <div className="ml-auto">
+              <DudenLink />
+            </div>
           </div>
         </div>
 

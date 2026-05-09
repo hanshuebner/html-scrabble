@@ -141,7 +141,7 @@ gameRoutes.post('/:gameKey/move', async (req: Request, res: Response) => {
     }
 
     const { placements } = req.body
-    const result = makeMove(game, player, placements)
+    const result = await makeMove(game, player, placements)
     await finishTurn(game, player, result.newTiles, result.turn)
     res.json({ ok: true })
   } catch (e: any) {

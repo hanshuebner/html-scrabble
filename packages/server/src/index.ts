@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import { sql } from 'drizzle-orm'
 import yaml from 'js-yaml'
 import { config } from './config.js'
+import { getDudenPublicUrl } from './duden.js'
 import { db } from './db/connection.js'
 import { gameRoutes } from './game/game-routes.js'
 import { statsRoutes } from './stats/stats-routes.js'
@@ -27,6 +28,11 @@ app.use(cookieParser())
 // Health check
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })
+})
+
+// Public client config (links, feature flags, etc.)
+app.get('/api/config', (_req, res) => {
+  res.json({ dudenUrl: getDudenPublicUrl() })
 })
 
 // Routes

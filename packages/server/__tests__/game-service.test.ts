@@ -120,7 +120,7 @@ describe('Game Service', () => {
         { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
       ];
 
-      const result = makeMove(game, player, placements);
+      const result = await makeMove(game, player, placements);
       expect(result.turn.type).toBe('move');
       expect(result.turn.score).toBeGreaterThan(0);
       expect(result.newTiles.length).toBeLessThanOrEqual(2);
@@ -136,7 +136,7 @@ describe('Game Service', () => {
         { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
       ];
 
-      const result = makeMove(game, player, placements);
+      const result = await makeMove(game, player, placements);
       for (const p of result.turn.placements!) {
         expect(typeof p.score).toBe('number');
         expect(p.score).toBeGreaterThanOrEqual(0);
@@ -148,24 +148,24 @@ describe('Game Service', () => {
       const bob = game.players[1]; // It's Alice's turn (index 0)
       const letters = getPlayerRackLetters(bob);
 
-      expect(() =>
+      await expect(
         makeMove(game, bob, [
           { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
           { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
         ]),
-      ).toThrow("not this player's turn");
+      ).rejects.toThrow("not this player's turn");
     });
 
     it('rejects move with letter not in rack', async () => {
       const game = await setupTwoPlayerGame();
       const player = game.players[0];
 
-      expect(() =>
+      await expect(
         makeMove(game, player, [
           { letter: '@', score: 0, x: 7, y: 7, blank: false },
           { letter: '#', score: 0, x: 8, y: 7, blank: false },
         ]),
-      ).toThrow('cannot find letter');
+      ).rejects.toThrow('cannot find letter');
     });
   });
 
@@ -254,7 +254,7 @@ describe('Game Service', () => {
       const initialScore = alice.score;
 
       // Alice makes a move
-      const moveResult = makeMove(game, alice, [
+      const moveResult = await makeMove(game, alice, [
         { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
         { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
       ]);
@@ -304,7 +304,7 @@ describe('Game Service', () => {
       const player = game.players[0];
       const letters = getPlayerRackLetters(player);
 
-      const moveResult = makeMove(game, player, [
+      const moveResult = await makeMove(game, player, [
         { letter: letters[0], score: 0, x: 7, y: 7, blank: false },
         { letter: letters[1], score: 0, x: 8, y: 7, blank: false },
       ]);

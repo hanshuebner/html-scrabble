@@ -3,6 +3,7 @@ import { Board, LetterBag, Rack, Bag, Tile, Square, calculateMove } from '@scrab
 import type { Language, TilePlacement, TurnData, EndMessage } from '@scrabble/shared'
 import { sendGameInvitation } from '../email/email-service.js'
 import { config } from '../config.js'
+import { isDudenConfigured, validateWord } from '../duden.js'
 import {
   insertGameWithPlayers,
   persistTurn,
@@ -326,11 +327,11 @@ export const remainingTileCounts = (game: Game): { letterBag: number; players: n
 
 // ── makeMove ────────────────────────────────────────────────────────────────
 
-export const makeMove = (
+export const makeMove = async (
   game: Game,
   player: Player,
   placementList: TilePlacement[],
-): { newTiles: Tile[]; turn: TurnData } => {
+): Promise<{ newTiles: Tile[]; turn: TurnData }> => {
   ensurePlayerAndGame(game, player)
 
   const rackSquares = player.rack.squares.slice()
@@ -369,14 +370,34 @@ export const makeMove = (
   })
 
   const move = calculateMove(game.board.squares)
-  if (move.error) {
-    // Roll back
+
+  const rollback = () => {
     placements.forEach(([from, to]) => {
       const tile = to.tile!
       to.placeTile(null)
       from.placeTile(tile)
     })
+  }
+
+  if (move.error) {
+    rollback()
     throw new Error(move.error)
+  }
+
+  if (game.language === 'German' && isDudenConfigured()) {
+    for (const w of move.words || []) {
+      const result = await validateWord(w.word)
+      if (!result.valid) {
+        rollback()
+        if (result.reason === 'eigenname') {
+          throw new Error(`"${w.word}" ist ein Eigenname und nicht zulässig`)
+        }
+        if (result.reason === 'not_found') {
+          throw new Error(`"${w.word}" wurde nicht im Duden gefunden`)
+        }
+        throw new Error(result.message || `Duden-Abfrage für "${w.word}" fehlgeschlagen`)
+      }
+    }
   }
 
   // Lock tiles

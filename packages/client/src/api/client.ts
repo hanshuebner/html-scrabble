@@ -21,6 +21,9 @@ const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
 }
 
 export const api = {
+  // Public config
+  getConfig: () => request<{ dudenUrl: string | null }>('/config'),
+
   // Games
   listGames: () =>
     request<
